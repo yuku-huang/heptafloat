@@ -32,7 +32,7 @@ const ICONS = {
 /**
  * host: {
  *   recents(): Promise<[{ id, objectType, title, openedAt, chars, pinned, current }]>,
- *   search(q): Promise<[{ id, objectType, title, lastEditedTime }]>,
+ *   search(q): Promise<{ results: [{ id, objectType, title, lastEditedTime }], warning? }>,
  *   open(card), openInHeptabase(card), pin(card, on), forget(card),
  *   actions(): [{ title, items: [{ title, keywords, keys: ['⌘', 'K'], state, run }] }]  (only the ones that apply now)
  * }
@@ -43,7 +43,7 @@ export function createPalette(host) {
   root.innerHTML = `
     <div class="palette-panel" role="dialog">
       <input class="palette-input" spellcheck="false" autocomplete="off">
-      <div class="palette-list"></div>
+      <div class="palette-list" aria-live="polite"></div>
       <div class="palette-hints"></div>
     </div>`;
   document.body.append(root);
@@ -54,6 +54,7 @@ export function createPalette(host) {
   let mode = null, items = [], index = 0, seq = 0, timer = null, all = [];
 
   function render(sections) {
+    list.removeAttribute('aria-busy');
     items = sections.flatMap((s) => s.items);
     index = Math.min(index, Math.max(0, items.length - 1));
     let i = 0;
@@ -76,7 +77,7 @@ export function createPalette(host) {
           <div class="palette-actions">${it.actions.map((a) => `<button data-act="${a.act}" title="${esc(a.title)}" class="${a.on ? 'on' : ''}">${ICONS[a.icon]}</button>`).join('')}</div>
         </div>`;
       }).join('')}`).join('')
-      || `<div class="palette-empty">${mode === 'actions' ? 'No matching actions' : mode === 'search' && input.value ? 'No cards found' : mode === 'search' ? 'Type to search your Heptabase cards' : 'No recent cards yet'}</div>`;
+      || `<div class="palette-empty">${mode === 'actions' ? 'No matching actions' : mode === 'search' && isMac && !input.value ? 'Type to search your Heptabase cards' : mode === 'search' ? 'No cards found' : 'No recent cards yet'}</div>`;
     list.querySelector('.palette-row.sel')?.scrollIntoView({ block: 'nearest' });
   }
 
@@ -108,17 +109,40 @@ export function createPalette(host) {
     render(all.map((s) => ({ ...s, items: s.items.filter(matches) })));
   }
 
-  function runSearch() {
+  function runSearch(refresh = false) {
     clearTimeout(timer);
     const q = input.value.trim(), mySeq = ++seq;
-    if (!q) { render([]); return; }
+    if (!q && isMac) { render([]); return; }
+    if (!refresh) {
+      items = []; index = 0;
+      list.setAttribute('aria-busy', 'true');
+      list.innerHTML = `<div class="palette-empty">${q ? 'Searching…' : 'Loading recently edited cards…'}</div>`;
+    }
     timer = setTimeout(async () => {
-      const results = await host.search(q);
-      if (mySeq === seq && mode === 'search') render([{ title: 'Cards', items: results.map(searchItem) }]);
-    }, 140);
+      try {
+        const { results = [], warning, indexing, indexedCount, total } = await host.search(q, { retry: !refresh });
+        if (mySeq !== seq || mode !== 'search') return;
+        const selected = refresh ? items[index]?.card?.id : null;
+        const position = results.findIndex((card) => card.id === selected);
+        if (position >= 0) index = position;
+        render([{ title: q ? 'Cards' : 'Recently edited in Heptabase', items: results.map(searchItem) }]);
+        if (warning) list.insertAdjacentHTML('afterbegin', `<div class="palette-empty" role="status">${esc(warning)}<br><button data-retry>Retry search</button></div>`);
+        if (indexing) {
+          if (!results.length) list.innerHTML = '';
+          list.insertAdjacentHTML('beforeend', `<div class="palette-empty" role="status">Still searching titles… ${Number(indexedCount) || 0}${total ? ` / ${Number(total)}` : ''} cards checked. Results update automatically.</div>`);
+          timer = setTimeout(() => runSearch(true), 1000);
+        }
+      } catch (error) {
+        if (mySeq !== seq || mode !== 'search') return;
+        list.removeAttribute('aria-busy');
+        list.innerHTML = `<div class="palette-empty" role="alert">Search failed: ${esc(error.message)}<br><button data-retry>Retry search</button></div>`;
+      }
+    }, q ? 140 : 0);
   }
 
   async function open(which) {
+    clearTimeout(timer);
+    const mySeq = ++seq;
     mode = which;
     index = 0;
     input.value = '';
@@ -129,12 +153,13 @@ export function createPalette(host) {
     root.classList.toggle('actions', which === 'actions');
     root.classList.add('show');
     input.focus();
-    if (which === 'recent') { all = await host.recents(); showRecents(); }
+    if (which === 'recent') { render([]); const cards = await host.recents(); if (seq !== mySeq || mode !== which) return; all = cards; showRecents(); }
     else if (which === 'actions') { all = host.actions(); showActions(); }
-    else render([]);
+    else runSearch();
   }
 
   function close() {
+    clearTimeout(timer); ++seq;
     mode = null;
     root.classList.remove('show');
     host.onClose?.();
@@ -158,6 +183,7 @@ export function createPalette(host) {
 
   input.addEventListener('input', () => { index = 0; mode === 'search' ? runSearch() : mode === 'actions' ? showActions() : showRecents(); });
   input.addEventListener('keydown', (e) => {
+    if (e.isComposing || e.keyCode === 229) return;
     if (e.key === 'ArrowDown' || (isMac && e.ctrlKey && e.key === 'n')) { e.preventDefault(); move(1); }
     else if (e.key === 'ArrowUp' || (isMac && e.ctrlKey && e.key === 'p')) { e.preventDefault(); move(-1); }
     else if (e.key === 'Enter') { e.preventDefault(); act(modPressed(e) ? 'heptabase' : 'open', items[index]); }
@@ -175,6 +201,7 @@ export function createPalette(host) {
   });
   list.addEventListener('mousedown', (e) => {
     e.preventDefault();
+    if (e.target.closest('[data-retry]')) { runSearch(); return; }
     const row = e.target.closest('.palette-row');
     if (!row) return;
     const btn = e.target.closest('[data-act]');
@@ -184,6 +211,7 @@ export function createPalette(host) {
 
   return {
     open, close,
+    focusSearch() { if (mode === 'search') { input.focus(); input.select(); } else open('search'); },
     /** ⌘. while the Recent list is open: pin / unpin the highlighted card. */
     pinSelected() { if (mode !== 'recent') return false; act('pin', items[index]); return true; },
     /** Re-reads the Recent list if it's showing (e.g. after trashed cards were removed). */

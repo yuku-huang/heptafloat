@@ -1,3 +1,23 @@
+### [2026-10-24 00:39] - Fix Windows card search and add page history shortcuts
+* **修改檔案**：`src/editor.js`, `src/palette.js`, `src/menus.js`, `src/platform.js`, `src/navigation.js`, `windows/search.cjs`, `windows/service.cjs`, `windows/chrome.js`, `windows/main.cjs`, `windows/smoke.cjs`, `test/windows.test.mjs`, build/package scripts, package metadata, README/architecture/start guide, `docs/`, `AGENT_CONTEXT/`
+* **變更細節**：
+  * Ctrl+O now works across editor, toolbar and picker; the search button and empty-query recent card list make the entry point visible
+  * diagnosed official keyword searches missing some full Chinese titles; added NFKC/case-insensitive title-term matching over official paginated metadata, merged with content results; no Heptabase DB/cache or unofficial endpoint access
+  * search cache is memory-only (five-minute TTL), shared across queries, invalidated by local saves/creates; indexing has bounded CLI concurrency/time; errors/partial failures are explicit and Retry is available
+  * large-library verification exposed the first 45-second indexing limit; changed to background page publication with progress, automatic result refresh and a three-minute background budget, keeping native/available title matches usable immediately
+  * fixed asynchronous search results replacing a closed/different picker; IME Enter is not used to open a card mid-composition
+  * Alt+Left / Alt+Right (and Ctrl bracket aliases) navigate the actual session visit history; failed/stale navigation preserves the displayed cursor and new visits discard forward history; macOS retains recents navigation
+  * bumped Windows package to `0.9.12-win.2` and derived Windows file version from package metadata
+  * switched portable output to `dist/<version>/` with a running-process check before same-version replacement after the old running app locked the original output directory
+  * verification: 20 unit tests, isolated native mock UI, and live read-only Ctrl+O/Alt navigation passed; before/after journal/note hashes unchanged; reports omit private titles/bodies
+  * delivered EXE `dist/0.9.12-win.2/HeptaFloat-win32-x64/HeptaFloat.exe` passed packaged mock and live read-only smoke; ZIP SHA-256 verified: `e347ddfa7bbe664d983440ca7bbc1a2baa427d51b293465c39353160986d0e9a`; file version `0.9.12.2`
+  * QA now uses separate mock/live hotkeys to prevent the normal app's shortcut conflict from opening a settings modal over keyboard tests
+  * Git inventory: all changed/new source, tests, scripts and docs are task-related; dependencies, builds, profiles and distributions remain ignored; starting baseline was clean commit `1909d9e`
+  * skill decision: no installed skill update; reusable search-error, stale-result, history and private-QA rules belong in project conventions and executable tests
+* **下一步建議 (Next Steps)**：
+  * quit the old tray app, run the updated portable app, and confirm the user's original query; retain real-write/physical-IME/DPI/login acceptance boundaries
+  * configure a writable remote to push `codex/windows-port`; upstream access is read-only
+
 ### [2026-10-24 00:09] - Add Windows portable desktop application
 * **修改檔案**：`windows/`, `src/editor.js`, `src/menus.js`, `src/palette.js`, `src/platform.js`, `scripts/`, `test/windows.test.mjs`, `assets/AppIcon.ico`, `package.json`, `package-lock.json`, `.gitignore`, `.github/workflows/windows.yml`, `README.md`, `ARCHITECTURE.md`, `START_HERE.md`, `docs/WINDOWS.md`, `docs/WORKSPACE_HANDOFF.md`, `AGENT_CONTEXT/00_PROJECT_OVERVIEW.md` through `08_QA_PIPELINE.md`
 * **變更細節**：

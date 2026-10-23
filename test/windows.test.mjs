@@ -7,12 +7,131 @@ import { createRequire } from 'node:module';
 import { Node } from 'prosemirror-model';
 import { schemaFor, serialize } from '../src/schema.js';
 import { shortcutName, shortcutGlyphs } from '../src/platform.js';
+import { CardHistory } from '../src/navigation.js';
 const require = createRequire(import.meta.url);
 const { OfficialCli, parseShim, parseOutput, discoverCli, discoverApp } = require('../windows/cli.cjs');
 const { HeptabaseService } = require('../windows/service.cjs');
 const { MockCli } = require('../windows/smoke.cjs');
+const { CardSearch } = require('../windows/search.cjs');
 const day = '2026-10-23';
 const content = JSON.stringify({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '中文 & "quotes" %PATH% $(command)' }] }] });
+
+test('title search finds Chinese punctuation beyond page one and merges native content matches', async () => {
+  const cards = Array.from({ length: 245 }, (_, i) => ({ id: `card-${i}`, objectType: 'note', title: `Card ${i}` }));
+  cards[244].title = '中文：完整標題（測試）';
+  const calls = [];
+  const search = new CardSearch({ async run(args) {
+    calls.push(args);
+    if (args.includes('-q')) return { results: [cards[0]], total: 1 };
+    const offset = Number(args[args.indexOf('--offset') + 1]), limit = Number(args[args.indexOf('--limit') + 1]);
+    return { results: cards.slice(offset, offset + limit), total: cards.length };
+  } });
+  const found = await search.search('中文：完整標題（測試）');
+  assert.deepEqual(found.results.map((card) => card.id), ['card-244', 'card-0']);
+  assert.equal(calls.filter((args) => !args.includes('-q')).length, 3);
+  const again = await search.search('完整標題 (測試)');
+  assert.equal(again.results[0].id, 'card-244');
+  assert.equal(calls.filter((args) => !args.includes('-q')).length, 3, 'Reuse the in-memory title index.');
+  search.invalidate(); await search.search('中文');
+  assert.equal(calls.filter((args) => !args.includes('-q')).length, 6);
+});
+
+test('concurrent searches share indexing and partial failures never masquerade as no matches', async () => {
+  let indexed = 0, failNative = false, failIndex = false;
+  const search = new CardSearch({ async run(args) {
+    if (args.includes('-q')) { if (failNative) throw new Error('offline'); return { results: [] }; }
+    indexed++;
+    if (failIndex) throw new Error('index offline');
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return { results: [{ id: 'one', title: '中文標題' }], total: 1 };
+  } });
+  await Promise.all([search.search('中文'), search.search('標題')]);
+  assert.equal(indexed, 1);
+  failNative = true;
+  search.invalidate();
+  const partial = await search.search('中文');
+  assert.equal(partial.results[0].id, 'one'); assert.match(partial.warning, /Content search unavailable/);
+  await assert.rejects(search.search('missing'), /offline/);
+  failIndex = true; search.invalidate();
+  await assert.rejects(search.search('中文'), /Title search unavailable/);
+  failIndex = false; failNative = false;
+  assert.equal((await search.search('中文', true)).results[0].id, 'one', 'Failed indexing can be retried.');
+});
+
+test('empty search lists recently edited cards and includes every official card type', async () => {
+  const cli = { async run(args) {
+    assert.equal(args.includes('--card-types'), false);
+    return { results: [{ id: 'web', objectType: 'web', title: 'A webpage' }], total: 1 };
+  } };
+  const search = new CardSearch(cli);
+  assert.equal((await search.search()).results[0].objectType, 'web');
+  await search.index();
+});
+
+const page = (id) => ({ kind: 'note', id });
+test('slow title indexing returns usable progress and later fills in missing matches', async () => {
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  const search = new CardSearch({ async run(args) {
+    if (args.includes('-q')) return { results: [] };
+    const offset = Number(args[args.indexOf('--offset') + 1]);
+    if (offset) { await gate; return { results: [{ id: 'late', title: '延遲卡片' }], total: 101 }; }
+    return { results: Array.from({ length: 100 }, (_, id) => ({ id: String(id), title: `Card ${id}` })), total: 101 };
+  } });
+  try {
+    const pending = await search.search('延遲卡片');
+    assert.equal(pending.indexing, true); assert.equal(pending.indexedCount, 100);
+    assert.deepEqual(pending.results, []);
+  } finally { release(); }
+  await search.index();
+  const complete = await search.search('延遲卡片');
+  assert.equal(complete.indexing, undefined);
+  assert.equal(complete.results[0].id, 'late');
+});
+
+test('page history follows actual visits, handles boundaries and truncates forward visits', () => {
+  const history = new CardHistory();
+  for (const id of ['A', 'B', 'C']) history.visit(page(id));
+  history.visit(page('C'));
+  assert.equal(history.entries.length, 3);
+  let request = history.begin(-1); assert.equal(request.target.id, 'B'); history.commit(request);
+  request = history.begin(-1); assert.equal(request.target.id, 'A'); history.commit(request);
+  assert.equal(history.begin(-1), null);
+  request = history.begin(1); assert.equal(request.target.id, 'B'); history.commit(request);
+  history.visit(page('D'));
+  assert.equal(history.begin(1), null);
+  assert.deepEqual(history.entries.map((p) => p.id), ['A', 'B', 'D']);
+});
+
+test('rapid page navigation ignores stale completion and failed reads retain the shown cursor', () => {
+  const history = new CardHistory();
+  for (const id of ['A', 'B', 'C']) history.visit(page(id));
+  const slow = history.begin(-1), latest = history.begin(-1);
+  assert.equal(latest.target.id, 'A');
+  assert.equal(history.commit(slow), false);
+  history.cancel(slow); assert.equal(history.pending, latest);
+  history.cancel(latest); assert.equal(history.index, 2);
+  assert.equal(history.begin(-1).target.id, 'B');
+});
+
+test('leaving an empty draft returns to the last viewed page and new notes become visits', () => {
+  const history = new CardHistory(); history.visit(page('A')); history.visit({ kind: 'draft', id: 'temporary' });
+  assert.equal(history.begin(1, { kind: 'draft' }), null);
+  const request = history.begin(-1, { kind: 'draft' });
+  assert.equal(request.target.id, 'A'); history.commit(request);
+  history.visit(page('new-note'));
+  assert.equal(history.begin(-1).target.id, 'A');
+  assert.deepEqual(shortcutGlyphs('Alt-ArrowLeft', false), ['Alt', '←']);
+  // A draft can finish creating while a Back read waits. Capacity pruning must
+  // not make that pending request commit the neighboring card's index.
+  const full = new CardHistory();
+  for (let i = 0; i < 100; i++) full.visit(page(String(i)));
+  const back = full.begin(-1, { kind: 'draft' });
+  full.visit(page('new-note'));
+  full.commit(back);
+  assert.equal(full.entries[full.index].id, '99');
+  assert.equal(full.entries.length, 100);
+});
 async function fixture(t, cli = new MockCli()) {
   // Keep paths short on Windows; a redirected sandbox TEMP can exceed MAX_PATH.
   const base = path.resolve('build', 'test-tmp');

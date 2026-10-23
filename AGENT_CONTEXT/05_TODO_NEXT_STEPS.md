@@ -1,5 +1,7 @@
 # Next steps
 
+- Quit the previous tray app and use `0.9.12-win.2`. Check Ctrl+O with the user's original troublesome query, and Alt+Left/Right across several cards. First title indexing runs in the background (about one minute observed for this library), with results/progress updating automatically; later queries reuse memory for five minutes. No private queries belong in Git or diagnostics.
+
 1. Use the portable build for acceptance of real note edits, image import/export, physical Chinese IME, multi-monitor/DPI transitions, and launch at login. Do not describe mock writes as real integration validation.
 2. Connect a writable GitHub fork/remote, push `codex/windows-port`, and run the provided Windows workflow. Upstream access is currently read-only.
 3. Before a public release, choose Windows signing/distribution and update policy. Current build is unsigned and updates manually.

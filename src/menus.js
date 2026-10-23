@@ -141,7 +141,9 @@ const menu = {
       clearTimeout(this.timer);
       const seq = ++this.seq;
       this.timer = setTimeout(async () => {
-        const results = await this.search(s.query);
+        let results;
+        try { results = await this.search(s.query); }
+        catch (error) { if (seq === this.seq && this.active) this.setItems(null, `Search failed: ${error.message}`); return; }
         if (seq !== this.seq || !this.active) return;
         this.setItems(results.map((r) => ({
           label: r.objectType === 'journal' ? formatDate(r.id) : r.title || 'Untitled',

@@ -1,10 +1,10 @@
 # HeptaFloat for Windows
 
-Version: `0.9.12-win.1` · Windows 10/11 x64 · based on upstream `f32f34f`.
+Version: `0.9.12-win.2` · Windows 10/11 x64 · based on upstream `f32f34f`.
 
 ## Run the portable app
 
-1. Extract `HeptaFloat-0.9.12-win.1-windows-x64.zip` to a permanent folder.
+1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.2-windows-x64.zip` to a permanent folder.
 2. Open `HeptaFloat-win32-x64/HeptaFloat.exe`. Keep the accompanying files beside it.
 3. Keep Heptabase running and enable **Settings → AI Features → CLI**. An active Heptabase subscription is required by its CLI.
 4. Press **Ctrl+Alt+J** to show/hide the floating journal. Closing the window hides it to the system tray; choose **Quit HeptaFloat** in the tray menu to exit.
@@ -18,7 +18,7 @@ The app requires no separate Node.js installation. This development build is uns
 | Show/hide from any application | Ctrl+Alt+J (configurable in Settings) |
 | Search / recent cards / all actions | Ctrl+O / Ctrl+P / Ctrl+K |
 | New card / today's journal | Ctrl+N / Ctrl+Shift+D |
-| Previous / next recent card | Ctrl+[ / Ctrl+] |
+| Back / forward through viewed cards | Alt+Left / Alt+Right (Ctrl+[ / Ctrl+] also work) |
 | Pin current card in recents | Ctrl+. |
 | Keep window on top | Ctrl+Shift+P |
 | Settings | Ctrl+, |
@@ -30,11 +30,19 @@ The app requires no separate Node.js installation. This development build is uns
 
 The original ProseMirror editor provides slash commands, card mentions, lists, checkboxes, headings, links, image paste/drop, 600 ms autosave, 3 s polling while visible, and local-date journal rollover. The host exports/imports supported images through the official CLI. A new empty card is only created in Heptabase after typing. Theme, size, window position, shortcut, and recent cards persist between runs.
 
+### Find and navigate cards
+
+Press **Ctrl+O** while HeptaFloat is focused, or click the magnifying glass. The empty search lists 20 recently edited cards from Heptabase. Type a title or keyword, use Up/Down to select, and press Enter to open it. Ctrl+Enter opens it in Heptabase. Ctrl+P searches only cards previously opened in HeptaFloat.
+
+Search combines the official CLI's content results with a local, in-memory title comparison. This fixes full Chinese titles with punctuation that the official keyword search can miss. Exact titles rank first; spaces separate title terms. Available matches appear immediately after keyword lookup; title matches are added automatically as metadata loads in the background. A progress count distinguishes incomplete search from a confirmed empty result. Large libraries may need a few minutes the first time; metadata is reused for five minutes and old matches remain usable during background refresh. Saves/new cards invalidate the cache. Up to 50 matches are displayed; narrow the query for more specific results. Search failures show their reason and a Retry button, rather than an empty result list. If only one search source is available, its results have a warning.
+
+**Alt+Left / Alt+Right** follow the cards actually viewed in this app session, independent of pinned/recent ordering. Opening another card after going back discards the forward branch. Empty drafts are skipped; new saved cards join the history. Up to 100 visits are kept in memory and reset on restart. These shortcuts work from the editor, toolbar, and card picker; close Settings before using them. The macOS host retains its original Command-bracket recents navigation.
+
 Windows does not implement the MacBook notch, macOS updater, per-command shortcut recorder, or the optional automatic link from each new card into today's journal. Windows updates are manual: quit, extract the next build, and run it. The original macOS host/build remain present.
 
 ## Data and recovery
 
-- Preferences/history: `%APPDATA%\HeptaFloat\state.json`.
+- Preferences/recent cards: `%APPDATA%\HeptaFloat\state.json`. Title-search metadata and back/forward visits are memory-only.
 - Before each attempted save, content and its base hash are written atomically to `%APPDATA%\HeptaFloat\recovery\`. Successful saves with successful readback remove their corresponding draft.
 - **Settings → Recovery drafts** opens this folder. Each JSON contains the target `kind`, `id`, `content` (ProseMirror JSON string), and usually `md5`. Preserve the JSON, compare it with the current card, and recover deliberately; do not blindly replay an old hash. Recovery is manual, not automatic on restart.
 - Autosave failures retry while the app stays open. Quit waits for saves and keeps the app open if edits remain unsaved or text composition is active. The app does not save partially composed IME text.
@@ -61,13 +69,13 @@ npm run start:windows
 npm run package:windows
 ```
 
-`test:windows` uses an isolated profile and mock CLI; it never writes real Heptabase notes. `test:windows:live` reads today's real journal through the installed CLI and tests renderer integration without writes or screenshots. Reports/images go under ignored `build/`. Unit tests use ignored `build/test-tmp/` to avoid Windows path-length issues.
+`test:windows` uses an isolated profile and mock CLI; it never writes real Heptabase notes. `test:windows:live` reads today's real journal and an existing note, searches its full title, exercises Ctrl+O and Alt navigation, then compares content hashes without writes or screenshots. It also lists card metadata through the official CLI for title search. Reports contain only counts/booleans, not private titles or bodies. Tests use Control+Alt+Shift+F24 (mock) / F23 (live) to avoid the normal app shortcut. Reports/images go under ignored `build/`. Unit tests use ignored `build/test-tmp/` to avoid Windows path-length issues.
 
-Packaging produces `dist/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP, and a SHA-256 sidecar. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
+Packaging produces `dist/0.9.12-win.2/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP at `dist/HeptaFloat-0.9.12-win.2-windows-x64.zip`, and a SHA-256 sidecar. Versioned output folders avoid replacing an older running app; rebuilding the same version checks for running executables first and asks you to quit that version. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
 
 ## Validation boundaries
 
-Validated locally: unit coverage of CLI invocation, Unicode, conflict/offline recovery, new-card fill failure, schema preservation, and platform shortcuts; native Electron smoke coverage of rendering, autosave/new-card with mock data, Ctrl palette switching, pinning, settings, close-to-tray, and registered global shortcut; live read-only Heptabase integration.
+Validated locally: 20 unit tests covering CLI invocation, Unicode, conflict/offline recovery, new-card fill failure, schema preservation, modifiers, paginated title search, partial search failures and session history. Native Electron smoke covers rendering, autosave/new-card with mock data, Ctrl+O from the toolbar, Chinese-title search, Alt navigation/forward-branch truncation, stale-search suppression, error retry, palette switching, pinning, settings and close-to-tray. Live integration is read-only.
 
 Real note mutation/image import, physical Chinese IME interaction, multi-monitor/DPI transitions, reboot/login startup, and Windows 10 hardware acceptance still need a user acceptance pass. macOS native compilation is not available on this Windows machine. CI configuration is provided; it has not run remotely until the branch is pushed to a writable repository.
 

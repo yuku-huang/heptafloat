@@ -19,7 +19,8 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'hf-file', privileges: { standard: true, secure: true, supportFetchAPI: true } },
 ]);
 
-const defaults = { pinned: true, theme: 'system', fontScale: 1, hotkey: 'Control+Alt+J', launchAtLogin: false };
+const defaults = { pinned: true, theme: 'system', fontScale: 1,
+  hotkey: testing ? `Control+Alt+Shift+F${liveSmoke ? 23 : 24}` : 'Control+Alt+J', launchAtLogin: false };
 let state = { settings: { ...defaults }, recents: [] };
 const stateFile = path.join(app.getPath('userData'), 'state.json');
 try {
@@ -105,7 +106,7 @@ async function handle(message) {
     }
     case 'save': return service.save(message);
     case 'createNote': return service.createNote(message);
-    case 'search': return service.search(message.query);
+    case 'search': return service.search(message.query, message.retry === true);
     case 'cardType': return service.cardType(message.id);
     case 'setupStatus': {
       const status = await service.setupStatus();

@@ -8,7 +8,7 @@ const output = path.join(root, 'build', 'windows');
 await mkdir(path.join(output, 'ui'), { recursive: true });
 await build({ entryPoints: [path.join(root, 'src/editor.js')], bundle: true, minify: true, format: 'iife',
   outfile: path.join(output, 'ui/editor.js'), target: 'chrome140' });
-for (const name of ['main.cjs', 'preload.cjs', 'cli.cjs', 'service.cjs', 'smoke.cjs']) {
+for (const name of ['main.cjs', 'preload.cjs', 'cli.cjs', 'service.cjs', 'search.cjs', 'smoke.cjs']) {
   await copyFile(path.join(root, 'windows', name), path.join(output, name));
 }
 for (const name of ['chrome.js', 'windows.css']) await copyFile(path.join(root, 'windows', name), path.join(output, 'ui', name));

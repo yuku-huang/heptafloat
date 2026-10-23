@@ -33,6 +33,7 @@ function fillPreferences() {
 document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('afterbegin', `
     <header id="window-bar"><span id="window-title">HeptaFloat</span>
+      <button id="search-cards" title="Search all cards (Ctrl+O)" aria-label="Search all cards"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
       <button id="pin-window" title="Keep on top (Ctrl+Shift+P)" aria-label="Keep on top" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4-1-6Z M12 15v6"/></svg></button>
       <button id="recent-cards" title="Recent cards (Ctrl+P)" aria-label="Recent cards">◷</button>
       <button id="new-card" title="New card (Ctrl+N)" aria-label="New card">＋</button>
@@ -48,9 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <label class="checkbox"><input type="checkbox" id="launch-at-login"> Open when I sign in to Windows</label>
       <p id="preference-status" role="status"></p>
       <div class="settings-actions"><button type="button" id="check-connection">Check connection</button><button type="button" id="recovery">Recovery drafts</button><button type="submit" class="primary">Apply</button></div>
-      <p class="settings-help">Ctrl+O searches cards · Ctrl+K opens actions · Esc hides the card.<br>Closing the window keeps HeptaFloat in the system tray. Use its menu to quit.</p>
+      <p class="settings-help">Ctrl+O searches all cards · Ctrl+P shows recent cards.<br>Alt+← goes back · Alt+→ goes forward.<br>Ctrl+K opens actions · Esc hides the card.<br>Closing the window keeps HeptaFloat in the system tray. Use its menu to quit.</p>
     </form></dialog>`);
   document.getElementById('pin-window').onclick = () => post('togglePin');
+  document.getElementById('search-cards').onclick = () => window.hf.command('search');
   document.getElementById('recent-cards').onclick = () => window.hf.command('recent');
   document.getElementById('new-card').onclick = () => window.hf.command('newCard');
   document.getElementById('settings-button').onclick = () => post('settings');

@@ -17,5 +17,5 @@ export function shortcutGlyphs(name, mac = isMac) {
   const labels = mac ? [['Ctrl', '⌃'], ['Alt', '⌥'], ['Shift', '⇧'], ['Mod', '⌘']]
     : [['Mod', 'Ctrl'], ['Ctrl', 'Ctrl'], ['Alt', 'Alt'], ['Shift', 'Shift']];
   return [...labels.filter(([m]) => parts.includes(m)).map(([, label]) => label),
-    { Enter: '↩', Space: 'Space' }[key] ?? key.toUpperCase()];
+    { Enter: '↩', Space: 'Space', ArrowLeft: '←', ArrowRight: '→' }[key] ?? key.toUpperCase()];
 }

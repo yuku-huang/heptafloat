@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { randomUUID, createHash } = require('node:crypto');
+const { CardSearch } = require('./search.cjs');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -26,6 +27,7 @@ async function atomicJson(file, value) {
 class HeptabaseService {
   constructor(cli, dataDir) {
     this.cli = cli; this.dataDir = dataDir; this.writeChain = Promise.resolve(); this.lastSaved = new Map();
+    this.cardSearch = new CardSearch(cli);
   }
   serializeWrite(fn) {
     const result = this.writeChain.then(fn);
@@ -65,6 +67,7 @@ class HeptabaseService {
         // Only a hash explicitly returned by save can serve as a retry base.
         if (saved.contentMd5) this.lastSaved.set(`${message.kind}:${message.id}`, saved.contentMd5);
         else this.lastSaved.delete(`${message.kind}:${message.id}`);
+        this.cardSearch.invalidate();
       } catch (e) { result.error = e.message; }
       try { result.current = await this.read(message.kind, message.id); } catch {}
       if (!result.error && result.current) await fs.rm(file, { force: true });
@@ -80,6 +83,7 @@ class HeptabaseService {
         const title = String(message.title || 'Untitled').replace(/[\r\n]/g, ' ').slice(0, 500);
         const created = await this.cli.run(['note', 'create', '--no-created-by-ai', '--content', `# ${title}`]);
         checkId('note', created.id); result.createdId = created.id;
+        this.cardSearch.invalidate();
         const fresh = await this.read('note', created.id);
         this.lastSaved.set(`note:${created.id}`, fresh.contentMd5);
         // Keep the created id on disk if filling the new card fails.
@@ -92,17 +96,13 @@ class HeptabaseService {
           else this.lastSaved.delete(`note:${created.id}`);
         });
         result.current = await this.read('note', created.id);
+        this.cardSearch.invalidate();
         await fs.rm(file, { force: true });
       } catch (e) { result.error = e.message; }
       return result;
     });
   }
-  async search(query = '') {
-    const args = ['card', 'list', '--limit', '20', '--card-types', 'note,journal,pdf,highlightElement,image,video,audio'];
-    if (query) args.push('-q', String(query).slice(0, 500));
-    const { results = [] } = await this.cli.run(args);
-    return { results: results.sort((a, b) => Number(b.title?.toLowerCase().includes(query.toLowerCase())) - Number(a.title?.toLowerCase().includes(query.toLowerCase()))) };
-  }
+  search(query = '', retry = false) { return this.cardSearch.search(query, retry); }
   cardType(id) {
     if (!UUID.test(id)) throw new Error('Invalid card identifier.');
     return this.cli.run(['card', 'properties', id]);

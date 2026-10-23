@@ -17,6 +17,7 @@ import { caretPlugin, placeholderPlugin, suggestKey, suggestPlugin, toggleHighli
 import { createPalette } from './palette.js';
 import { renderSetup } from './setup.js';
 import { isMac, modLabel, modPressed, shortcutName, shortcutGlyphs } from './platform.js';
+import { CardHistory } from './navigation.js';
 
 const SAVE_DELAY = 600;
 const POLL_INTERVAL = 3000;
@@ -50,9 +51,10 @@ function log(message) { post({ action: 'log', message }); }
 window.addEventListener('error', (e) => log(`error: ${e.message} at ${e.filename}:${e.lineno}`));
 window.addEventListener('unhandledrejection', (e) => log(`unhandled: ${e.reason?.stack ?? e.reason}`));
 
-async function searchCards(query) {
-  const r = await call('search', { query });
-  return r.results || [];
+async function searchCards(query, metadata = false, retry = true) {
+  const r = await call('search', { query, retry });
+  if (r.error) throw new Error(r.error);
+  return metadata ? r : r.results || [];
 }
 
 // MARK: which card is shown
@@ -107,6 +109,15 @@ async function openHere(card) {
 let recentList = null;  // the ⌘P order, refreshed in the background
 let navTarget = null;   // where a ⌘[ / ⌘] press is heading, so quick repeats keep moving
 let navSeq = 0;         // the newest navigation wins; older ones stop before rendering
+const pageHistory = new CardHistory();
+
+async function stepHistory(direction) {
+  const request = pageHistory.begin(direction, current);
+  if (!request) return;
+  palette.close();
+  try { await show(request.target, { keepPlace: true, historyRequest: request }); }
+  finally { pageHistory.cancel(request); }
+}
 
 async function loadRecentList() {
   const cards = (await call('recents')).cards || [];
@@ -226,10 +237,14 @@ function forgetJournal() {
 
 /** Switches the editor to another card. The card you leave is snapshotted and saves in the
  *  background, so switching (and ⌘N) is immediate and nothing typed is lost. */
-async function show(target, { focusEnd = true, keepPlace = false } = {}) {
-  if (current && target.kind === current.kind && target.id === current.id) { view?.focus(); return; }
-  if (target.kind === 'draft' && current?.kind === 'draft' && !dirty) { view?.focus(); return; }
+async function show(target, { focusEnd = true, keepPlace = false, historyRequest = null } = {}) {
   const seq = ++navSeq;
+  if (!historyRequest) pageHistory.cancel();
+  if (current && target.kind === current.kind && target.id === current.id) {
+    if (historyRequest) pageHistory.commit(historyRequest);
+    view?.focus(); return;
+  }
+  if (target.kind === 'draft' && current?.kind === 'draft' && !dirty) { view?.focus(); return; }
   if (uploads.size) {
     // an image is still uploading into this card: let it land here first
     status('Finishing image upload…', { sticky: true });
@@ -253,6 +268,10 @@ async function show(target, { focusEnd = true, keepPlace = false } = {}) {
   if (!el('status').classList.contains('error')) status('');
   followToday = target.kind === 'journal' && target.id === today();
   applyRemote(r, { keepSelection: false });
+  if (!isMac) {
+    if (historyRequest) pageHistory.commit(historyRequest);
+    else pageHistory.visit(current);
+  }
   if (retrying) { unsaved.delete(key); dirty = true; scheduleSave(); }
   if (r.kind === 'draft') {
     // like Heptabase's new card: cursor on the "Heading 1" title line, body below
@@ -310,7 +329,7 @@ const bindings = {
   bold: 'Mod-b', italic: 'Mod-i', underline: 'Mod-u', strike: 'Mod-Shift-x', code: 'Mod-e', link: '',
   highlight: 'Mod-Shift-h', toggleTodo: 'Mod-Enter', paragraph: 'Mod-Alt-0',
   heading1: 'Mod-Alt-1', heading2: 'Mod-Alt-2', heading3: 'Mod-Alt-3',
-  actions: 'Mod-k', pinCard: 'Mod-.', back: 'Mod-[', forward: 'Mod-]', newCard: 'Mod-n', search: 'Mod-o', recent: 'Mod-p', today: 'Mod-Shift-d', openInHeptabase: 'Mod-Shift-o',
+  actions: 'Mod-k', pinCard: 'Mod-.', back: isMac ? 'Mod-[' : 'Alt-ArrowLeft', forward: isMac ? 'Mod-]' : 'Alt-ArrowRight', newCard: 'Mod-n', search: 'Mod-o', recent: 'Mod-p', today: 'Mod-Shift-d', openInHeptabase: 'Mod-Shift-o',
   // the app's own (its menus take these keys first); here so the action menu can show them
   settings: 'Mod-,', keepOnTop: 'Mod-Shift-p', biggerText: 'Mod-=', smallerText: 'Mod--', actualSize: 'Mod-0',
 };
@@ -326,12 +345,12 @@ function commandFor(name, schema) {
     paragraph: setBlockType(n.paragraph),
     heading1: setBlockType(n.heading, { level: 1 }), heading2: setBlockType(n.heading, { level: 2 }),
     heading3: setBlockType(n.heading, { level: 3 }),
-    search: run(() => palette.toggle('search')), recent: run(() => palette.toggle('recent')),
+    search: run(() => isMac ? palette.toggle('search') : palette.open('search')), recent: run(() => palette.toggle('recent')),
     actions: run(() => palette.toggle('actions')),
     newCard: run(() => show({ kind: 'draft' })),
     pinCard: run(() => togglePin()),
-    back: run(() => step(1)),     // ⌘[ — older
-    forward: run(() => step(-1)), // ⌘] — newer
+    back: run(() => isMac ? step(1) : stepHistory(-1)),
+    forward: run(() => isMac ? step(-1) : stepHistory(1)),
     today: run(() => show({ kind: 'journal', id: today() })),
     openInHeptabase: run(() => { if (current?.kind !== 'draft') openInHeptabase(current?.id); }),
     ...(!isMac && Object.fromEntries(['settings', 'keepOnTop', 'biggerText', 'smallerText', 'actualSize']
@@ -349,6 +368,7 @@ const keysFor = (id) => keyGlyphs(bindings[id]).join('');
 
 /** Whether ⌘[ (+1) / ⌘] (-1) has a card to go to, by the same rule as step(). */
 function canStep(direction) {
+  if (!isMac) return !!pageHistory.destination(-direction, current);
   const list = recentList;
   if (!list) return false;
   const i = list.findIndex((c) => c.id === (navTarget?.id ?? current?.id));
@@ -431,7 +451,7 @@ const palette = createPalette({
     pruneDeleted(cards, 3_000).then((gone) => { if (gone.length) palette.reload(); }); // drop cards deleted in Heptabase
     return list.sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0));
   },
-  search: searchCards,
+  search: (query, options) => searchCards(query, true, options?.retry ?? true),
   open: (card) => openHere(card),
   openInHeptabase: (card) => openInHeptabase(card.id),
   pin: (card, on) => call('pinCard', { id: card.id, pinned: on }),
@@ -444,6 +464,27 @@ const palette = createPalette({
     return is('search') ? 'search' : is('recent') ? 'recent' : is('actions') ? 'actions' : null;
   },
 });
+
+// Window-wide Windows navigation works even when a toolbar or picker has focus.
+// Leave modal settings, AltGr, and IME composition to the focused control.
+if (!isMac) document.addEventListener('keydown', (e) => {
+  if (!view || e.isComposing || e.keyCode === 229 || view.composing || document.querySelector('dialog[open]')) return;
+  let command;
+  if (e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && (e.code === 'KeyO' || e.key.toLowerCase() === 'o')) command = 'search';
+  if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+    if (e.key === 'ArrowLeft') command = 'back';
+    if (e.key === 'ArrowRight') command = 'forward';
+  }
+  // Keep the original Windows bracket shortcuts as aliases.
+  if (e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+    if (e.key === '[') command = 'back';
+    if (e.key === ']') command = 'forward';
+  }
+  if (!command) return;
+  e.preventDefault(); e.stopPropagation();
+  if (command === 'search' && palette.isOpen) palette.focusSearch();
+  else window.hf.command(command);
+}, true);
 
 /** "Mod-Shift-o" in a fixed modifier order, so keys typed and keys bound compare equal. */
 function normalize(name) {
@@ -910,6 +951,7 @@ async function send(snap) {
     md5Of.set(cacheKey(note), r.current?.contentMd5 ?? ''); // '' = nothing else has touched it yet
     if (isShown()) {
       current = note;
+      if (!isMac) pageHistory.visit(note);
       document.body.dataset.kind = 'note';
       showTitle(r.current?.title || doc.firstChild?.textContent.trim() || 'Untitled');
     }
@@ -976,6 +1018,7 @@ async function rescueFromTrash({ target, doc, shown }) {
   if (c.current) remember(c.current);
   if (shown && current && cacheKey(current) === key) {
     current = note;
+    if (!isMac) pageHistory.visit(note);
     if (dirty) scheduleSave(0); // anything typed since goes to the new card
   }
   post({ action: 'touchRecent', id, objectType: 'note', title: c.current?.title || title, chars: [...mineDoc.textContent].length });
@@ -1166,6 +1209,7 @@ async function tryConnect() {
 function start(r) {
   followToday = true;
   applyRemote(r, { keepSelection: false });
+  if (!isMac) pageHistory.visit(current);
   view.dispatch(view.state.tr.setSelection(endOfText(view.state.doc)));
   view.focus();
   touchRecent(r);
