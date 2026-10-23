@@ -1,0 +1,21 @@
+html { color-scheme: light dark; }
+body { background: var(--bg); }
+#window-bar { position: fixed; inset: 0 0 auto; z-index: 30; height: 44px; display: flex; align-items: center; gap: 3px;
+  padding: 0 145px 0 16px; background: var(--bg); border-bottom: 1px solid var(--light-grey); -webkit-app-region: drag; }
+#window-title { flex: 1; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#window-bar button { -webkit-app-region: no-drag; border: 0; background: transparent; color: var(--middle-hard-grey); width: 28px; height: 28px; border-radius: 6px; font-size: 18px; cursor: pointer; }
+#window-bar button:hover, #window-bar button[aria-pressed=true] { background: var(--light-grey); color: var(--active-item); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--active-item); outline-offset: 2px; }
+#preferences { color: var(--text-color); background: var(--menu-bg); border: 1px solid var(--light-grey); border-radius: 14px; width: min(440px, calc(100vw - 56px)); padding: 24px; max-height: calc(100vh - 110px); overflow: auto; box-shadow: var(--menu-shadow); }
+#preferences::backdrop { background: rgba(0,0,0,.25); }
+.settings-heading { display: flex; align-items: center; justify-content: space-between; }
+.settings-heading h2 { margin: 0; font-size: 21px; }
+#preferences button, #preferences input, #preferences select { font: inherit; }
+#preferences button { background: var(--light-grey); color: var(--text-color); border: 0; border-radius: 7px; padding: 8px 10px; cursor: pointer; }
+#preferences label { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 13px; }
+#preferences select, #hotkey { background: var(--bg); color: var(--text-color); border: 1px solid var(--light-grey); border-radius: 6px; padding: 7px; width: 190px; }
+.settings-intro, .settings-help { color: var(--middle-hard-grey); font-size: 12px; line-height: 1.6; }
+#preferences .checkbox { justify-content: flex-start; gap: 8px; }
+.settings-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+#preferences .primary { background: var(--active-item); color: white; margin-left: auto; }
+#preference-status { font-size: 12px; min-height: 18px; line-height: 1.5; }

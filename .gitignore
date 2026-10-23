@@ -3,3 +3,17 @@ build/
 dist/
 .DS_Store
 .amp/portals/*
+target/
+.cargo-target/
+__pycache__/
+.pytest_cache/
+*.log
+.env
+.env.*
+!.env.example
+coverage/
+runtime/
+recovery/
+projects/
+local-imports/
+generated-transcripts/

@@ -1,9 +1,18 @@
 {
   "name": "heptafloat",
+  "version": "0.9.12-win.1",
   "private": true,
-  "description": "Today's Heptabase journal in a floating, editable card for macOS.",
+  "description": "Today's Heptabase journal in a floating, editable card for macOS and Windows.",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "build:windows": "node scripts/build-windows.mjs",
+    "start:windows": "npm run build:windows && node scripts/run-windows.cjs",
+    "test": "node --test test/windows.test.mjs",
+    "test:windows": "npm run build:windows && node scripts/run-windows.cjs --smoke-test",
+    "test:windows:live": "npm run build:windows && node scripts/run-windows.cjs --live-smoke",
+    "package:windows": "npm run build:windows && node scripts/package-windows.mjs"
+  },
   "dependencies": {
     "prosemirror-commands": "^1.7.1",
     "prosemirror-dropcursor": "^1.8.2",
@@ -15,5 +24,10 @@
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.41.3"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.0.0",
+    "esbuild": "0.28.2"
   }
 }

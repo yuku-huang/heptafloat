@@ -4,6 +4,18 @@
 
 <h1 align="center">HeptaFloat</h1>
 
+## Windows port — 0.9.12-win.1
+
+This checkout adds a Windows 10/11 x64 app with an always-on-top window, system tray, configurable **Ctrl+Alt+J** hotkey, official Heptabase CLI integration, and the original rich-text editor. The Windows build is an unsigned development port; the upstream download below is still macOS-only.
+
+- **Use the app:** extract `dist/HeptaFloat-0.9.12-win.1-windows-x64.zip` and run `HeptaFloat.exe` inside the extracted folder.
+- **Develop:** `npm ci`, `npm run start:windows`.
+- **Verify:** `npm test`, `npm run test:windows`; optional read-only live check: `npm run test:windows:live`.
+- **Package:** `npm run package:windows`, or `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -Package`.
+- **Read first:** [Windows operator guide](docs/WINDOWS.md), [architecture](ARCHITECTURE.md), [handoff](START_HERE.md).
+
+Windows uses Electron as its native host and Ctrl-based shortcuts. MacBook notch mode, the macOS self-updater, per-command shortcut recording, and optional new-card journal linking are not in this Windows version. Recovery drafts stay local under `%APPDATA%\HeptaFloat\recovery`. The original macOS documentation follows.
+
 <p align="center">
   <b>Today's Heptabase journal, one keystroke away.</b><br>
   A small card that floats above your other windows — or waits in your MacBook's notch. Jot a thought, tick a to-do, and get back to work.

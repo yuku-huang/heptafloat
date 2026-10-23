@@ -3,6 +3,8 @@
 //   ⌘O  Search: any card in Heptabase, through the CLI
 //   ⌘K  Actions: every command for the card, the window and the text, with its shortcut
 
+import { isMac, modLabel, modPressed } from './platform.js';
+
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const TYPE_LABEL = { journal: 'Journal', note: 'Note', pdf: 'PDF', highlightElement: 'Highlight', image: 'Image', video: 'Video', audio: 'Audio', web: 'Web' };
@@ -82,11 +84,11 @@ export function createPalette(host) {
     const parts = [c.current ? 'Current' : `Opened ${relativeTime(c.openedAt)}`, TYPE_LABEL[c.objectType] || 'Card'];
     if (c.chars != null) parts.push(`${c.chars.toLocaleString()} characters`);
     return { ...c, card: c, sub: parts.join(' • '),
-      actions: [{ act: 'pin', icon: 'pin', title: c.pinned ? 'Unpin (⌘.)' : 'Pin (⌘.)', on: c.pinned }, { act: 'forget', icon: 'remove', title: 'Remove from recents' }] };
+      actions: [{ act: 'pin', icon: 'pin', title: `${c.pinned ? 'Unpin' : 'Pin'} (${modLabel}+.)`, on: c.pinned }, { act: 'forget', icon: 'remove', title: 'Remove from recents' }] };
   }
   function searchItem(c) {
     return { card: c, title: c.title, sub: [TYPE_LABEL[c.objectType] || 'Card', c.lastEditedTime && `Edited ${relativeTime(c.lastEditedTime)}`].filter(Boolean).join(' • '),
-      actions: [{ act: 'heptabase', icon: 'heptabase', title: 'Open in Heptabase (⌘↵)' }] };
+      actions: [{ act: 'heptabase', icon: 'heptabase', title: `Open in Heptabase (${modLabel}+↵)` }] };
   }
 
   function showRecents() {
@@ -122,7 +124,7 @@ export function createPalette(host) {
     input.value = '';
     input.placeholder = { search: 'Search cards in Heptabase…', recent: 'Search recent cards…', actions: 'Search actions…' }[which];
     hints.innerHTML = `<span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> ${which === 'actions' ? 'Run' : 'Open'}</span>`
-      + ({ search: '<span><kbd>⌘</kbd><kbd>↵</kbd> Heptabase</span>', recent: '<span><kbd>⌘</kbd><kbd>⌫</kbd> Remove</span>' }[which] ?? '')
+      + ({ search: `<span><kbd>${modLabel}</kbd><kbd>↵</kbd> Heptabase</span>`, recent: `<span><kbd>${modLabel}</kbd><kbd>⌫</kbd> Remove</span>` }[which] ?? '')
       + '<span><kbd>esc</kbd> Close</span>';
     root.classList.toggle('actions', which === 'actions');
     root.classList.add('show');
@@ -156,10 +158,10 @@ export function createPalette(host) {
 
   input.addEventListener('input', () => { index = 0; mode === 'search' ? runSearch() : mode === 'actions' ? showActions() : showRecents(); });
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) { e.preventDefault(); move(1); }
-    else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) { e.preventDefault(); move(-1); }
-    else if (e.key === 'Enter') { e.preventDefault(); act(e.metaKey ? 'heptabase' : 'open', items[index]); }
-    else if (e.key === 'Backspace' && e.metaKey && mode === 'recent') { e.preventDefault(); act('forget', items[index]); }
+    if (e.key === 'ArrowDown' || (isMac && e.ctrlKey && e.key === 'n')) { e.preventDefault(); move(1); }
+    else if (e.key === 'ArrowUp' || (isMac && e.ctrlKey && e.key === 'p')) { e.preventDefault(); move(-1); }
+    else if (e.key === 'Enter') { e.preventDefault(); act(modPressed(e) ? 'heptabase' : 'open', items[index]); }
+    else if (e.key === 'Backspace' && modPressed(e) && mode === 'recent') { e.preventDefault(); act('forget', items[index]); }
     else if (e.key === 'Escape') { e.preventDefault(); close(); }
     else if (mode === 'recent' && host.isPinKey?.(e)) { e.preventDefault(); act('pin', items[index]); } // ⌘. pins the highlighted card
     else {

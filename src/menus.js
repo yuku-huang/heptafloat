@@ -6,6 +6,7 @@ import { Decoration, DecorationSet } from 'prosemirror-view';
 import { toggleMark } from 'prosemirror-commands';
 import { insertBlock, turnInto } from './commands.js';
 import { formatDate, titles } from './schema.js';
+import { isMac, modPressed } from './platform.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -182,8 +183,8 @@ const menu = {
   },
 
   key(view, e) {
-    if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) { this.highlight(this.index + 1); return true; }
-    if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) { this.highlight(this.index - 1); return true; }
+    if (e.key === 'ArrowDown' || (isMac && e.ctrlKey && e.key === 'n')) { this.highlight(this.index + 1); return true; }
+    if (e.key === 'ArrowUp' || (isMac && e.ctrlKey && e.key === 'p')) { this.highlight(this.index - 1); return true; }
     if (e.key === 'Enter' || e.key === 'Tab') {
       if (!this.items.length) return false;
       this.choose(view, this.index);
@@ -351,7 +352,7 @@ export function toolbarPlugin(onOpenLink, keysFor = () => '') {
       },
       handleClickOn(view, _pos, _node, _nodePos, event) {
         const a = event.target.closest('a[href]');
-        if (a && event.metaKey) { onOpenLink(a.href); return true; }
+        if (a && modPressed(event)) { onOpenLink(a.href); return true; }
         return false;
       },
     },

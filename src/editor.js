@@ -16,6 +16,7 @@ import { backspaceAtItemStart, deleteAtLineEnd, enterInItem, itemLineDepth, lift
 import { caretPlugin, placeholderPlugin, suggestKey, suggestPlugin, toggleHighlight, toolbarPlugin } from './menus.js';
 import { createPalette } from './palette.js';
 import { renderSetup } from './setup.js';
+import { isMac, modLabel, modPressed, shortcutName, shortcutGlyphs } from './platform.js';
 
 const SAVE_DELAY = 600;
 const POLL_INTERVAL = 3000;
@@ -24,7 +25,8 @@ const POLL_INTERVAL = 3000;
 
 let nextRequest = 1;
 const waiting = new Map();
-const CALL_TIMEOUT = 30_000;
+// A Windows create can involve four separately bounded CLI calls (create/read/save/read).
+const CALL_TIMEOUT = window.heptafloat ? 65_000 : 30_000;
 
 /** Asks the app to do something; resolves with its reply. A reply that never comes resolves as an
  *  error after CALL_TIMEOUT, so one stuck request can't hold up every save behind it. */
@@ -38,10 +40,10 @@ function call(action, payload = {}) {
       resolve({ error: "Heptabase didn't respond" });
     }, CALL_TIMEOUT);
     waiting.set(id, (r) => { clearTimeout(timer); resolve(r); });
-    window.webkit.messageHandlers.hf.postMessage({ ...payload, action, requestId: id });
+    post({ ...payload, action, requestId: id });
   });
 }
-const post = (m) => window.webkit.messageHandlers.hf.postMessage(m);
+const post = (m) => window.heptafloat ? window.heptafloat.postMessage(m) : window.webkit.messageHandlers.hf.postMessage(m);
 
 /** A line in ~/Library/Logs/HeptaFloat.log, for tracing what happened to a card. */
 function log(message) { post({ action: 'log', message }); }
@@ -289,7 +291,7 @@ async function togglePin() {
   const pinned = !cards.find((c) => c.id === current.id)?.pinned;
   await call('pinCard', { id: current.id, pinned });
   loadRecentList();
-  status(pinned ? 'Pinned — it stays at the top of ⌘P' : 'Unpinned', { duration: 2500 });
+  status(pinned ? `Pinned — it stays at the top of ${modLabel}+P` : 'Unpinned', { duration: 2500 });
 }
 
 /** Records a card (the current one by default) in Recent. keepPlace updates its title and length
@@ -332,6 +334,8 @@ function commandFor(name, schema) {
     forward: run(() => step(-1)), // ⌘] — newer
     today: run(() => show({ kind: 'journal', id: today() })),
     openInHeptabase: run(() => { if (current?.kind !== 'draft') openInHeptabase(current?.id); }),
+    ...(!isMac && Object.fromEntries(['settings', 'keepOnTop', 'biggerText', 'smallerText', 'actualSize']
+      .map((id) => [id, run(() => post({ action: 'appCommand', name: id }))]))),
   }[name];
 }
 
@@ -339,10 +343,7 @@ function commandFor(name, schema) {
 
 /** "Mod-Shift-o" → ['⇧', '⌘', 'O'], in the Mac's modifier order. */
 function keyGlyphs(name) {
-  if (!name) return [];
-  const parts = name.split(/-(?!$)/), key = parts.pop();
-  const mods = [['Ctrl', '⌃'], ['Alt', '⌥'], ['Shift', '⇧'], ['Mod', '⌘']].filter(([m]) => parts.includes(m)).map(([, g]) => g);
-  return [...mods, { Enter: '↩', Space: 'Space' }[key] ?? key.toUpperCase()];
+  return shortcutGlyphs(name);
 }
 const keysFor = (id) => keyGlyphs(bindings[id]).join('');
 
@@ -391,7 +392,7 @@ function actionSections() {
     ] },
     { title: 'Window', items: [
       row('keepOnTop', 'Keep on top', 'pin float always front', app('keepOnTop'), { state: on('pinned') }),
-      row('notchMode', 'Show in the notch', 'notch menu bar', app('notchMode'), { state: on('notch') }),
+      isMac && row('notchMode', 'Show in the notch', 'notch menu bar', app('notchMode'), { state: on('notch') }),
       row('biggerText', 'Bigger text', 'zoom in larger font size', app('biggerText')),
       row('smallerText', 'Smaller text', 'zoom out font size', app('smallerText')),
       row('actualSize', 'Actual size', 'reset zoom font size 100', app('actualSize')),
@@ -450,10 +451,7 @@ function normalize(name) {
   return [...parts.sort(), key].join('-');
 }
 function keyName(e) {
-  const mods = [e.altKey && 'Alt', e.ctrlKey && 'Ctrl', e.metaKey && 'Mod', e.shiftKey && 'Shift'].filter(Boolean);
-  const key = e.key === 'Enter' ? 'enter' : e.code?.startsWith('Key') ? e.code.slice(3).toLowerCase()
-    : e.code?.startsWith('Digit') ? e.code.slice(5) : e.key.toLowerCase();
-  return [...mods.sort(), key].join('-');
+  return shortcutName(e);
 }
 
 // MARK: mention popup — choose where to open a linked card
@@ -482,7 +480,7 @@ const mentionPopup = (() => {
     const label = target.textContent || 'Card';
     pop.innerHTML = `<div class="mp-title">${label.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</div>`
       + (here ? '<button data-where="here"><span>Open here</span></button>' : '')
-      + '<button data-where="heptabase"><span>Open in Heptabase</span><kbd>⌘ click</kbd></button>';
+      + `<button data-where="heptabase"><span>Open in Heptabase</span><kbd>${modLabel} click</kbd></button>`;
     place(target);
     pop.dataset.id = id;
     pop.dataset.kind = kind;
@@ -732,7 +730,7 @@ function load(result, { keepSelection } = {}) {
       handleClickOn(_v, _pos, _node, _nodePos, event) {
         const chip = event.target.closest('.chip[data-id]');
         if (chip && chip.dataset.id) {
-          if (event.metaKey) openInHeptabase(chip.dataset.id);
+          if (modPressed(event)) openInHeptabase(chip.dataset.id);
           else mentionPopup.open(chip, true);
           return true;
         }
@@ -1033,7 +1031,7 @@ async function keepBoth({ target, doc, theirs, shown }) {
   const c = await call('createNote', { title, content: JSON.stringify(copy), copy: true });
   if (c.current || c.createdId) {
     post({ action: 'touchRecent', id: c.current?.id ?? c.createdId, objectType: 'note', title: c.current?.title || title, chars: 0 });
-    status(`Changed in Heptabase too — your version is saved as “${title}” (⌘P)`, { duration: 8000 });
+    status(`Changed in Heptabase too — your version is saved as “${title}” (${modLabel}+P)`, { duration: 8000 });
   } else {
     status(`Changed in Heptabase too, and your version couldn't be saved — ${c.error}`, { error: true });
   }
@@ -1094,7 +1092,12 @@ window.hf = {
   },
   shown() { onScreen = true; view?.focus(); poll(); if (current) refreshNearby(); },
   setVisible(v) { const was = onScreen; onScreen = v; if (v && !was) { poll(); if (current) refreshNearby(); } },
-  async flush() { await Promise.all([...uploads]); await save({ final: true }); return true; },
+  async flush() {
+    await Promise.all([...uploads]);
+    retrySaves();
+    await save({ final: true });
+    return !dirty && !inFlight.size && !unsaved.size && !view?.composing;
+  },
   /** In the notch with Keep on top off, the card folds when the pointer leaves, but not while
    *  you're in the middle of something here: an IME composition, the ⌘O / ⌘P / ⌘K palette, the
    *  / or @ menu, the link field or color picker, or a mention's popup. */
