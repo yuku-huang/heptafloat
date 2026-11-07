@@ -1,5 +1,13 @@
 # Rules and conventions
 
+- Protocol intents must validate before any window/read/external open; derive fallback HTTPS from IDs. Keep preview read-only and target-scoped at the main IPC boundary, not CSS alone. Latest request wins before/after renderer readiness.
+- Do not mix an OS `Start-Process` probe into browser-launch acceptance. Use distinct cards/sources and check the actual window/process. Mock app events/API doubles, real OS dispatch, browser prompt and Discord clicks are separate claims.
+- Browser/desktop policy rejection is an operational boundary. Do not use raw CDP, profile edits, another browser surface or policy changes to reach a rejected internal page. Record the limitation and preserve unverified/failed checks.
+- Installation must preserve original flowhepta and HTTPS settings, refuse unrelated owners, wait for maintenance helpers without killing processes, and skip identical package files on rerun. Never erase settings/recovery or Heptabase data on uninstall.
+- Packaging writes and installation/readback from that output directory must run sequentially. Freeze the package source before lifecycle tests; otherwise a rebuild can temporarily remove files being copied. Maintenance waits exclude already-running normal instances.
+
+Live policy evidence for this continuation: source `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-07T19:43:17.375157+00:00`; Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; actual skill `7004b48d-cb3f-4d09-87f8-663f184c5c8c`, skill_id `software-development`, v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matched; both full texts read. This is provenance only; reload live for a new task. No skill/card writes were needed or made; the rules above are repository-specific.
+
 - Keep official Heptabase shims/bundles/databases unmodified. Discover current CLI help before integration changes.
 - Keep shared editor behavior working on macOS. Gate Windows-only UI and behavior through the platform bridge.
 - Keep the WebKit caret overlay macOS-only. For newline reports, compare serialized text and caret display separately; keyboard tests must include Enter followed by typing inside `/code`, not just ordinary paragraphs.

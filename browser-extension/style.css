@@ -1,0 +1,16 @@
+:root { color-scheme: light dark; font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background: light-dark(#f3f5f7,#171b20); color: light-dark(#27323e,#e7ecf2); }
+body { margin: 0; padding: 8vh 22px; }
+main { max-width: 650px; margin: auto; padding: 36px; border: 1px solid light-dark(#dfe4eb,#36404c); border-radius: 20px; background: light-dark(#fff,#222a34); }
+h1 { font-size: 30px; letter-spacing: -.6px; margin: 14px 0 24px; }
+p { line-height: 1.8; }
+.eyebrow { font-size: 12px; font-weight: 700; color: light-dark(#2f678b,#90c9eb); letter-spacing: 2px; }
+.hint { font-size: 13px; color: light-dark(#5a6673,#aebcca); }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
+button, a.primary { font: 600 14px inherit; font-family: inherit; border: 1px solid light-dark(#c9d2de,#4b5b6e); color: inherit; background: transparent; border-radius: 9px; padding: 12px 16px; cursor: pointer; text-decoration: none; }
+a.primary { color: white; background: #276184; border-color: #276184; }
+button.quiet { padding: 7px 10px; font-size: 12px; }
+label { display: block; margin-top: 25px; font-weight: 600; }
+input { accent-color: #377ba5; margin-right: 8px; }
+:focus-visible { outline: 3px solid #5aa7d9; outline-offset: 3px; }
+[hidden] { display: none !important; }
+@media(max-width:520px) { main { padding: 22px; } h1 { font-size: 25px; } }

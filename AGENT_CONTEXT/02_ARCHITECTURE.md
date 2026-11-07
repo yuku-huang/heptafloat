@@ -1,5 +1,7 @@
 # Architecture handoff
 
+Deep Link pipeline: strict shared URL/intent module → main initial/second-instance queue → one sandboxed read-only preview → existing CLI/editor. Main editing remains separate. MV3 exact-host/top-frame navigation → own handoff → custom URI attempt/manual anchor, with canonical HTTPS + tab/card session bypass for fallback. No server, new framework, public redirector or extra authentication. `install-windows.ps1` explicitly manages HKCU handler/versioned files, original backup and safe rollback. See `docs/DEEPLINK.md` for limits and actual-vs-mock evidence.
+
 Shared editor (`src/`) → platform-specific bridge → official Heptabase CLI.
 
 Windows: `windows/main.cjs` manages native app state/protocols/IPC; `preload.cjs` is the isolated bridge; `cli.cjs` discovers and invokes the official bundle without a shell; `service.cjs` handles validated reads, serialized writes, temporary files, images, and recovery. `chrome.js` and `windows.css` provide title-bar actions/settings.

@@ -1,5 +1,9 @@
 # Data schema and bridge
 
+Deep Link intent: `{spaceId,cardId,canonicalUrl}` with normalized UUIDs and `https://app.heptabase.com/<space>/card/<card>`. Main, preload and renderer validate it. `preview` host event is queued until ready; `previewRead` must match the current target; `previewOpenOriginal` reconstructs the canonical URL in main. Preview rejects generic read/save/create/settings/image actions. No card-body persistence or state schema migration.
+
+MV3 local settings: `{interceptAll:false,autoLaunch:true}`. Session storage `web:<tabId>` holds `{url:canonicalUrl,expires:epochMs}` for a 30-second bypass, removed on tab close. No note content/auth data. Per-user installer receipt under `%LOCALAPPDATA%/Programs/HeptaFloat/install-state.json` stores owner marker, installed flag, version list, expected command and whether a prior flowhepta key existed; original key backup stays beside it. These local files are not Git inputs.
+
 Code block language uses existing `attrs.params = [!]<language>[:displayMode]` (confirmed in official CLI help). `!` preserves wrap; Mermaid display mode survives until an explicit language change. Unknown values are retained. No new schema/marks; highlight classes are transient decorations only.
 
 `%APPDATA%/HeptaFloat/state.json`:

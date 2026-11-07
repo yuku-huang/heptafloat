@@ -4,15 +4,16 @@
 
 <h1 align="center">HeptaFloat</h1>
 
-## Windows port — 0.9.12-win.4
+## Windows port — 0.9.12-win.6
 
 This checkout adds a Windows 10/11 x64 app with an always-on-top window, system tray, configurable **Ctrl+Alt+J** hotkey, official Heptabase CLI integration, and the original rich-text editor. The Windows build is an unsigned development port; the upstream download below is still macOS-only.
 
-- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.3-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
+- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.6-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
+- **Preview card links:** optional per-user `flowhepta` installation and a separate read-only card window. The MV3 browser bridge is experimental: Edge reaches its handoff page, but external launch and Discord Desktop acceptance remain unresolved. See [setup/rollback](docs/DEEPLINK.md) and [actual test results](docs/DEEPLINK_TEST_RESULTS.md).
 - **Find cards:** Ctrl+O searches all cards, including full Chinese titles; Ctrl+P lists previously opened cards. Alt+Left / Alt+Right navigate viewed cards. See the Windows guide for first-search loading and cache limits.
 - **Edit code:** `/code` opens a code block with a language selector and syntax colors (Python, JavaScript, C++, Verilog and more). Tab / Shift+Tab indent selected lines; Enter keeps indentation. Language changes support undo and preserve code text.
 - **Develop:** `npm ci`, `npm run start:windows`.
-- **Verify:** `npm test`, `npm run test:windows`; optional read-only live check: `npm run test:windows:live`.
+- **Verify:** `npm test`, `npm run test:windows`, `npm run test:preview`; optional read-only live check: `npm run test:windows:live`.
 - **Package:** `npm run package:windows`, or `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -Package`.
 - **Read first:** [Windows operator guide](docs/WINDOWS.md), [architecture](ARCHITECTURE.md), [handoff](START_HERE.md).
 

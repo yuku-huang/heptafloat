@@ -1,18 +1,19 @@
 {
   "name": "heptafloat",
-  "version": "0.9.12-win.5",
+  "version": "0.9.12-win.6",
   "private": true,
   "description": "Today's Heptabase journal in a floating, editable card for macOS and Windows.",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "build:windows": "node scripts/build-windows.mjs",
+    "build:extension": "node scripts/build-browser-extension.mjs",
     "start:windows": "npm run build:windows && node scripts/run-windows.cjs",
-    "test": "node --test test/windows.test.mjs test/editor-commands.test.mjs test/code-block.test.mjs test/hepta-links.test.mjs",
+    "test": "node --test test/windows.test.mjs test/editor-commands.test.mjs test/code-block.test.mjs test/hepta-links.test.mjs test/browser-bridge.test.mjs",
     "test:windows": "npm run build:windows && node scripts/run-windows.cjs --smoke-test",
     "test:windows:live": "npm run build:windows && node scripts/run-windows.cjs --live-smoke",
     "test:preview": "npm run build:windows && node scripts/run-windows.cjs --preview-smoke",
-    "package:windows": "npm run build:windows && node scripts/package-windows.mjs"
+    "package:windows": "npm run build:windows && npm run build:extension && node scripts/package-windows.mjs"
   },
   "dependencies": {
     "highlight.js": "11.11.1",

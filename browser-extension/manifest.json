@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Flow HeptaBase Link Bridge",
+  "version": "1.0.0",
+  "description": "將標記的 Heptabase 卡片連結交給 Windows 的 Flow HeptaBase 預覽。",
+  "permissions": ["webNavigation", "storage"],
+  "host_permissions": ["https://app.heptabase.com/*"],
+  "background": { "service_worker": "background.js" },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "action": { "default_title": "Flow HeptaBase 設定" },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'" }
+}

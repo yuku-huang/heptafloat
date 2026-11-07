@@ -1,5 +1,10 @@
 # Next steps
 
+1. Resolve actual Edge external launch: the marker reaches handoff but automatic/manual app launch was not verified and the user reported no effect. Obtain a permitted foreground UI/console observation, then test distinct A/B without any simultaneous OS probe. Do not reduce browser security or claim completion from `tabs.update`.
+2. Once browser transfer works, validate actual Discord Desktop clicks, unmarked links, web fallback/all-card bypass, no-handler behavior, and extension OFF. Bot lives elsewhere: apply only the provided URL helper in its actual repo after confirming routing/mobile compatibility.
+3. Chrome, reboot/login, Windows 10 and mobile remain unverified. Native installed win.5 routing and packaged win.6 mock tests are separate evidence. Restore the normal handler after development registration; quit the older tray process before using an updated normal instance.
+4. Use a writable remote for push/CI; upstream permission is read-only. No browser-policy workaround, forced process termination, private-card writes or surrounding-workspace import.
+
 - Finish P1: MV3 marked-link bridge and fallback, separate Bot helper, installed Windows protocol and browser/Discord Desktop acceptance, final packaging/docs. Existing P0 source is preserved in a separate baseline; no real note writes are authorized for QA.
 
 - Continue the requested Discord/HTTPS Deep Link feature from the preserved win.4 source baseline. Include language selection/colors in the final package; retain physical IME and native macOS acceptance boundaries.

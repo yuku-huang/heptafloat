@@ -1,3 +1,22 @@
+### [2026-11-08 04:13] - Add experimental MV3 card bridge and Windows lifecycle validation
+
+* **修改檔案**：`browser-extension/`, `test/browser-bridge.test.mjs`, `scripts/build-browser-extension.mjs`, `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`, `scripts/package-windows.mjs`, package metadata, `.github/workflows/windows.yml`, `integrations/discord/README.md`, README/start/architecture/operator/Deep Link/test-results guides, `AGENT_CONTEXT/00..08`, `docs/WORKSPACE_HANDOFF.md`
+* **變更細節**：
+  * added MV3 exact-host/top-frame marker handling, stable handoff with one automatic attempt/manual anchor/web fallback, local settings with all-card mode OFF, stale/duplicate suppression and tab/card bypass; existing esbuild and pure URL module reused without extra dependencies
+  * Bot is outside this repo: delivered only the minimal shared-helper/URL-field patch instructions; no Bot deployment, token access or Discord message sending
+  * installer now waits for short maintenance helpers, skips identical files on rerun, guards nested paths, restores the immediately preceding association on registration failure and removes retained versions after first-install rollback; no user process termination or private-note writes
+  * 47 unit tests passed; Windows/Bun bundles built; win.6 EXE native editor and preview tests passed, including existing language/IME/readback regressions
+  * actual installed win.5 OS cold A→warm/minimized B reused the same window/process; task-owned HKCU win.5→win.6 upgrade/rollback/uninstall restored original handler and HTTPS defaults; two official-CLI card reads retained initial MD5s
+  * final per-user win.6 install → rollback to already-running win.5 → win.6 reinstall passed and preserved the prior main PID. Development registration included Electron's entry path and restored the installed handler. One overlapping package/install attempt was rerun sequentially after a transient source-file disappearance; the convention now forbids that overlap
+  * final ZIP contains the tested unchanged runtime, current installer, extension, guides and shared Bot helper. SHA-256 verified: `08a5c3e9228400712f9cb61ea6f3247412943d7c7799ee3e750e48eba5cc351a`; file/product versions `0.9.12.6` / `0.9.12-win.6`
+  * Edge 156.0.4314.58 loaded by the user and marked HTTPS reached the handoff, but automatic/manual external launch was not accepted; the later A launch was an independent OS probe and is explicitly excluded from browser success. Browser URL policy rejected extension management/content; no alternate surface, raw CDP or policy workaround
+  * Chrome 157.0.8103.39, Discord Desktop clicks, mobile, reboot and Windows 10 remain unverified. P1 is marked experimental, not end-to-end complete. Full matrix and rollback are in `docs/DEEPLINK_TEST_RESULTS.md` / `docs/DEEPLINK.md`
+  * Git inventory: prior P0 independently preserved as `6895167`; only authorized source/docs/tests/scripts are tracked; build/dist/profiles/reports and private data stay ignored; seven parent handoff files updated additively outside nested Git
+  * skill verdict: no skill edit; safe reruns, scoped preview IPC, source-separated acceptance and the observed policy boundary belong in repository conventions/tests. Latest live policy provenance recorded; GitHub permission rechecked as push:false
+* **下一步建議 (Next Steps)**：
+  * resolve actual Edge external-launch evidence with a permitted foreground UI, then complete Discord/unmarked/fallback/no-handler acceptance; do not reduce browser security or add P2 Native Messaging without a separate decision
+  * quit the older tray process before using the final win.6 normal instance; retain signing, physical IME/DPI/macOS and writable-remote boundaries
+
 ### [2026-11-08 03:43] - Preserve P0 Deep Link preview before browser bridge
 
 * **修改檔案**：`shared/hepta-links.cjs`, `windows/main.cjs`, `windows/preload.cjs`, `windows/preview.js`, `windows/preview-smoke.cjs`, `windows/windows.css`, `src/editor.js`, `src/code-block.js`, `test/hepta-links.test.mjs`, package/build files, `scripts/install-windows.ps1`, project handoff docs

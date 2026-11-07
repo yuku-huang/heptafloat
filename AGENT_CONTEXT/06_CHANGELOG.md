@@ -1,5 +1,15 @@
 # Agent changelog
 
+## 2026-11-08 MV3 bridge and Windows continuation
+
+- Final ZIP/sidecar verified; runtime unchanged from tested ASAR and installer current. Actual permanent-root win.6 install → rollback to running win.5 → win.6 reinstall passed while preserving the old process. Development registration included the entry path and restored installed association. A packaging/install source race was corrected by rerunning sequentially; the rule is recorded in project conventions. SHA-256 is in the root changelog.
+
+- Added the marked-only MV3 handoff/options/web fallback using existing esbuild/shared URL functions; all-card defaults OFF. Bot absent: separate minimal helper/URL-field patch instructions, no deployment or message sending.
+- Forty-seven unit tests pass. Actual installed win.5 cold/warm/minimized A→B reused window/process; install/reinstall/first rollback/uninstall passed after handling short-lived Electron file locks. No user process was stopped.
+- User manually loaded Edge 1.0.0. Marker→handoff observed and user confirmed; external launch not accepted, and the later OS probe was explicitly excluded. Tool policy rejects management/extension pages; no alternative surface/CDP/policy workaround. Discord native minimized state was inaccessible; no actual click acceptance.
+- Final win.6 packaging, upgrade and artifact evidence are in `docs/DEEPLINK_TEST_RESULTS.md`. Code/docs explicitly mark P1 experimental. Build/profiles/runtime/private data stay ignored; prior P0 was independently committed as `6895167`.
+- Skill verdict: no skill update; target-bound IPC, independent source testing, safe install reruns and the actual policy boundary are repository conventions/test cases. Live policy provenance is recorded in `04_RULES_AND_CONVENTIONS.md`.
+
 ## 2026-11-08 P0 Deep Link checkpoint
 
 - Preserved the 14 resumed source/test/script changes. Strict canonical URL parser, initial/second-instance routing, preview-only IPC and read-only shared card rendering; per-user protocol installer with rollback. 42 unit/native mock editor/preview checks passed previously. Windows UI acceptance was stopped by Escape; no Discord completion claimed.

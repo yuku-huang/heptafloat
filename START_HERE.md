@@ -2,9 +2,9 @@
 
 This checkout adds Windows support to upstream HeptaFloat `f32f34f` (0.9.12).
 
-Current source version: `0.9.12-win.4`. Adds per-code-block language selection and syntax colors; the last separately packaged build is win.3. The next Deep Link release will include this editor update. Ctrl+O searches cards; Alt+Left/Right follow session history.
+Current version: `0.9.12-win.6`. Includes per-code-block language selection/colors, `flowhepta` protocol, a reused read-only preview, optional per-user install and an experimental MV3 bridge. Direct installed Windows protocol routing was verified in win.5. Edge handoff works, but browser external launch and Discord Desktop end-to-end acceptance remain unresolved; read `docs/DEEPLINK_TEST_RESULTS.md` before claiming completion.
 
-Editor update: `/code` uses the native Windows caret, language selector and syntax decorations; Tab/Shift+Tab indent selected lines and Enter preserves indentation. Run `npm test` for 38 command/service/language tests and `npm run test:windows` for native keyboard, composition, language undo and save/reopen checks with sample data.
+Editor update: `/code` uses the native Windows caret, language selector and syntax decorations; Tab/Shift+Tab indent selected lines and Enter preserves indentation. `npm test` runs 47 focused tests; native editor and preview smoke use sample data only. `docs/DEEPLINK.md` covers extension loading, protocol installation and rollback; Bot integration is a separate example under `integrations/discord`.
 
 1. Read `docs/WINDOWS.md` for portable-app usage, setup, and limits.
 2. Run `npm ci`, `npm test`, and `npm run test:windows` on Windows.

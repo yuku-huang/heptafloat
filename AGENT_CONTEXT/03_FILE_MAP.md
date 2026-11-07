@@ -1,5 +1,11 @@
 # File map
 
+- `shared/hepta-links.cjs`, `test/hepta-links.test.mjs`: strict HTTPS/custom URI/IPC intent and marker utility.
+- `windows/preview.js`, `windows/preview-smoke.cjs`: preview-only chrome and native sample-card regressions.
+- `browser-extension/`: MV3 worker, pure bridge, handoff/options UI and scoped manifest; `test/browser-bridge.test.mjs` tests behavior with explicit API doubles.
+- `scripts/build-browser-extension.mjs`: repeatable extension bundle; `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`: per-user install/rollback and actual HKCU lifecycle QA.
+- `docs/DEEPLINK.md`, `docs/DEEPLINK_TEST_RESULTS.md`, `integrations/discord/README.md`: operator flow, honest acceptance matrix and external-Bot patch example.
+
 - `src/code-block.js`, `test/code-block.test.mjs`, `windows/code-language-smoke.cjs`: language NodeView/highlight decorations and pure/native regression coverage.
 
 - `src/`: shared ProseMirror schema, editor, commands, menus, palette, platform helpers, fonts.

@@ -1,5 +1,5 @@
 import { packager } from '@electron/packager';
-import { readFile, writeFile, copyFile, access, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, copyFile, access, mkdir, cp } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -24,8 +24,13 @@ const outputs = await packager({ dir: path.join(root, 'build/windows'), out: out
   ...(hasIcon && { icon }), appVersion: pkg.version, buildVersion: pkg.version.replace('-win.', '.'),
   win32metadata: { CompanyName: 'HeptaFloat contributors', FileDescription: 'HeptaFloat for Windows', ProductName: 'HeptaFloat' } });
 await copyFile(path.join(root, 'docs/WINDOWS.md'), path.join(outputs[0], 'WINDOWS.md'));
+await mkdir(path.join(outputs[0], 'docs'), { recursive: true });
+for (const name of ['DEEPLINK.md', 'DEEPLINK_TEST_RESULTS.md']) await copyFile(path.join(root, 'docs', name), path.join(outputs[0], 'docs', name));
+await cp(path.join(root, 'integrations'), path.join(outputs[0], 'integrations'), { recursive: true });
+await cp(path.join(root, 'shared'), path.join(outputs[0], 'shared'), { recursive: true });
 await mkdir(path.join(outputs[0], 'scripts'), { recursive: true });
 await copyFile(path.join(root, 'scripts/install-windows.ps1'), path.join(outputs[0], 'scripts/install-windows.ps1'));
+await cp(path.join(root, 'build/browser-extension'), path.join(outputs[0], 'browser-extension'), { recursive: true });
 const archive = path.join(root, 'dist', `HeptaFloat-${pkg.version}-windows-x64.zip`);
 // PowerShell receives only explicitly quoted, tool-owned output paths.
 execFileSync('powershell.exe', ['-NoProfile', '-Command',
