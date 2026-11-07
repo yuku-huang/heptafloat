@@ -112,6 +112,7 @@ export class CodeBlockView {
   update(node) {
     if (node.type.name !== 'code_block') return false;
     this.node = node;
+    this.select.disabled = !this.view.editable;
     const parsed = parseCodeParams(node.attrs.params), language = codeLanguage(node.attrs.params);
     this.select.querySelector('[data-unknown]')?.remove();
     if (!language) {

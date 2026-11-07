@@ -1,5 +1,10 @@
 # Agent changelog
 
+## 2026-11-08 P0 Deep Link checkpoint
+
+- Preserved the 14 resumed source/test/script changes. Strict canonical URL parser, initial/second-instance routing, preview-only IPC and read-only shared card rendering; per-user protocol installer with rollback. 42 unit/native mock editor/preview checks passed previously. Windows UI acceptance was stopped by Escape; no Discord completion claimed.
+- Latest live software-development v0.1 loaded in full on resume at `2026-11-07T19:43:17.375157+00:00`, registry version matched; same Router/Skill IDs and SHA-256 values as project conventions. No skill write needed; project-specific changes are documented locally.
+
 ## 2026-11-08 Code languages and syntax colors
 
 - Added `src/code-block.js`, lowlight/highlight.js, 31 language choices, pure grammar/params tests and native language/undo/IME/save-reopen checks. All 38 unit tests and final native mock run passed. Windows and Bun bundles built; no native Mac build or real note writes were run.

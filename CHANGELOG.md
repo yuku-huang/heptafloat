@@ -1,3 +1,15 @@
+### [2026-11-08 03:43] - Preserve P0 Deep Link preview before browser bridge
+
+* **修改檔案**：`shared/hepta-links.cjs`, `windows/main.cjs`, `windows/preload.cjs`, `windows/preview.js`, `windows/preview-smoke.cjs`, `windows/windows.css`, `src/editor.js`, `src/code-block.js`, `test/hepta-links.test.mjs`, package/build files, `scripts/install-windows.ps1`, project handoff docs
+* **變更細節**：
+  * strict HTTPS/custom-protocol parsing and canonical IDs; Electron cold/second-instance routing with last valid request winning; separate reused read-only preview and scoped IPC using existing CLI/editor
+  * per-user versioned installation and explicit Electron protocol registration, original-association backup, status/rollback/uninstall; no HTTP(S)/heptabase association changes
+  * prior run: 42 unit tests, native mock editor and preview tests passed; win.5 packaged and installed; actual OS cold launch was issued but UI verification stopped on physical Escape, so Windows/Discord end-to-end acceptance is pending
+  * inventory on resume: all 14 changed/untracked entries belong to the authorized P0 task; no ambiguous user files; generated packages/profiles remain ignored
+  * skill assessment: no skill edit; app-specific IPC/preview/install rules belong in this repository
+* **下一步建議 (Next Steps)**：
+  * complete MV3 bridge, actual Windows/browser/Discord tests, final docs and package before claiming end-to-end completion
+
 ### [2026-11-08 02:48] - Add code languages and syntax colors; checkpoint before Deep Link work
 
 * **修改檔案**：`src/code-block.js`, `src/editor.js`, `src/index.html`, `src/menus.js`, `test/code-block.test.mjs`, `windows/code-language-smoke.cjs`, `windows/editor-smoke.cjs`, package/lock/build files, README/start/architecture/operator guides and `AGENT_CONTEXT/`

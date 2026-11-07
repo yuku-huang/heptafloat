@@ -1,5 +1,7 @@
 # Next steps
 
+- Finish P1: MV3 marked-link bridge and fallback, separate Bot helper, installed Windows protocol and browser/Discord Desktop acceptance, final packaging/docs. Existing P0 source is preserved in a separate baseline; no real note writes are authorized for QA.
+
 - Continue the requested Discord/HTTPS Deep Link feature from the preserved win.4 source baseline. Include language selection/colors in the final package; retain physical IME and native macOS acceptance boundaries.
 
 - Quit the previous tray app and run `0.9.12-win.3`. Confirm `/code`: Enter then Chinese typing stays on one new line, Tab indents four spaces, Shift+Tab removes one level, and multi-line indentation/undo behaves as expected. Native composition is automated; the user's physical input method still needs acceptance.

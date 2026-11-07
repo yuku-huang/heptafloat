@@ -5,10 +5,12 @@ const path = require('node:path');
 const os = require('node:os');
 const { OfficialCli, discoverApp } = require('./cli.cjs');
 const { HeptabaseService, UUID, DATE } = require('./service.cjs');
+const { intentFromArgv, validateCardIntent } = require('./hepta-links.cjs');
 
 const smoke = process.argv.includes('--smoke-test');
 const liveSmoke = process.argv.includes('--live-smoke');
-const testing = smoke || liveSmoke;
+const previewSmoke = process.argv.includes('--preview-smoke');
+const testing = smoke || liveSmoke || previewSmoke;
 const resources = path.join(__dirname, 'ui');
 if (testing) app.setPath('userData', fs.mkdtempSync(path.join(os.tmpdir(), 'heptafloat-qa-')));
 else app.setPath('userData', path.join(app.getPath('appData'), 'HeptaFloat'));
@@ -27,7 +29,10 @@ try {
   const saved = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   state = { settings: { ...defaults, ...saved.settings }, recents: Array.isArray(saved.recents) ? saved.recents : [], bounds: saved.bounds };
 } catch {}
-let win, tray, service, quitting = false, checkingQuit = false;
+let win, previewWin, tray, service, quitting = false, checkingQuit = false;
+let previewReady = false, previewIntent = null;
+const initialLink = intentFromArgv(process.argv);
+previewIntent = initialLink.intent;
 const imageCache = new Map();
 const titleCache = new Map();
 function persist() {
@@ -35,11 +40,64 @@ function persist() {
   fs.writeFileSync(`${stateFile}.tmp`, JSON.stringify(state, null, 2));
   fs.renameSync(`${stateFile}.tmp`, stateFile);
 }
-function emit(event) { if (win && !win.isDestroyed()) win.webContents.send('hf:event', event); }
+function emit(event, target = win) { if (target && !target.isDestroyed()) target.webContents.send('hf:event', event); }
 function show() { win.show(); win.restore(); win.focus(); emit({ type: 'visible', visible: true }); }
 function hide() { emit({ type: 'visible', visible: false }); win.webContents.executeJavaScript('window.hf?.flush()').catch(() => {}); win.hide(); }
 function toggle() { win.isVisible() && win.isFocused() ? hide() : show(); }
 function command(name) { show(); emit({ type: 'command', name }); }
+
+function secureWindow(target) {
+  target.webContents.session.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+  target.webContents.session.setPermissionCheckHandler(() => false);
+  target.webContents.on('will-navigate', (event) => event.preventDefault());
+  target.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+}
+function openPreview(intent) {
+  previewIntent = validateCardIntent(intent); // last valid request wins, including during load
+  if (!service || !app.isReady()) return;
+  if (!previewWin || previewWin.isDestroyed()) {
+    previewReady = false;
+    const target = previewWin = new BrowserWindow({ width: 720, height: 540, minWidth: 420, minHeight: 340,
+      show: false, title: 'Flow HeptaBase — 卡片預覽', icon: path.join(__dirname, 'icon.png'),
+      autoHideMenuBar: true, backgroundColor: nativeTheme.shouldUseDarkColors ? '#202020' : '#ffffff',
+      webPreferences: { preload: path.join(__dirname, 'preload.cjs'), additionalArguments: ['--hf-preview'],
+        contextIsolation: true, nodeIntegration: false, sandbox: true },
+    });
+    secureWindow(target);
+    if (testing) target.webContents.setBackgroundThrottling(false);
+    target.on('closed', () => { if (previewWin === target) { previewWin = null; previewReady = false; } });
+    target.loadURL('hf-app://ui/preview.html').catch(() => {
+      if (!target.isDestroyed()) target.setTitle('Flow HeptaBase — 無法載入預覽介面');
+    });
+  } else if (previewReady) emit({ type: 'preview', intent: previewIntent }, previewWin);
+  previewWin.show(); if (previewWin.isMinimized()) previewWin.restore(); previewWin.focus();
+}
+function receiveLinks(argv, { activate = true } = {}) {
+  const result = intentFromArgv(argv);
+  if (result.intent) openPreview(result.intent);
+  else if (result.invalid) {
+    // Generic error only; never echo an untrusted URL or change the main card.
+    dialog.showErrorBox('Flow HeptaBase', '卡片連結無效。請使用合法的 Heptabase 卡片連結。');
+  } else if (activate && win) show();
+  return result;
+}
+
+function protocolArgs() {
+  return process.defaultApp ? [path.resolve(process.argv[1])] : [];
+}
+function configureProtocol() {
+  const args = protocolArgs();
+  if (process.argv.includes('--register-protocol')) {
+    const registered = app.setAsDefaultProtocolClient('flowhepta', process.execPath, args);
+    const verified = registered && app.isDefaultProtocolClient('flowhepta', process.execPath, args);
+    console.log(JSON.stringify({ protocol: 'flowhepta', registered: verified })); app.exit(verified ? 0 : 1); return true;
+  }
+  if (process.argv.includes('--unregister-protocol')) {
+    const removed = app.removeAsDefaultProtocolClient('flowhepta', process.execPath, args);
+    console.log(JSON.stringify({ protocol: 'flowhepta', removed })); app.exit(removed ? 0 : 1); return true;
+  }
+  return false; // registration is explicit; starting a portable app never steals an association
+}
 
 function buildTray() {
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -92,8 +150,30 @@ function safeExternal(raw) {
   throw new Error('Only web links and Heptabase card links can be opened.');
 }
 
-async function handle(message) {
+async function handle(message, sender = win) {
   if (!message || typeof message.action !== 'string') throw new Error('Invalid desktop message.');
+  if (sender === previewWin) {
+    switch (message.action) {
+      case 'ready':
+        previewReady = true;
+        if (previewIntent) emit({ type: 'preview', intent: previewIntent }, sender);
+        return {};
+      case 'previewRead': {
+        const intent = validateCardIntent(message.intent);
+        if (intent.cardId !== previewIntent?.cardId || intent.spaceId !== previewIntent?.spaceId) throw new Error('預覽請求已更新。');
+        const info = await service.cardType(intent.cardId);
+        if (info.cardType !== 'note') throw new Error('目前僅能預覽文字卡片。請以 Heptabase 開啟此卡片。');
+        return service.read('note', intent.cardId);
+      }
+      case 'previewOpenOriginal':
+        if (!previewIntent) throw new Error('尚未指定卡片。');
+        await shell.openExternal(validateCardIntent(previewIntent).canonicalUrl); return {};
+      case 'title': sender.setTitle(`${String(message.title || '卡片預覽').slice(0, 200)} — Flow HeptaBase`); return {};
+      case 'hide': sender.close(); return {};
+      case 'log': return {};
+      default: throw new Error('預覽視窗為唯讀，無法執行這個操作。');
+    }
+  }
   switch (message.action) {
     case 'read': {
       const result = await service.read(message.kind, message.id);
@@ -175,7 +255,7 @@ async function registerProtocols() {
   protocol.handle('hf-app', async (request) => {
     const url = new URL(request.url);
     const relative = url.pathname.slice(1);
-    if (url.hostname !== 'ui' || !/^(index\.html|editor\.js|chrome\.js|windows\.css|fonts\/[A-Za-z0-9_-]+\.woff2)$/.test(relative)) return new Response('Not found', { status: 404 });
+    if (url.hostname !== 'ui' || !/^(index\.html|preview\.html|editor\.js|chrome\.js|preview\.js|windows\.css|fonts\/[A-Za-z0-9_-]+\.woff2)$/.test(relative)) return new Response('Not found', { status: 404 });
     try {
       const contentType = relative.endsWith('.html') ? 'text/html; charset=utf-8' : relative.endsWith('.js') ? 'text/javascript; charset=utf-8'
         : relative.endsWith('.css') ? 'text/css' : 'font/woff2';
@@ -202,7 +282,7 @@ async function registerProtocols() {
 }
 
 async function start() {
-  if (smoke) { const { MockCli } = require('./smoke.cjs'); service = new HeptabaseService(new MockCli(), app.getPath('userData')); }
+  if (smoke || previewSmoke) { const { MockCli } = require('./smoke.cjs'); service = new HeptabaseService(new MockCli(), app.getPath('userData')); }
   else service = new HeptabaseService(new OfficialCli(), app.getPath('userData'));
   await registerProtocols();
   let bounds = state.bounds || { width: 520, height: 650 };
@@ -216,18 +296,17 @@ async function start() {
   });
   if (testing) win.webContents.setBackgroundThrottling(false);
   Menu.setApplicationMenu(null);
-  win.webContents.session.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
-  win.webContents.session.setPermissionCheckHandler(() => false);
-  win.webContents.on('will-navigate', (event) => event.preventDefault());
+  secureWindow(win);
   win.webContents.setWindowOpenHandler(({ url }) => {
     try { shell.openExternal(safeExternal(url)).catch(() => {}); } catch {}
     return { action: 'deny' };
   });
   ipcMain.handle('hf:message', async (event, message) => {
-    if (event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame
-      || event.senderFrame.url !== 'hf-app://ui/index.html') return { error: 'Untrusted desktop message.' };
-    try { return await handle(message); }
-    catch (e) { emit({ type: 'notice', message: e.message }); return { error: e.message }; }
+    const sender = BrowserWindow.fromWebContents(event.sender);
+    const expected = sender === win ? 'hf-app://ui/index.html' : sender === previewWin ? 'hf-app://ui/preview.html' : null;
+    if (!expected || event.senderFrame !== event.sender.mainFrame || event.senderFrame.url !== expected) return { error: 'Untrusted desktop message.' };
+    try { return await handle(message, sender); }
+    catch (e) { emit({ type: 'notice', message: e.message }, sender); return { error: e.message }; }
   });
   tray = new Tray(nativeImage.createFromPath(path.join(__dirname, 'icon.png')).resize({ width: 24, height: 24 }));
   tray.setToolTip('HeptaFloat — Today’s journal'); tray.on('click', toggle); buildTray();
@@ -240,17 +319,21 @@ async function start() {
   win.on('minimize', () => emit({ type: 'visible', visible: false }));
   win.on('restore', () => emit({ type: 'visible', visible: true }));
   await win.loadURL('hf-app://ui/index.html');
-  if (!testing && !process.argv.includes('--hidden')) show();
+  if (previewIntent) openPreview(previewIntent);
+  else if (initialLink.invalid) receiveLinks(process.argv);
+  else if (!testing && !process.argv.includes('--hidden')) show();
   if (testing) {
-    const { runSmoke } = require('./smoke.cjs');
-    try { await runSmoke({ win, service, state, liveSmoke, globalShortcut, handle, app }); quitting = true; app.exit(0); }
+    const run = previewSmoke ? require('./preview-smoke.cjs').runPreviewSmoke : require('./smoke.cjs').runSmoke;
+    try { await run({ win, service, state, liveSmoke, globalShortcut, handle, app, openPreview, receiveLinks, getPreview: () => previewWin }); quitting = true; app.exit(0); }
     catch (e) { console.error(e.stack); quitting = true; app.exit(1); }
   }
 }
 
-if (!testing && !app.requestSingleInstanceLock()) app.quit();
+if (configureProtocol()) { /* explicit maintenance operation exits without opening windows */ }
+else if (!testing && !app.requestSingleInstanceLock()) app.quit();
 else {
-  app.on('second-instance', () => { if (win) show(); });
+  app.on('second-instance', (_event, argv) => receiveLinks(argv));
+  app.on('open-url', (event, url) => { event.preventDefault(); receiveLinks([url], { activate: false }); });
   app.on('before-quit', (event) => {
     if (quitting || testing) return;
     event.preventDefault();

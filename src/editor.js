@@ -19,6 +19,8 @@ import { renderSetup } from './setup.js';
 import { isMac, modLabel, modPressed, shortcutName, shortcutGlyphs } from './platform.js';
 import { CardHistory } from './navigation.js';
 import { CodeBlockView, codeHighlightPlugin } from './code-block.js';
+import heptaLinks from '../shared/hepta-links.cjs';
+const previewMode = window.heptafloat?.preview === true;
 
 const SAVE_DELAY = 600;
 const POLL_INTERVAL = 3000;
@@ -96,6 +98,7 @@ function openInHeptabase(id) {
 
 /** Opens a card in the floating card if it's a note or journal, otherwise in Heptabase. */
 async function openHere(card) {
+  if (previewMode) { openInHeptabase(card.id); return; }
   let kind = editableKind(card.objectType, card.id);
   if (!kind && !card.objectType) {
     const info = await call('cardType', { id: card.id });
@@ -565,6 +568,7 @@ const mentionPopup = (() => {
 // MARK: plugins
 
 function buildPlugins(schema) {
+  if (previewMode) return [codeHighlightPlugin()];
   const n = schema.nodes;
   const rules = [
     wrappingInputRule(/^\s*[-*]\s$/, n.bullet_list_item),
@@ -753,6 +757,11 @@ function load(result, { keepSelection } = {}) {
     if (view) view.updateState(state);
     else view = new EditorView(el('main'), {
       state,
+      editable: () => !previewMode,
+      dispatchTransaction(tr) {
+        if (previewMode && tr.docChanged && !loadingRemote) return;
+        view.updateState(view.state.apply(tr));
+      },
       nodeViews: { ...Object.fromEntries(LIST_ITEMS.map((t) => [t, (n, v, g) => new ItemView(n, v, g)])),
         code_block: (node, view, getPos) => new CodeBlockView(node, view, getPos) },
       scrollThreshold: scrollRoom(),
@@ -760,6 +769,7 @@ function load(result, { keepSelection } = {}) {
       // Pasted or dropped images are imported into Heptabase, then inserted like Heptabase does.
       // A URL pasted over selected text links that text.
       handlePaste(v, event) {
+        if (previewMode) return true;
         const files = [...(event.clipboardData?.items || [])].filter((i) => i.kind === 'file' && i.type.startsWith('image/')).map((i) => i.getAsFile());
         if (!files.length) return linkSelection(v, event.clipboardData?.getData('text/plain'));
         event.preventDefault();
@@ -767,6 +777,7 @@ function load(result, { keepSelection } = {}) {
         return true;
       },
       handleDrop(_v, event) {
+        if (previewMode) { event.preventDefault(); return true; }
         const files = [...(event.dataTransfer?.files || [])].filter((f) => f.type.startsWith('image/'));
         if (!files.length) return false;
         event.preventDefault();
@@ -1117,6 +1128,7 @@ function applyRemote(result, opts = { keepSelection: true }) {
 let onScreen = true; // the app tells us when the card is hidden; no syncing then
 
 async function poll() {
+  if (previewMode) return;
   if (!onScreen || !current || current.kind === 'draft' || cardBusy(cacheKey(current)) || Date.now() - lastEdit < 1500) return;
   // Showing today's journal: follow the date across midnight.
   if (followToday && current.id !== today()) { show({ kind: 'journal', id: today() }); return; }
@@ -1129,7 +1141,42 @@ async function poll() {
   if (r.contentMd5 !== md5Of.get(cacheKey(target))) applyRemote(r);
 }
 
+let previewSeq = 0, lastPreviewIntent = null;
+async function previewCard(payload = lastPreviewIntent) {
+  if (!previewMode || !payload) return;
+  let intent;
+  try { intent = heptaLinks.validateCardIntent(payload); } catch { status('卡片連結無效。', { error: true }); return; }
+  const seq = ++previewSeq;
+  lastPreviewIntent = intent;
+  // Hide the previous card immediately; A must never look like the requested B.
+  el('main').hidden = true;
+  document.body.dataset.previewState = 'loading';
+  document.body.dataset.cardId = intent.cardId;
+  showTitle('載入卡片中…'); status('載入卡片中…', { sticky: true });
+  const r = await call('previewRead', { intent });
+  if (seq !== previewSeq) return;
+  if (r.error) {
+    document.body.dataset.previewState = 'error';
+    showTitle('無法載入卡片');
+    status(`無法載入：${r.error} 請確認 Heptabase 與 CLI 已啟用，或使用上方網頁備援。`, { error: true });
+    return;
+  }
+  try {
+    const doc = JSON.parse(r.content);
+    if (doc.type !== 'doc' || !Array.isArray(doc.content)) throw new Error();
+    applyRemote(r, { keepSelection: false });
+    followToday = false;
+    el('main').hidden = false; el('main').scrollTop = 0;
+    document.body.dataset.previewState = 'ready';
+    status('唯讀預覽', { sticky: true });
+  } catch {
+    document.body.dataset.previewState = 'error'; showTitle('無法載入卡片');
+    status('卡片內容格式無法顯示，請以 Heptabase 開啟。', { error: true });
+  }
+}
+
 window.hf = {
+  preview: previewCard,
   reply(requestId, result) { waiting.get(requestId)?.(result); waiting.delete(requestId); },
   setScale(s) { document.documentElement.style.setProperty('--scale', s); if (view) view.dispatch(view.state.tr); },
   setPinned(on) { document.body.classList.toggle('pinned', on); },
@@ -1142,6 +1189,7 @@ window.hf = {
   shown() { onScreen = true; view?.focus(); poll(); if (current) refreshNearby(); },
   setVisible(v) { const was = onScreen; onScreen = v; if (v && !was) { poll(); if (current) refreshNearby(); } },
   async flush() {
+    if (previewMode) return true;
     await Promise.all([...uploads]);
     retrySaves();
     await save({ final: true });
@@ -1180,6 +1228,7 @@ window.hf = {
   },
   /** Runs a named command from the app menus. */
   command(name) {
+    if (previewMode) return;
     if (!view) return;
     const cmd = commandFor(name, view.state.schema);
     if (cmd) cmd(view.state, view.dispatch, view);
@@ -1234,4 +1283,4 @@ function start(r) {
   }, true);
 }
 
-connect();
+if (!previewMode) connect();

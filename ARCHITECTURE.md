@@ -1,5 +1,7 @@
 # Architecture
 
+P0 Deep Link: `shared/hepta-links.cjs` validates IDs/URLs; `main.cjs` routes initial argv and second-instance events into one separate preview BrowserWindow. `preview.js` uses the existing renderer in read-only mode, with only target-bound read/original-URL/close IPC. No extra backend. Explicit `--register-protocol` uses Electron's API; `scripts/install-windows.ps1` manages per-user versioned files and association backup/rollback. P1/browser acceptance remains pending at this checkpoint.
+
 HeptaFloat shares one ProseMirror editor between the original macOS Swift host and the Windows Electron host.
 
 Code blocks use `src/code-block.js`: a NodeView with a non-editable language selector and a lowlight decoration plugin. Existing `attrs.params` carries `[!]<language>[:displayMode]`; unknown values and the wrap flag are preserved. Highlighting never changes text/marks or serializes spans, caches immutable nodes, and skips code over 100,000 UTF-16 units. Pinned lowlight/highlight.js dependencies include their license notices in both build paths. Language changes form a separate undo step.
