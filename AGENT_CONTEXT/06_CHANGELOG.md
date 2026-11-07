@@ -3,6 +3,7 @@
 ## 2026-11-08 MV3 bridge and Windows continuation
 
 - Final ZIP/sidecar verified; runtime unchanged from tested ASAR and installer current. Actual permanent-root win.6 install → rollback to running win.5 → win.6 reinstall passed while preserving the old process. Development registration included the entry path and restored installed association. A packaging/install source race was corrected by rerunning sequentially; the rule is recorded in project conventions. SHA-256 is in the root changelog.
+- Feature commits: P0 `6895167`, MV3/install `354effc`. Actual branch push to upstream returned HTTP 403 permission denied; no fork, force-push or remote CI was attempted. Final branch is `codex/discord-hepta-preview`; build/dist/local profiles and seven parent handoff edits remain outside tracked source.
 
 - Added the marked-only MV3 handoff/options/web fallback using existing esbuild/shared URL functions; all-card defaults OFF. Bot absent: separate minimal helper/URL-field patch instructions, no deployment or message sending.
 - Forty-seven unit tests pass. Actual installed win.5 cold/warm/minimized A→B reused window/process; install/reinstall/first rollback/uninstall passed after handling short-lived Electron file locks. No user process was stopped.

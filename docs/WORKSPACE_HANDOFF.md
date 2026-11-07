@@ -8,7 +8,7 @@ The parent `Heptabae_project` folder is a multi-project workspace, not a Git rep
 
 Those parent entries point to this repository's user guide, architecture, schema, tests, status, and next steps. This tracked document records the same durable handoff without importing unrelated private workspace documentation into the upstream-derived Git repository.
 
-Versioned implementation: `codex/windows-port` based on `f32f34f`. Upstream `origin` is read-only for the connected account. A writable fork/remote is needed before push/remote CI. Build, dependency, QA screenshot/report, and portable output folders remain ignored.
+Current implementation: `codex/discord-hepta-preview`, continuing `codex/windows-port` from upstream `f32f34f`. Upstream `origin` is read-only; actual push returned HTTP 403. A writable fork/remote is needed before push/remote CI. Build, dependency, QA screenshot/report, and portable output folders remain ignored.
 
 2026-10-24 follow-up: `0.9.12-win.2` adds Ctrl+O search with Chinese-title fallback, explicit loading/failure/retry, and Alt arrows for session navigation. Parent README/architecture/start pointers, changelog and status/next-steps/agent changelog receive additive updates only. The durable implementation, 20-test coverage and live read-only hash checks remain versioned here.
 
