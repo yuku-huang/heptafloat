@@ -218,6 +218,42 @@ test('offline failure keeps the content for manual recovery', async (t) => {
   assert.deepEqual(await readdir(path.join(dir, 'temp')), []);
 });
 
+test('two windows keep separate offline recovery drafts for the same card', async (t) => {
+  const { service, dir } = await fixture(t, { run: async () => { throw new Error('Offline'); } });
+  const scopes = ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'];
+  const drafts = scopes.map((recoveryKey, i) => ({ kind: 'journal', id: day, content: content.replace('中文', `Window ${i}`), md5: 'verified-base', recoveryKey }));
+  await Promise.all(drafts.map((message) => service.save(message)));
+  const files = await readdir(path.join(dir, 'recovery'));
+  assert.equal(files.length, 2);
+  const saved = await Promise.all(files.map(async (file) => JSON.parse(await readFile(path.join(dir, 'recovery', file)))));
+  assert.deepEqual(saved.map((item) => item.content).sort(), drafts.map((item) => item.content).sort());
+  assert.deepEqual(saved.map((item) => item.recoveryKey).sort(), scopes);
+});
+
+test('a missing base hash cannot borrow another window save version', async (t) => {
+  const { service, cli, dir } = await fixture(t);
+  const a = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', b = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const base = await service.read('journal', day);
+  const first = await service.save({ kind: 'journal', id: day, content, md5: base.contentMd5, recoveryKey: a });
+  assert.equal(first.error, undefined);
+  const staleContent = content.replace('中文', 'Stale window');
+  const second = await service.save({ kind: 'journal', id: day, content: staleContent, md5: '', recoveryKey: b });
+  assert.match(second.error, /No verified base/);
+  assert.equal(cli.writes, 1); assert.equal(second.current.content, content);
+  const ownRetry = await service.save({ kind: 'journal', id: day, content, md5: '', recoveryKey: a });
+  assert.equal(ownRetry.error, undefined, 'A verified retry base remains usable in its own window.');
+  const files = await readdir(path.join(dir, 'recovery'));
+  assert.equal(files.length, 1, 'A successful window must not delete the other window draft.');
+  assert.equal(JSON.parse(await readFile(path.join(dir, 'recovery', files[0]))).content, staleContent);
+});
+
+test('invalid recovery scopes cannot trigger writes or card creation', async (t) => {
+  const { service, cli } = await fixture(t);
+  assert.throws(() => service.save({ kind: 'journal', id: day, content, md5: 'base', recoveryKey: '../escape' }), /Invalid recovery scope/);
+  assert.throws(() => service.createNote({ content, recoveryKey: '../escape' }), /Invalid recovery scope/);
+  assert.equal(cli.writes, 0);
+});
+
 test('new-note fill failure returns the created ID and persists it for recovery', async (t) => {
   const cli = new MockCli(); const original = cli.run.bind(cli);
   cli.run = (args) => args[1] === 'save' ? Promise.reject(new Error('Offline during fill')) : original(args);

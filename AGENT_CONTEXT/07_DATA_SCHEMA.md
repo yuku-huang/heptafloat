@@ -1,6 +1,8 @@
 # Data schema and bridge
 
-Deep Link intent: `{spaceId,cardId,canonicalUrl}` with normalized UUIDs and `https://app.heptabase.com/<space>/card/<card>`. Main, preload and renderer validate it. `preview` host event is queued until ready; `previewRead` must match the current target; `previewOpenOriginal` reconstructs the canonical URL in main. Preview rejects generic read/save/create/settings/image actions. No card-body persistence or state schema migration.
+Window-local host state: `{intent?,pinned,recoveryKey,ready,closing,allowClose,title}`; `recoveryKey` is a fresh host UUID and is never chosen by the renderer. Main overwrites it on save/create requests. Recovery JSON gains optional `recoveryKey`; filenames and verified retry-base keys derive from `kind:id:recoveryKey`. Legacy unscoped files are preserved. Note-body JSON/schema is unchanged. No window registry/pin/history/buffer is persisted beyond the existing main-window defaults. Theme/font/hotkey/startup and recents stay app-wide.
+
+Deep Link intent remains `{spaceId,cardId,canonicalUrl}`. Each registered window has its own validated initial intent; preload/renderer validate the bootstrap event. Link windows now share normal editor IPC with the journal, including validated read/save/create/image actions. Window controls and replies target the sender; no cross-window navigation is implied. `previewRead` only bootstraps the initial card; it is no longer a read-only permission mode.
 
 MV3 local settings: `{interceptAll:false,autoLaunch:true}`. Session storage `web:<tabId>` holds `{url:canonicalUrl,expires:epochMs}` for a 30-second bypass, removed on tab close. No note content/auth data. Per-user installer receipt under `%LOCALAPPDATA%/Programs/HeptaFloat/install-state.json` stores owner marker, installed flag, version list, expected command and whether a prior flowhepta key existed; original key backup stays beside it. These local files are not Git inputs.
 
@@ -14,7 +16,7 @@ Code block language uses existing `attrs.params = [!]<language>[:displayMode]` (
 
 Recent entries: `{id, objectType, title, chars, openedAt, pinned?}`. At most 100 are retained. `openedAt` is an ISO timestamp; journal IDs are `YYYY-MM-DD`, note IDs are UUIDs. There is no note-body database in state.json.
 
-Recovery JSON: `{kind, id, content, md5?, savedLocallyAt?}`; `content` is serialized Heptabase ProseMirror JSON. Filename hashes `kind:id` for saves. New-note drafts have unique IDs; after creation their recovery metadata records the real card ID. These private files are never Git inputs.
+Recovery JSON: `{kind, id, content, md5?, recoveryKey?, savedLocallyAt?}`; `content` is serialized Heptabase ProseMirror JSON. Filename hashes `kind:id:recoveryKey` for window-scoped saves; legacy requests without a scope still hash `kind:id`. New-note drafts have unique IDs; after creation their recovery metadata records the real card ID. These private files are never Git inputs.
 
 Editor messages: `{action, requestId?, ...payload}`. Read returns `{kind,id,title,content,contentMd5}`. Save returns `{current?,error?}`. Create returns `{createdId?,current?,error?}`. Search accepts `{query}` and returns `{results,warning?}` or `{error}`. Each result is official CLI metadata `{id,objectType,title,createdTime?,lastEditedTime?}`; at most 20 for empty query, 50 for a keyword. A warning identifies an unavailable title/content source; errors never become empty arrays in the UI. Other allowlisted messages manage recents, native window state, settings, and image import. Unknown actions fail.
 

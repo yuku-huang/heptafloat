@@ -1,3 +1,22 @@
+### [2026-11-08 05:03] - Open complete editable card windows for deep links
+
+* **修改檔案**：`windows/main.cjs`, `windows/service.cjs`, `windows/chrome.js`, `windows/windows.css`, removed `windows/preview.js`, `src/editor.js`, `windows/preview-smoke.cjs`, `test/windows.test.mjs`, build/package scripts, package metadata, README/START_HERE/ARCHITECTURE, `docs/`, `AGENT_CONTEXT/00..08`; seven parent handoff pointers updated additively outside nested Git
+* **變更細節**：
+  * explicit user override of the attached read-only/reused-preview specification: every validated link, including a repeat card, opens a new complete editable card window in the same app instance; startup intents queue
+  * reused the normal editor/toolbar with independent keep-on-top, sender-bound controls/settings/title replies, search/recents/history/new notes/code languages/autosave; appearance/font/global shortcut/startup remain shared preferences
+  * close waits for that renderer's writes/uploads, failed saves retain the window, Quit checks all windows, and the tray reopens Esc-hidden cards; host UUIDs isolate recovery drafts and verified retry bases, preserving both same-card conflict versions
+  * fixed initial link-editor focus by showing it before focusing, and retained window-action shortcuts when a toolbar control has focus; removed obsolete read-only preview assets without changing note-body schema or adding dependencies
+  * 50 unit tests and native source/editor/multi-window tests passed; the exact win.7 EXE passed both packaged smoke suites at 04:57, with mock cards/writes only. ASAR SHA-256 `962ede6525960283d7df138b0f9f20e64a48286152e3176264e3450ecf1fc1b9`; screenshots visually inspected
+  * added staged-runtime/archive-only packaging flags so runtime QA, guide updates, archive and installation can run sequentially
+  * actual task-owned HKCU win.6 install/reinstall → win.7 upgrade → win.6 rollback → uninstall passed, restoring the prior handler and HTTPS defaults with zero note writes; permanent win.7 files/handler installed, installed ASAR matches the tested runtime, and old normal win.5 PID was preserved. Normal win.7 activation still requires a tray Quit/restart
+  * final ZIP integrity/required contents/sidecar verified, current guides and installer included, tested ASAR unchanged; file/product versions `0.9.12.7` / `0.9.12-win.7`. ZIP SHA-256 `ee3057842cf95d621854099c316b851650a11d0ef00e156acd07b67890dfee62`. Installation rerun refreshed the current guides and preserved the old process; generated packages, QA profiles/reports and private data remain ignored
+  * final unit rerun 50/50, shared Bun editor bundle, syntax checks and diff whitespace checks passed; native macOS host was not built on this Windows machine
+  * preserved the old normal app and all private data; no real-note writes, normal-account win.7 cold/second-process activation, browser/Discord success or Bot deployment are claimed. Browser extension source is unchanged by this request
+  * skill verdict: no skill edit; window scope, native focus and lifecycle checks are project-specific and recorded in conventions/tests. Live development policy was refreshed before installation; IDs/versions/hashes unchanged
+* **下一步建議 (Next Steps)**：
+  * normally quit the old system-tray process before activating win.7; confirm full card-window behavior with physical input
+  * resolve the separate browser external-launch issue using permitted evidence before actual Discord acceptance; preserve signing/device/macOS/real-write and writable-remote boundaries
+
 ### [2026-11-08 04:13] - Add experimental MV3 card bridge and Windows lifecycle validation
 
 * **修改檔案**：`browser-extension/`, `test/browser-bridge.test.mjs`, `scripts/build-browser-extension.mjs`, `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`, `scripts/package-windows.mjs`, package metadata, `.github/workflows/windows.yml`, `integrations/discord/README.md`, README/start/architecture/operator/Deep Link/test-results guides, `AGENT_CONTEXT/00..08`, `docs/WORKSPACE_HANDOFF.md`

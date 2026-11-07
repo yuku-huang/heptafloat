@@ -12,6 +12,8 @@ const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 // Versioned folders let users finish work in the previous release during a build.
 const outputRoot = path.join(root, 'dist', pkg.version);
 const executable = path.join(outputRoot, 'HeptaFloat-win32-x64', 'HeptaFloat.exe');
+const stageOnly = process.argv.includes('--stage-only'), archiveOnly = process.argv.includes('--archive-only');
+if (stageOnly && archiveOnly) throw new Error('Choose stage-only or archive-only, not both.');
 const quote = (s) => `'${s.replaceAll("'", "''")}'`;
 const running = execFileSync('powershell.exe', ['-NoProfile', '-Command',
   `$targetExe = ${quote(executable)}; @(Get-Process -Name HeptaFloat -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $targetExe }).Count`], { encoding: 'utf8', windowsHide: true });
@@ -19,7 +21,8 @@ if (Number(running.trim()) > 0) throw new Error(`Quit the running ${pkg.version}
 const icon = path.join(root, 'assets', 'AppIcon.ico');
 let hasIcon = false;
 try { await access(icon); hasIcon = true; } catch {}
-const outputs = await packager({ dir: path.join(root, 'build/windows'), out: outputRoot, name: 'HeptaFloat',
+if (archiveOnly) await access(executable);
+const outputs = archiveOnly ? [path.dirname(executable)] : await packager({ dir: path.join(root, 'build/windows'), out: outputRoot, name: 'HeptaFloat',
   platform: 'win32', arch: 'x64', electronVersion: pkg.devDependencies.electron, overwrite: true, asar: true,
   ...(hasIcon && { icon }), appVersion: pkg.version, buildVersion: pkg.version.replace('-win.', '.'),
   win32metadata: { CompanyName: 'HeptaFloat contributors', FileDescription: 'HeptaFloat for Windows', ProductName: 'HeptaFloat' } });
@@ -31,6 +34,8 @@ await cp(path.join(root, 'shared'), path.join(outputs[0], 'shared'), { recursive
 await mkdir(path.join(outputs[0], 'scripts'), { recursive: true });
 await copyFile(path.join(root, 'scripts/install-windows.ps1'), path.join(outputs[0], 'scripts/install-windows.ps1'));
 await cp(path.join(root, 'build/browser-extension'), path.join(outputs[0], 'browser-extension'), { recursive: true });
+// QA can test the exact EXE before refreshing its guides and creating the ZIP.
+if (stageOnly) { console.log(`Staged ${outputs[0]}`); process.exit(0); }
 const archive = path.join(root, 'dist', `HeptaFloat-${pkg.version}-windows-x64.zip`);
 // PowerShell receives only explicitly quoted, tool-owned output paths.
 execFileSync('powershell.exe', ['-NoProfile', '-Command',

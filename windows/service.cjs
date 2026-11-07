@@ -13,6 +13,10 @@ function checkContent(content) {
   const doc = JSON.parse(content);
   if (doc.type !== 'doc' || !Array.isArray(doc.content)) throw new Error('Expected a ProseMirror document.');
 }
+function writeKey(message) {
+  if (message.recoveryKey != null && (typeof message.recoveryKey !== 'string' || !UUID.test(message.recoveryKey))) throw new Error('Invalid recovery scope.');
+  return `${message.kind}:${message.id}${message.recoveryKey ? `:${message.recoveryKey}` : ''}`;
+}
 function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -45,19 +49,20 @@ class HeptabaseService {
     return this.cli.run([kind, 'read', id]).then((r) => ({ ...r, kind, id }));
   }
   async backup(message) {
-    const key = createHash('sha256').update(`${message.kind}:${message.id}`).digest('hex');
+    const key = createHash('sha256').update(writeKey(message)).digest('hex');
     const file = path.join(this.dataDir, 'recovery', `${key}.json`);
     await atomicJson(file, { ...message, savedLocallyAt: new Date().toISOString() });
     return file;
   }
   save(message) {
     checkId(message.kind, message.id); checkContent(message.content);
+    const key = writeKey(message);
     return this.serializeWrite(async () => {
       const file = await this.backup(message);
       const result = {};
       try {
         // Missing readback is NOT permission to overwrite the current remote version.
-        const md5 = message.md5 || this.lastSaved.get(`${message.kind}:${message.id}`);
+        const md5 = message.md5 || this.lastSaved.get(key);
         if (!md5) throw new Error('No verified base version. Reopen the card before retrying; your draft is kept locally.');
         const saved = await this.scratch(async (dir) => {
           const contentFile = path.join(dir, 'content.json');
@@ -65,8 +70,8 @@ class HeptabaseService {
           return this.cli.run([message.kind, 'save', message.id, '--content-md5', md5, '--content-file', contentFile]);
         });
         // Only a hash explicitly returned by save can serve as a retry base.
-        if (saved.contentMd5) this.lastSaved.set(`${message.kind}:${message.id}`, saved.contentMd5);
-        else this.lastSaved.delete(`${message.kind}:${message.id}`);
+        if (saved.contentMd5) this.lastSaved.set(key, saved.contentMd5);
+        else this.lastSaved.delete(key);
         this.cardSearch.invalidate();
       } catch (e) { result.error = e.message; }
       try { result.current = await this.read(message.kind, message.id); } catch {}
@@ -76,24 +81,26 @@ class HeptabaseService {
   }
   createNote(message) {
     checkContent(message.content);
+    writeKey(message); // Validate the optional host-owned scope before creating anything.
     return this.serializeWrite(async () => {
-      const file = await this.backup({ kind: 'draft', id: randomUUID(), content: message.content });
+      const file = await this.backup({ kind: 'draft', id: randomUUID(), content: message.content, recoveryKey: message.recoveryKey });
       const result = {};
       try {
         const title = String(message.title || 'Untitled').replace(/[\r\n]/g, ' ').slice(0, 500);
         const created = await this.cli.run(['note', 'create', '--no-created-by-ai', '--content', `# ${title}`]);
         checkId('note', created.id); result.createdId = created.id;
+        const key = writeKey({ ...message, kind: 'note', id: created.id });
         this.cardSearch.invalidate();
         const fresh = await this.read('note', created.id);
-        this.lastSaved.set(`note:${created.id}`, fresh.contentMd5);
+        this.lastSaved.set(key, fresh.contentMd5);
         // Keep the created id on disk if filling the new card fails.
-        await atomicJson(file, { kind: 'note', id: created.id, md5: fresh.contentMd5, content: message.content });
+        await atomicJson(file, { kind: 'note', id: created.id, md5: fresh.contentMd5, content: message.content, recoveryKey: message.recoveryKey });
         await this.scratch(async (dir) => {
           const contentFile = path.join(dir, 'content.json');
           await fs.writeFile(contentFile, message.content, 'utf8');
           const saved = await this.cli.run(['note', 'save', created.id, '--content-md5', fresh.contentMd5, '--content-file', contentFile]);
-          if (saved.contentMd5) this.lastSaved.set(`note:${created.id}`, saved.contentMd5);
-          else this.lastSaved.delete(`note:${created.id}`);
+          if (saved.contentMd5) this.lastSaved.set(key, saved.contentMd5);
+          else this.lastSaved.delete(key);
         });
         result.current = await this.read('note', created.id);
         this.cardSearch.invalidate();

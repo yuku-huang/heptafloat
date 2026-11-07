@@ -98,7 +98,6 @@ function openInHeptabase(id) {
 
 /** Opens a card in the floating card if it's a note or journal, otherwise in Heptabase. */
 async function openHere(card) {
-  if (previewMode) { openInHeptabase(card.id); return; }
   let kind = editableKind(card.objectType, card.id);
   if (!kind && !card.objectType) {
     const info = await call('cardType', { id: card.id });
@@ -484,6 +483,9 @@ if (!isMac) document.addEventListener('keydown', (e) => {
     if (e.key === '[') command = 'back';
     if (e.key === ']') command = 'forward';
   }
+  // Window actions remain available when a toolbar button/select has focus.
+  if (!command) command = ['keepOnTop', 'settings', 'biggerText', 'smallerText', 'actualSize']
+    .find((name) => bindings[name] && keyName(e) === normalize(bindings[name]));
   if (!command) return;
   e.preventDefault(); e.stopPropagation();
   if (command === 'search' && palette.isOpen) palette.focusSearch();
@@ -568,7 +570,6 @@ const mentionPopup = (() => {
 // MARK: plugins
 
 function buildPlugins(schema) {
-  if (previewMode) return [codeHighlightPlugin()];
   const n = schema.nodes;
   const rules = [
     wrappingInputRule(/^\s*[-*]\s$/, n.bullet_list_item),
@@ -757,11 +758,6 @@ function load(result, { keepSelection } = {}) {
     if (view) view.updateState(state);
     else view = new EditorView(el('main'), {
       state,
-      editable: () => !previewMode,
-      dispatchTransaction(tr) {
-        if (previewMode && tr.docChanged && !loadingRemote) return;
-        view.updateState(view.state.apply(tr));
-      },
       nodeViews: { ...Object.fromEntries(LIST_ITEMS.map((t) => [t, (n, v, g) => new ItemView(n, v, g)])),
         code_block: (node, view, getPos) => new CodeBlockView(node, view, getPos) },
       scrollThreshold: scrollRoom(),
@@ -769,7 +765,6 @@ function load(result, { keepSelection } = {}) {
       // Pasted or dropped images are imported into Heptabase, then inserted like Heptabase does.
       // A URL pasted over selected text links that text.
       handlePaste(v, event) {
-        if (previewMode) return true;
         const files = [...(event.clipboardData?.items || [])].filter((i) => i.kind === 'file' && i.type.startsWith('image/')).map((i) => i.getAsFile());
         if (!files.length) return linkSelection(v, event.clipboardData?.getData('text/plain'));
         event.preventDefault();
@@ -777,7 +772,6 @@ function load(result, { keepSelection } = {}) {
         return true;
       },
       handleDrop(_v, event) {
-        if (previewMode) { event.preventDefault(); return true; }
         const files = [...(event.dataTransfer?.files || [])].filter((f) => f.type.startsWith('image/'));
         if (!files.length) return false;
         event.preventDefault();
@@ -1128,7 +1122,6 @@ function applyRemote(result, opts = { keepSelection: true }) {
 let onScreen = true; // the app tells us when the card is hidden; no syncing then
 
 async function poll() {
-  if (previewMode) return;
   if (!onScreen || !current || current.kind === 'draft' || cardBusy(cacheKey(current)) || Date.now() - lastEdit < 1500) return;
   // Showing today's journal: follow the date across midnight.
   if (followToday && current.id !== today()) { show({ kind: 'journal', id: today() }); return; }
@@ -1144,33 +1137,40 @@ async function poll() {
 let previewSeq = 0, lastPreviewIntent = null;
 async function previewCard(payload = lastPreviewIntent) {
   if (!previewMode || !payload) return;
+  if (view) return; // The retry button is for initial load failures, never discard an editable card.
   let intent;
   try { intent = heptaLinks.validateCardIntent(payload); } catch { status('卡片連結無效。', { error: true }); return; }
   const seq = ++previewSeq;
   lastPreviewIntent = intent;
-  // Hide the previous card immediately; A must never look like the requested B.
+  // Initial link loads show no unrelated card behind a loading/error message.
   el('main').hidden = true;
   document.body.dataset.previewState = 'loading';
+  if (el('card-error-tools')) el('card-error-tools').hidden = true;
   document.body.dataset.cardId = intent.cardId;
   showTitle('載入卡片中…'); status('載入卡片中…', { sticky: true });
   const r = await call('previewRead', { intent });
   if (seq !== previewSeq) return;
   if (r.error) {
     document.body.dataset.previewState = 'error';
+    if (el('card-error-tools')) el('card-error-tools').hidden = false;
     showTitle('無法載入卡片');
-    status(`無法載入：${r.error} 請確認 Heptabase 與 CLI 已啟用，或使用上方網頁備援。`, { error: true });
+    status(`無法載入：${r.error} 請確認 Heptabase 與 CLI 已啟用，或使用網頁備援。`, { error: true });
     return;
   }
   try {
     const doc = JSON.parse(r.content);
     if (doc.type !== 'doc' || !Array.isArray(doc.content)) throw new Error();
-    applyRemote(r, { keepSelection: false });
-    followToday = false;
-    el('main').hidden = false; el('main').scrollTop = 0;
+    started = true;
+    // The full editor must be visible before start() focuses/measures its caret.
+    el('main').hidden = false;
+    start(r);
+    el('main').scrollTop = 0;
     document.body.dataset.previewState = 'ready';
-    status('唯讀預覽', { sticky: true });
+    status('');
   } catch {
+    el('main').hidden = true;
     document.body.dataset.previewState = 'error'; showTitle('無法載入卡片');
+    if (el('card-error-tools')) el('card-error-tools').hidden = false;
     status('卡片內容格式無法顯示，請以 Heptabase 開啟。', { error: true });
   }
 }
@@ -1189,7 +1189,6 @@ window.hf = {
   shown() { onScreen = true; view?.focus(); poll(); if (current) refreshNearby(); },
   setVisible(v) { const was = onScreen; onScreen = v; if (v && !was) { poll(); if (current) refreshNearby(); } },
   async flush() {
-    if (previewMode) return true;
     await Promise.all([...uploads]);
     retrySaves();
     await save({ final: true });
@@ -1228,7 +1227,6 @@ window.hf = {
   },
   /** Runs a named command from the app menus. */
   command(name) {
-    if (previewMode) return;
     if (!view) return;
     const cmd = commandFor(name, view.state.schema);
     if (cmd) cmd(view.state, view.dispatch, view);
@@ -1262,7 +1260,7 @@ async function tryConnect() {
 }
 
 function start(r) {
-  followToday = true;
+  followToday = r.kind === 'journal' && r.id === today();
   applyRemote(r, { keepSelection: false });
   if (!isMac) pageHistory.visit(current);
   view.dispatch(view.state.tr.setSelection(endOfText(view.state.doc)));

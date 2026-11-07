@@ -1,7 +1,7 @@
 # File map
 
 - `shared/hepta-links.cjs`, `test/hepta-links.test.mjs`: strict HTTPS/custom URI/IPC intent and marker utility.
-- `windows/preview.js`, `windows/preview-smoke.cjs`: preview-only chrome and native sample-card regressions.
+- `windows/chrome.js`, `windows/preview-smoke.cjs`: shared complete window chrome and native multi-window/pin/save/conflict/close regressions; old read-only preview assets removed.
 - `browser-extension/`: MV3 worker, pure bridge, handoff/options UI and scoped manifest; `test/browser-bridge.test.mjs` tests behavior with explicit API doubles.
 - `scripts/build-browser-extension.mjs`: repeatable extension bundle; `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`: per-user install/rollback and actual HKCU lifecycle QA.
 - `docs/DEEPLINK.md`, `docs/DEEPLINK_TEST_RESULTS.md`, `integrations/discord/README.md`: operator flow, honest acceptance matrix and external-Bot patch example.
@@ -19,7 +19,7 @@
 - `windows/chrome.js`, `windows/windows.css`: Windows title bar and settings.
 - `windows/smoke.cjs`, `test/windows.test.mjs`: isolated native smoke and unit tests.
 - `windows/editor-smoke.cjs`, `test/editor-commands.test.mjs`: native `/code`/keyboard/composition/save tests and pure editing-command regressions.
-- `scripts/`: repeatable setup, build, run, and packaging.
+- `scripts/`: repeatable setup, build, run, and packaging. `package-windows.mjs --stage-only` freezes the runtime for QA; `--archive-only` refreshes guides/distribution files and ZIP without rebuilding that runtime.
 - `assets/AppIcon.ico`: Windows icon converted from the upstream PNG.
 - `docs/WINDOWS.md`: operator guide and acceptance limits.
 - `.github/workflows/windows.yml`: Windows CI build/test/package definition.

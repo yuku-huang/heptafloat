@@ -4,9 +4,10 @@ let preferences;
 let pendingEvents = [];
 
 function receive(event) {
-  if (!window.hf) { pendingEvents.push(event); return; }
+  if (!window.hf || !document.getElementById('window-bar')) { pendingEvents.push(event); return; }
   if (event.type === 'reply') window.hf.reply(event.requestId, event.result);
   if (event.type === 'command') window.hf.command(event.name);
+  if (event.type === 'preview') window.hf.preview(event.intent);
   if (event.type === 'titles') window.hf.titles(event.titles);
   if (event.type === 'visible') { window.hf.setVisible(event.visible); if (event.visible) window.hf.shown(); }
   if (event.type === 'settings') { document.getElementById('preferences').showModal(); fillPreferences(); }
@@ -59,6 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('close-settings').onclick = () => document.getElementById('preferences').close();
   document.getElementById('recovery').onclick = () => post('openRecovery');
   document.getElementById('check-connection').onclick = () => post('checkConnection');
+  if (api.preview) {
+    document.body.classList.add('linked-card');
+    const tools = document.createElement('aside'); tools.id = 'card-error-tools'; tools.hidden = true;
+    tools.innerHTML = '<button id="card-retry">重新載入</button><button id="card-web">以 Heptabase 網頁開啟</button>';
+    document.body.append(tools);
+    document.getElementById('card-retry').onclick = () => window.hf.preview();
+    document.getElementById('card-web').onclick = () => post('previewOpenOriginal');
+    document.querySelector('.settings-intro').textContent = '完整卡片視窗：編輯、搜尋、歷史與獨立置頂。';
+    document.querySelector('.settings-help:last-child').textContent = 'Ctrl+O 搜尋 · Ctrl+P 最近卡片 · Alt+←/→ 歷史 · Esc 隱藏。關閉卡片窗會先儲存；未存妥時保留視窗。系統匣 Open card windows 可重新顯示隱藏的卡片窗。';
+  }
   document.getElementById('settings-form').onsubmit = (event) => {
     event.preventDefault();
     post('setSettings', { settings: {

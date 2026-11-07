@@ -1,11 +1,9 @@
 html { color-scheme: light dark; }
-#preview-bar { position: fixed; inset: 0 0 auto; z-index: 30; min-height: 54px; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--light-grey); }
-#preview-bar strong { margin-right: auto; font-size: 13px; }
-#preview-bar span { font-size: 12px; color: var(--middle-grey); }
-#preview-bar button { border: 1px solid var(--light-grey); border-radius: 6px; background: var(--menu-bg); color: var(--text-color); padding: 7px 9px; cursor: pointer; font: 12px Inter, sans-serif; }
-.preview-mode footer { pointer-events: none; }
-.preview-mode[data-preview-state=error] #status { white-space: normal; max-width: 100%; text-align: left; }
-.preview-mode[data-preview-state=loading] #status, .preview-mode[data-preview-state=error] #status { position: fixed; inset: 90px 28px auto; margin: 0; padding: 16px; background: var(--code-bg); border-radius: 8px; }
+.linked-card[data-preview-state=error] #status { white-space: normal; max-width: 100%; text-align: left; }
+.linked-card[data-preview-state=loading] #status, .linked-card[data-preview-state=error] #status { position: fixed; inset: 80px 28px auto; margin: 0; padding: 16px; background: var(--code-bg); border-radius: 8px; }
+#card-error-tools { position: fixed; top: 220px; left: 28px; display: flex; gap: 10px; }
+#card-error-tools[hidden] { display: none; }
+#card-error-tools button { border: 1px solid var(--light-grey); border-radius: 6px; padding: 8px 12px; background: var(--menu-bg); color: var(--text-color); cursor: pointer; }
 body { background: var(--bg); }
 .ProseMirror { tab-size: 4; }
 #window-bar { position: fixed; inset: 0 0 auto; z-index: 30; height: 44px; display: flex; align-items: center; gap: 3px;

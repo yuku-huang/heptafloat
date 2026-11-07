@@ -1,19 +1,23 @@
 # HeptaFloat for Windows
 
-Version: `0.9.12-win.6` · Windows 10/11 x64 · based on upstream `f32f34f`.
+Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
 
 ## Run the portable app
 
-1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.6-windows-x64.zip` to a permanent folder.
+1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.7-windows-x64.zip` to a permanent folder.
 2. Open `HeptaFloat-win32-x64/HeptaFloat.exe`. Keep the accompanying files beside it.
 3. Keep Heptabase running and enable **Settings → AI Features → CLI**. An active Heptabase subscription is required by its CLI.
 4. Press **Ctrl+Alt+J** to show/hide the floating journal. Closing the window hides it to the system tray; choose **Quit HeptaFloat** in the tray menu to exit.
 
 The app requires no separate Node.js installation. This development build is unsigned and is not an upstream Windows release. Portable editing needs no registry/service installation. Optional `flowhepta` registration is explicit and per-user: see `docs/DEEPLINK.md` (included alongside this guide in the distribution). Browser/Discord bridging remains experimental; actual unresolved checks are in `DEEPLINK_TEST_RESULTS.md`. Launch at login is off by default and can be enabled explicitly in Settings after placing the app in its permanent location. Turn it off before moving/deleting that folder.
 
+## Linked card windows (win.7)
+
+Each deep link opens a new complete editor window. This user request overrides the original read-only/reuse specification. Pin state is independent; editing, Ctrl+O/Ctrl+P, Alt history, new cards, code languages and settings use the same UI as the journal. Theme/font/hotkey/startup remain global. Esc hides a card; the tray lists it for reopening. Closing waits for saves; failure/composition keeps it open. Quit checks every renderer. Same-card conflicts keep both versions; offline drafts/retry hashes are window-scoped. Quit the old tray process before opening the new release.
+
 ## Features and shortcuts
 
-Each `/code` block has a language selector (31 choices, including Python, C++, Verilog and plain text). Selecting a language enables syntax colors without changing code. Undo restores the previous language separately from typing. The win.6 package includes this update.
+Each `/code` block has a language selector (31 choices, including Python, C++, Verilog and plain text). Selecting a language enables syntax colors without changing code. Undo restores the previous language separately from typing. The win.7 package includes this update.
 
 | Action | Windows shortcut |
 | --- | --- |
@@ -81,11 +85,11 @@ npm run package:windows
 
 `test:windows` uses an isolated profile and mock CLI; it never writes real Heptabase notes. `test:windows:live` reads today's real journal and an existing note, searches its full title, exercises Ctrl+O and Alt navigation, then compares content hashes without writes or screenshots. It also lists card metadata through the official CLI for title search. Reports contain only counts/booleans, not private titles or bodies. Tests use Control+Alt+Shift+F24 (mock) / F23 (live) to avoid the normal app shortcut. Reports/images go under ignored `build/`. Unit tests use ignored `build/test-tmp/` to avoid Windows path-length issues.
 
-Packaging produces `dist/0.9.12-win.6/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP at `dist/HeptaFloat-0.9.12-win.6-windows-x64.zip`, and a SHA-256 sidecar, including the unpacked MV3 extension, installer and Deep Link guides. Versioned output folders avoid replacing an older running app; rebuilding the same version checks for running executables first and asks you to quit that version. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
+Packaging produces `dist/0.9.12-win.7/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP at `dist/HeptaFloat-0.9.12-win.7-windows-x64.zip`, and a SHA-256 sidecar, including the unpacked MV3 extension, installer and Deep Link guides. Versioned output folders avoid replacing an older running app; rebuilding the same version checks for running executables first and asks you to quit that version. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
 
 ## Validation boundaries
 
-Validated locally: 47 unit tests cover editing/languages, guarded official CLI access/search/history, strict links and the MV3 bridge logic. Native editor/preview smoke and actual installed-protocol results are separated in `docs/DEEPLINK_TEST_RESULTS.md`. Real-note integration checks remain read-only; simulated browser APIs do not prove Discord or browser external-launch acceptance.
+Validated locally: 50 unit tests cover editing/languages, guarded official CLI access/search/history, strict links and the MV3 bridge logic. Native editor/preview smoke and actual installed-protocol results are separated in `docs/DEEPLINK_TEST_RESULTS.md`. Real-note integration checks remain read-only; simulated browser APIs do not prove Discord or browser external-launch acceptance.
 
 Real note mutation/image import, physical Chinese IME interaction, multi-monitor/DPI transitions, reboot/login startup, and Windows 10 hardware acceptance still need a user acceptance pass. macOS native compilation is not available on this Windows machine. CI configuration is provided; it has not run remotely until the branch is pushed to a writable repository.
 

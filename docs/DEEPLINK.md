@@ -1,6 +1,6 @@
 # Windows 卡片連結預覽與 Discord 橋接
 
-此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。預覽窗唯讀，與原本可編輯的日記窗分開。瀏覽器橋接目前是實驗功能：Edge 的 HTTPS→中繼頁已觀察到，外部程式啟動尚未通過實機驗收，不能當成已完成 Discord 端到端整合。詳見 [實測紀錄](DEEPLINK_TEST_RESULTS.md)。
+此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者最新要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。瀏覽器橋接目前是實驗功能：Edge 的 HTTPS→中繼頁已觀察到，外部程式啟動尚未通過實機驗收，不能當成已完成 Discord 端到端整合。詳見 [實測紀錄](DEEPLINK_TEST_RESULTS.md)。
 
 ## 安裝桌面協定
 
@@ -11,7 +11,7 @@ Windows 10/11 x64；先保留原本資料，從系統匣正常退出舊版。Hep
 ```powershell
 npm ci
 npm run package:windows
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Action Install -SourceDirectory .\dist\0.9.12-win.6\HeptaFloat-win32-x64
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Action Install -SourceDirectory .\dist\0.9.12-win.7\HeptaFloat-win32-x64
 ```
 
 從解壓縮的完整 distribution 資料夾：
@@ -40,9 +40,9 @@ https://app.heptabase.com/<space-uuid>/card/<card-uuid>?flowhepta=1
 flowhepta://card/<card-uuid>?space=<space-uuid>
 ```
 
-第一筆合法連結會開啟 720×540 可調大小的預覽窗；後續卡片重用同一窗並恢復／focus。載入中的連點採最後一筆有效請求優先；舊請求不能蓋掉新的卡片。關閉預覽不會退出主程式。原本日記／編輯窗不被切換，也不把連結當成寫入授權。
+每次合法連結都開啟新的 720×540 可調大小卡片窗；重複點同一張卡也開新窗，同時保留同一個 App 主實例。啟動前收到的連結會排隊，不再採跨卡片的最後一筆覆蓋。窗內搜尋／歷史仍在該窗切換。置頂按鈕及 Ctrl+Shift+P 只改目前視窗；新窗沿用主視窗的預設置頂值。主日記不被切換。開啟本身不寫卡片，只有使用者編輯才依既有 MD5 保護儲存。
 
-預覽包含載入／錯誤、重試、網頁備援及關閉。失敗立即隱藏舊卡內容；目前只支援官方 CLI 可讀的 note 文字卡片，其他媒體／無權限／未連線時會顯示錯誤與備援。`spaceId` 用於連結驗證及 canonical URL；資料仍來自目前已登入的官方桌面 CLI，沒有增加跨帳號登入或切換空間 API。
+所有卡片窗使用原本工具列、設定與完整編輯器。主題／字級／全域快捷鍵／啟動偏好共享，置頂、編輯緩衝、歷史與復原草稿按視窗隔離。Esc 隱藏後，可從系統匣 Open card windows 找回；關閉會先儲存，未存妥或正在組字時保留視窗。Quit 檢查所有窗。同卡衝突沿用保留雙版本的副本流程。初始載入失敗時仍提供重試及網頁備援；目前只支援官方 CLI 可讀的 note 文字卡片，其他媒體／無權限／未連線時會顯示錯誤與備援。`spaceId` 用於連結驗證及 canonical URL；資料仍來自目前已登入的官方桌面 CLI，沒有增加跨帳號登入或切換空間 API。
 
 只接受精確 `app.heptabase.com` HTTPS 卡片路徑與 UUID。網站載入後自行產生的 `/tab/...` 等額外路徑目前不屬於這個 parser 的輸入格式；Bot 應沿用已驗證的分享卡片網址。query/hash 不直接進 shell；App 的備援網址一律由驗證後 IDs 重建，不含原始 tracking／marker。
 
@@ -90,8 +90,10 @@ Bot 不在這個 Repo，沒有部署。外部 Bot 的最小修補見 [integratio
 npm test
 npm run test:windows
 npm run test:preview
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-protocol-install.ps1 -SourceDirectory .\dist\0.9.12-win.5\HeptaFloat-win32-x64 -UpgradeDirectory .\dist\0.9.12-win.6\HeptaFloat-win32-x64
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-protocol-install.ps1 -SourceDirectory .\dist\0.9.12-win.6\HeptaFloat-win32-x64 -UpgradeDirectory .\dist\0.9.12-win.7\HeptaFloat-win32-x64
 ```
+
+也可依序執行 `node scripts/package-windows.mjs --stage-only`、打包 EXE 的 smoke tests，再以 `--archive-only` 更新說明文件並建立 ZIP。不要在封裝重建來源時同時安裝。
 
 最後一個測試只使用 `build/protocol-installs` 的任務副本，會短暫改 HKCU flowhepta，finally 恢復原 handler；不可與瀏覽器點擊 QA 同時執行。它不會終止使用者程式或寫入真實卡片。真實啟動／最小化／重複卡片／Discord／首次提示要另行觀察。
 

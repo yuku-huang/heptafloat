@@ -1,6 +1,6 @@
 # Architecture handoff
 
-Deep Link pipeline: strict shared URL/intent module → main initial/second-instance queue → one sandboxed read-only preview → existing CLI/editor. Main editing remains separate. MV3 exact-host/top-frame navigation → own handoff → custom URI attempt/manual anchor, with canonical HTTPS + tab/card session bypass for fallback. No server, new framework, public redirector or extra authentication. `install-windows.ps1` explicitly manages HKCU handler/versioned files, original backup and safe rollback. See `docs/DEEPLINK.md` for limits and actual-vs-mock evidence.
+Deep Link pipeline: validated intent queue → new registered card window per link → the same chrome/editor and sender-bound IPC → official CLI. Initial linked loads skip the journal; all toolbar/editor commands are enabled. Pin/history/buffers belong to each window; appearance/hotkey/startup remain app preferences. Closing flushes that renderer and stays open on error; app Quit checks every renderer. Host UUIDs scope recovery files and retry hashes; serial writes and MD5/keep-both conflicts remain intact. See architecture and Deep Link guides for the user override of the old preview design.
 
 Shared editor (`src/`) → platform-specific bridge → official Heptabase CLI.
 

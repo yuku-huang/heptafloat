@@ -1,5 +1,15 @@
 # Agent changelog
 
+## 2026-11-08 Complete linked card windows
+
+- Explicit user override: replace read-only/reused preview with full editable card windows and new-window-per-link default. Removed separate preview assets; reused normal chrome/editor/commands and per-sender controls/title/mention replies. Pins/history/buffers stay independent; appearance/hotkey settings remain global.
+- Added close/quit flush guards and tray reopening for Esc-hidden cards. Host UUIDs separate offline recovery files and verified save retries; missing hashes cannot borrow another window version. Opening a link itself does not save.
+- 50 unit tests pass; native sample-only tests cover repeated/different links, toolbar/pin shortcut from toolbar focus, settings routing, targeted autosave/languages, search/history/new notes, same-card keep-both copies, offline close protection and all-window quit checks. Initial autofocus was fixed by showing the editor before focusing it.
+- Final win.7 ZIP SHA-256 `ee3057842cf95d621854099c316b851650a11d0ef00e156acd07b67890dfee62`; integrity/current guides/installer and tested-ASAR identity verified. Unit rerun 50/50, syntax/shared Bun bundle/diff checks passed. Generated outputs/profiles are ignored; parent handoff remains outside nested Git.
+- Actual task-owned HKCU win.6→win.7 upgrade/rollback/uninstall restored handler/HTTPS defaults with no card writes. Permanent win.7 installed; runtime hash matches the tested ASAR, while the old normal win.5 process remains alive until the user quits its tray app.
+- Windows packaging supports stage-only → native artifact QA → archive-only. Final artifact/install/Git results are in the root changelog. Prior normal process/private data are preserved; browser/Discord acceptance remains unresolved.
+- Skill verdict: no skill edit; per-window scopes, actual focused keyboard input and save-safe lifecycle are repository-specific conventions/tests. Fresh policy provenance is in `04_RULES_AND_CONVENTIONS.md`.
+
 ## 2026-11-08 MV3 bridge and Windows continuation
 
 - Final ZIP/sidecar verified; runtime unchanged from tested ASAR and installer current. Actual permanent-root win.6 install → rollback to running win.5 → win.6 reinstall passed while preserving the old process. Development registration included the entry path and restored installed association. A packaging/install source race was corrected by rerunning sequentially; the rule is recorded in project conventions. SHA-256 is in the root changelog.

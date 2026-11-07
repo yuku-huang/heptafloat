@@ -1,5 +1,7 @@
 # Parent workspace handoff
 
+2026-11-08 win.7 user revision: complete editable card windows per link replace the old read-only/reused preview. Shared UI, independent pin/history, sender-bound IPC and scoped recovery are documented in this repo. Parent handoff gets additive pointers only; no surrounding private data is imported into Git.
+
 2026-11-08 Deep Link continuation: `codex/discord-hepta-preview`, win.6 contains strict Windows protocol/read-only preview, optional per-user installation, experimental MV3 bridge and separate Bot patch instructions. `docs/DEEPLINK_TEST_RESULTS.md` keeps OS/protocol/native tests separate from unresolved browser/Discord acceptance. Parent navigation/status/changelog receive additive pointers only; no private surrounding sources/data are imported.
 
 2026-11-08 editor update: `0.9.12-win.3` uses the native Windows caret for code/newline display and adds Tab/Shift+Tab text/code indentation. Thirty unit tests and native mock keyboard/composition/save-readback checks pass; final packaged verification is in `CHANGELOG.md`. Parent navigation/status/changelog entries are updated additively; all implementation and durable rules are committed in this nested repository.

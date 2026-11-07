@@ -4,12 +4,12 @@
 
 <h1 align="center">HeptaFloat</h1>
 
-## Windows port — 0.9.12-win.6
+## Windows port — 0.9.12-win.7
 
 This checkout adds a Windows 10/11 x64 app with an always-on-top window, system tray, configurable **Ctrl+Alt+J** hotkey, official Heptabase CLI integration, and the original rich-text editor. The Windows build is an unsigned development port; the upstream download below is still macOS-only.
 
-- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.6-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
-- **Preview card links:** optional per-user `flowhepta` installation and a separate read-only card window. The MV3 browser bridge is experimental: Edge reaches its handoff page, but external launch and Discord Desktop acceptance remain unresolved. See [setup/rollback](docs/DEEPLINK.md) and [actual test results](docs/DEEPLINK_TEST_RESULTS.md).
+- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.7-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
+- **Open card links:** every `flowhepta` link opens a new complete card window, including repeats. Each has editing/autosave, search/history, code languages, settings and independent keep-on-top. Esc hides it; the tray lists hidden card windows. Closing waits for saves. Quit the old tray process before updating. Browser external launch and Discord acceptance remain unresolved; see [setup/rollback](docs/DEEPLINK.md) and [actual test results](docs/DEEPLINK_TEST_RESULTS.md).
 - **Find cards:** Ctrl+O searches all cards, including full Chinese titles; Ctrl+P lists previously opened cards. Alt+Left / Alt+Right navigate viewed cards. See the Windows guide for first-search loading and cache limits.
 - **Edit code:** `/code` opens a code block with a language selector and syntax colors (Python, JavaScript, C++, Verilog and more). Tab / Shift+Tab indent selected lines; Enter keeps indentation. Language changes support undo and preserve code text.
 - **Develop:** `npm ci`, `npm run start:windows`.
