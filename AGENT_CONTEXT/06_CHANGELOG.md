@@ -1,5 +1,12 @@
 # Agent changelog
 
+## 2026-11-08 Code languages and syntax colors
+
+- Added `src/code-block.js`, lowlight/highlight.js, 31 language choices, pure grammar/params tests and native language/undo/IME/save-reopen checks. All 38 unit tests and final native mock run passed. Windows and Bun bundles built; no native Mac build or real note writes were run.
+- Official CLI help confirms `[!]<language>[:displayMode]`. No schema migration; unknown params/wrap/IDs/text are preserved. Highlight spans remain decorations; large blocks fall back to plain rendering. Both packaging paths include licenses.
+- Eleven source/test/build entries were inventoried as prior authorized work before starting Deep Link development. No ambiguous user files; outputs/dependencies stay ignored. This baseline is committed separately; no win.4 distribution is claimed.
+- Skill assessment: no skill change; code-params, decoration and native-focus regression rules belong in project documentation/tests. Live software-development v0.1 was read at `2026-11-07T18:28:12.844478+00:00` with the same verified IDs/hashes recorded in project conventions.
+
 ## 2026-11-08 Code-block Enter, Tab and Windows caret
 
 - User clarified Tab should indent and the apparent second newline occurs in `/code`. Mock instrumentation showed one newline in code text but an overlay-caret line jump after typing. Windows now uses its native caret; macOS keeps the WebKit overlay.

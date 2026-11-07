@@ -13,6 +13,8 @@ The app requires no separate Node.js installation. This development build is uns
 
 ## Features and shortcuts
 
+Source win.4 adds a language selector at the top right of each `/code` block (31 choices, including Python, C++, Verilog and plain text). Selecting a language enables syntax colors without changing code. Undo restores the previous language separately from typing. The Deep Link package will include this update; win.4 has no separate ZIP.
+
 | Action | Windows shortcut |
 | --- | --- |
 | Show/hide from any application | Ctrl+Alt+J (configurable in Settings) |

@@ -1,5 +1,7 @@
 # Data schema and bridge
 
+Code block language uses existing `attrs.params = [!]<language>[:displayMode]` (confirmed in official CLI help). `!` preserves wrap; Mermaid display mode survives until an explicit language change. Unknown values are retained. No new schema/marks; highlight classes are transient decorations only.
+
 `%APPDATA%/HeptaFloat/state.json`:
 
 ```json

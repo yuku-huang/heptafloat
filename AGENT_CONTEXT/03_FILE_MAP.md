@@ -1,5 +1,7 @@
 # File map
 
+- `src/code-block.js`, `test/code-block.test.mjs`, `windows/code-language-smoke.cjs`: language NodeView/highlight decorations and pure/native regression coverage.
+
 - `src/`: shared ProseMirror schema, editor, commands, menus, palette, platform helpers, fonts.
 - `src/navigation.js`: Windows session card history, including pending navigation.
 - `Sources/main.swift`, `build.sh`: upstream macOS host and build.

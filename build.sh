@@ -16,6 +16,11 @@ bun build src/editor.js --outfile "$APP/Contents/Resources/editor.js" --minify -
 cp src/index.html "$APP/Contents/Resources/"
 cp -R src/fonts "$APP/Contents/Resources/"
 cp assets/AppIcon.icns "$APP/Contents/Resources/"
+{
+  cat node_modules/lowlight/license
+  cat node_modules/highlight.js/LICENSE
+  cat node_modules/devlop/license
+} > "$APP/Contents/Resources/THIRD_PARTY_NOTICES.txt"
 
 # Host: one binary for both architectures
 for arch in arm64 x86_64; do

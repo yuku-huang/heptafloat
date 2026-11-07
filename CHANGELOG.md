@@ -1,3 +1,15 @@
+### [2026-11-08 02:48] - Add code languages and syntax colors; checkpoint before Deep Link work
+
+* **修改檔案**：`src/code-block.js`, `src/editor.js`, `src/index.html`, `src/menus.js`, `test/code-block.test.mjs`, `windows/code-language-smoke.cjs`, `windows/editor-smoke.cjs`, package/lock/build files, README/start/architecture/operator guides and `AGENT_CONTEXT/`
+* **變更細節**：
+  * 31 language choices and lowlight syntax decorations, with independent language undo and native dropdown focus; preserve code text/IDs/wrap/unknown language params; no persistent schema migration
+  * pinned MIT/BSD dependencies and third-party notices for Windows/macOS; runtime dependency audit reported zero vulnerabilities
+  * 38 unit tests and final native mock UI passed; Windows and Bun editor builds passed; sample screenshot inspected; no private note writes or native macOS verification
+  * source win.4 checkpoint only; the incoming Deep Link package will include these changes
+  * all 11 pre-existing modified/untracked entries were prior authorized source/tests/build scripts; no ambiguous files; build/dist/profiles remain ignored; no skill edit needed because conventions are project-specific
+* **下一步建議 (Next Steps)**：
+  * implement Deep Link on a dedicated branch after this baseline; package both features and retain physical-IME/macOS acceptance boundaries
+
 ### [2026-11-08 01:16] - Fix code-block caret and indentation on Windows
 
 * **修改檔案**：`src/commands.js`, `src/editor.js`, `windows/windows.css`, `windows/smoke.cjs`, `windows/editor-smoke.cjs`, `test/editor-commands.test.mjs`, `scripts/build-windows.mjs`, `package.json`, `package-lock.json`, README/architecture/start/operator guides, `docs/WORKSPACE_HANDOFF.md`, `AGENT_CONTEXT/00..06`, `AGENT_CONTEXT/08_QA_PIPELINE.md`

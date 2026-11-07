@@ -18,6 +18,7 @@ import { createPalette } from './palette.js';
 import { renderSetup } from './setup.js';
 import { isMac, modLabel, modPressed, shortcutName, shortcutGlyphs } from './platform.js';
 import { CardHistory } from './navigation.js';
+import { CodeBlockView, codeHighlightPlugin } from './code-block.js';
 
 const SAVE_DELAY = 600;
 const POLL_INTERVAL = 3000;
@@ -614,6 +615,7 @@ function buildPlugins(schema) {
     dropCursor({ color: 'var(--active-item)', width: 2 }),
     gapCursor(),
     placeholderPlugin(),
+    codeHighlightPlugin(),
     // The overlay caret compensates for macOS WebKit. Chromium on Windows has
     // its own IME-aware caret; the overlay can lag a line behind code Enter.
     ...(isMac ? [caretPlugin(el('main'))] : []),
@@ -751,7 +753,8 @@ function load(result, { keepSelection } = {}) {
     if (view) view.updateState(state);
     else view = new EditorView(el('main'), {
       state,
-      nodeViews: Object.fromEntries(LIST_ITEMS.map((t) => [t, (n, v, g) => new ItemView(n, v, g)])),
+      nodeViews: { ...Object.fromEntries(LIST_ITEMS.map((t) => [t, (n, v, g) => new ItemView(n, v, g)])),
+        code_block: (node, view, getPos) => new CodeBlockView(node, view, getPos) },
       scrollThreshold: scrollRoom(),
       scrollMargin: scrollRoom(),
       // Pasted or dropped images are imported into Heptabase, then inserted like Heptabase does.

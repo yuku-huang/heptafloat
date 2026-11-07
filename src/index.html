@@ -126,6 +126,28 @@
   code { font: .86em "SF Mono", Menlo, monospace; color: #eb5757; background: var(--light-grey); padding: .15em .35em; border-radius: 4px; }
   pre { background: var(--code-bg); padding: 1.6em 1.75em; border-radius: 4px; overflow-x: auto; margin: 6px 0; }
   pre code { background: none; padding: 0; color: inherit; font-size: .88em; line-height: 1.5; }
+  .code-block { margin: 6px 0; border: 1px solid var(--light-grey); border-radius: 8px; overflow: hidden; background: var(--code-bg); }
+  .code-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 12px;
+    border-bottom: 1px solid var(--light-grey); font-size: 12px; color: var(--middle-hard-grey); user-select: none; }
+  .code-language { max-width: 210px; border: 1px solid var(--light-middle-grey); border-radius: 5px; padding: 4px 7px;
+    background: var(--menu-bg); color: var(--text-color); font: inherit; cursor: pointer; }
+  .code-block pre { margin: 0; padding: 14px 16px 18px; border-radius: 0; }
+  .code-block code { white-space: pre; tab-size: 4; }
+  .code-block.code-wrap code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .code-block .hljs-keyword, .code-block .hljs-selector-tag, .code-block .hljs-literal { color: #a526b7; }
+  .code-block .hljs-string, .code-block .hljs-regexp, .code-block .hljs-addition { color: #267c38; }
+  .code-block .hljs-number, .code-block .hljs-built_in, .code-block .hljs-type, .code-block .hljs-attr { color: #955c16; }
+  .code-block .hljs-title, .code-block .hljs-name, .code-block .hljs-selector-class { color: #176cbd; }
+  .code-block .hljs-comment, .code-block .hljs-quote { color: #73787a; }
+  .code-block .hljs-meta, .code-block .hljs-deletion { color: #bd3939; }
+  @media (prefers-color-scheme: dark) {
+    .code-block .hljs-keyword, .code-block .hljs-selector-tag, .code-block .hljs-literal { color: #cda7f4; }
+    .code-block .hljs-string, .code-block .hljs-regexp, .code-block .hljs-addition { color: #a2d6a0; }
+    .code-block .hljs-number, .code-block .hljs-built_in, .code-block .hljs-type, .code-block .hljs-attr { color: #ebbe8c; }
+    .code-block .hljs-title, .code-block .hljs-name, .code-block .hljs-selector-class { color: #80bdf8; }
+    .code-block .hljs-comment, .code-block .hljs-quote { color: #9da2aa; }
+    .code-block .hljs-meta, .code-block .hljs-deletion { color: #ef9b94; }
+  }
   img { max-width: 100%; border-radius: 4px; display: block; margin: 6px auto; }
   /* an image Heptabase can't hand over (not synced to this Mac yet) */
   .ProseMirror img.missing { min-height: 44px; background: var(--ultra-light-grey); border: 1px dashed var(--light-middle-grey); }

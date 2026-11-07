@@ -380,7 +380,7 @@ export function placeholderPlugin() {
           decos.push(Decoration.node(0, doc.firstChild.nodeSize, { class: 'ph', 'data-ph': "Type '/' or '@' for commands" }));
         }
         const { $from, empty } = selection;
-        if (empty && $from.parent.isTextblock && $from.parent.content.size === 0 && $from.parent.type.name !== 'heading'
+        if (empty && $from.parent.isTextblock && !$from.parent.type.spec.code && $from.parent.content.size === 0 && $from.parent.type.name !== 'heading'
             && !(doc.childCount === 1 && $from.depth === 1)) {
           const label = $from.depth > 1 && $from.node(-1).type.name.endsWith('_list_item') ? 'List' : "Type '/' or '@' for commands";
           decos.push(Decoration.node($from.before(), $from.after(), { class: 'ph line', 'data-ph': label }));

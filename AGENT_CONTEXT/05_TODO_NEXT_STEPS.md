@@ -1,5 +1,7 @@
 # Next steps
 
+- Continue the requested Discord/HTTPS Deep Link feature from the preserved win.4 source baseline. Include language selection/colors in the final package; retain physical IME and native macOS acceptance boundaries.
+
 - Quit the previous tray app and run `0.9.12-win.3`. Confirm `/code`: Enter then Chinese typing stays on one new line, Tab indents four spaces, Shift+Tab removes one level, and multi-line indentation/undo behaves as expected. Native composition is automated; the user's physical input method still needs acceptance.
 
 - Quit the previous tray app and use `0.9.12-win.2`. Check Ctrl+O with the user's original troublesome query, and Alt+Left/Right across several cards. First title indexing runs in the background (about one minute observed for this library), with results/progress updating automatically; later queries reuse memory for five minutes. No private queries belong in Git or diagnostics.

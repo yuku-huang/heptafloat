@@ -2,6 +2,8 @@
 
 HeptaFloat shares one ProseMirror editor between the original macOS Swift host and the Windows Electron host.
 
+Code blocks use `src/code-block.js`: a NodeView with a non-editable language selector and a lowlight decoration plugin. Existing `attrs.params` carries `[!]<language>[:displayMode]`; unknown values and the wrap flag are preserved. Highlighting never changes text/marks or serializes spans, caches immutable nodes, and skips code over 100,000 UTF-16 units. Pinned lowlight/highlight.js dependencies include their license notices in both build paths. Language changes form a separate undo step.
+
 ```text
 src/editor.js + schema/commands/menus/palette/platform
   ├─ macOS: window.webkit → Sources/main.swift → official CLI

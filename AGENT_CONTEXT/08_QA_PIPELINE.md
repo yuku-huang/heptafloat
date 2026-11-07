@@ -1,5 +1,7 @@
 # QA pipeline
 
+Language update: 38 unit tests now include params/aliases/wrap/unknown values, block identity, every bundled grammar, Unicode/literal HTML, decoration updates and the large-code guard. `windows/code-language-smoke.cjs` checks keyboard and mouse selection, independent undo, Python/C++/Verilog colors, highlighted code Enter/IME, mock save/reopen and literal HTML safety. `build/windows-code-language.png` contains sample data only.
+
 Editor regression coverage (2026-11-08): `npm test` runs 30 tests across `test/windows.test.mjs` and `test/editor-commands.test.mjs`. The mock UI includes `windows/editor-smoke.cjs`: real `/code` conversion, native Windows caret, Enter followed by English/Chinese text, Chromium composition, single-/multi-line Tab and Shift+Tab, undo/redo, Shift+Enter, and persisted-code readback. Autosave waits for another mock write, not an old Saved label. Assertions and screenshots use sample data only; real card writes and physical Windows IME remain separate acceptance items.
 
 Chromium composition is sent through Electron's [debugger API](https://www.electronjs.org/docs/latest/api/debugger) using the official [Input protocol](https://github.com/ChromeDevTools/devtools-protocol/blob/master/json/browser_protocol.json). The mock-only window is briefly shown for current compositor frames; no debugger is attached during normal use or live-private-note validation.

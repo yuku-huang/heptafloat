@@ -12,7 +12,14 @@ async function runEditorSmoke({ win, service, evaluate, key, waitFor }) {
       document.querySelector('.ProseMirror').focus();
       const target = document.querySelector(${JSON.stringify(selector)}), range = document.createRange();
       if (${from === null}) { range.selectNodeContents(target); range.collapse(false); }
-      else { range.setStart(target.firstChild, ${from}); range.setEnd(target.firstChild, ${to}); }
+      else {
+        const point = (offset) => {
+          const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT); let node;
+          while (node = walker.nextNode()) { if (offset <= node.length) return [node, offset]; offset -= node.length; }
+          throw new Error('Code text offset is outside the block');
+        };
+        range.setStart(...point(${from})); range.setEnd(...point(${to}));
+      }
       getSelection().removeAllRanges(); getSelection().addRange(range);
     })()`);
     await pause();
@@ -41,6 +48,12 @@ async function runEditorSmoke({ win, service, evaluate, key, waitFor }) {
   await waitFor('!!document.querySelector(".suggest .row")');
   key('Enter');
   await waitFor('!!document.querySelector(".ProseMirror pre code")');
+  await evaluate('document.querySelector(".code-language").focus()');
+  key('Home'); key('Down');
+  await waitFor('document.querySelector(".code-language").value === "python"');
+  assert.equal(await evaluate('document.activeElement === document.querySelector(".code-language")'), true);
+  key('Escape');
+  await waitFor('document.activeElement === document.querySelector(".ProseMirror")');
   await type('first');
   key('Enter'); await expectCode('first\n');
   await type('second'); await expectCode('first\nsecond');
@@ -82,7 +95,9 @@ async function runEditorSmoke({ win, service, evaluate, key, waitFor }) {
   const snippet = saved.content.find((node) => node.type === 'code_block');
   assert.equal(snippet.content.map((node) => node.text || '').join(''), expected);
   assert.equal(await codeText(), expected);
-  return { nativeWindowsCaret: true, enterThenTyping: true, codeEnterThenTyping: true,
-    codeIme: true, codeIndentation: true, selectedCodeIndentation: true, textIndentation: true, codeSaveReadback: true };
+  const { runCodeLanguageSmoke } = require('./code-language-smoke.cjs');
+  const languages = await runCodeLanguageSmoke({ win, service, evaluate, key, waitFor, focus, type, codeText, expectCode });
+  return { nativeWindowsCaret: true, enterThenTyping: true, codeEnterThenTyping: true, codeLanguageKeyboard: true,
+    codeIme: true, codeIndentation: true, selectedCodeIndentation: true, textIndentation: true, codeSaveReadback: true, ...languages };
 }
 module.exports = { runEditorSmoke };
