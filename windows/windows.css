@@ -1,5 +1,6 @@
 html { color-scheme: light dark; }
 body { background: var(--bg); }
+.ProseMirror { tab-size: 4; }
 #window-bar { position: fixed; inset: 0 0 auto; z-index: 30; height: 44px; display: flex; align-items: center; gap: 3px;
   padding: 0 145px 0 16px; background: var(--bg); border-bottom: 1px solid var(--light-grey); -webkit-app-region: drag; }
 #window-title { flex: 1; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

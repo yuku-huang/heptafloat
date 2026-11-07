@@ -4,12 +4,13 @@
 
 <h1 align="center">HeptaFloat</h1>
 
-## Windows port — 0.9.12-win.2
+## Windows port — 0.9.12-win.3
 
 This checkout adds a Windows 10/11 x64 app with an always-on-top window, system tray, configurable **Ctrl+Alt+J** hotkey, official Heptabase CLI integration, and the original rich-text editor. The Windows build is an unsigned development port; the upstream download below is still macOS-only.
 
-- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.2-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
+- **Use the app:** quit the old tray app, extract `dist/HeptaFloat-0.9.12-win.3-windows-x64.zip`, and run `HeptaFloat.exe` inside the extracted folder.
 - **Find cards:** Ctrl+O searches all cards, including full Chinese titles; Ctrl+P lists previously opened cards. Alt+Left / Alt+Right navigate viewed cards. See the Windows guide for first-search loading and cache limits.
+- **Edit code:** `/code` opens a code block. Tab / Shift+Tab indent selected lines; Enter keeps indentation. Windows uses its native text caret to avoid the apparent extra-line jump after Enter.
 - **Develop:** `npm ci`, `npm run start:windows`.
 - **Verify:** `npm test`, `npm run test:windows`; optional read-only live check: `npm run test:windows:live`.
 - **Package:** `npm run package:windows`, or `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -Package`.

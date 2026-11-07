@@ -1,5 +1,9 @@
 # QA pipeline
 
+Editor regression coverage (2026-11-08): `npm test` runs 30 tests across `test/windows.test.mjs` and `test/editor-commands.test.mjs`. The mock UI includes `windows/editor-smoke.cjs`: real `/code` conversion, native Windows caret, Enter followed by English/Chinese text, Chromium composition, single-/multi-line Tab and Shift+Tab, undo/redo, Shift+Enter, and persisted-code readback. Autosave waits for another mock write, not an old Saved label. Assertions and screenshots use sample data only; real card writes and physical Windows IME remain separate acceptance items.
+
+Chromium composition is sent through Electron's [debugger API](https://www.electronjs.org/docs/latest/api/debugger) using the official [Input protocol](https://github.com/ChromeDevTools/devtools-protocol/blob/master/json/browser_protocol.json). The mock-only window is briefly shown for current compositor frames; no debugger is attached during normal use or live-private-note validation.
+
 1. `npm ci`: restore pinned dependencies (Electron runtime may download on first use).
 2. `npm test`: CLI shim discovery/argument safety, errors/timeouts, guarded save/readback, conflicts, offline recovery, partial create, serialization, path checks, modifiers, schema roundtrip.
 3. `npm run test:windows`: real Electron with mock CLI + isolated temporary profile; checks sandbox/no Node, rendering, Unicode insertion/autosave, new notes, Ctrl palette switching, pinning, settings, and close-to-tray. Captures sample-data-only preview images and a JSON report under `build/`.

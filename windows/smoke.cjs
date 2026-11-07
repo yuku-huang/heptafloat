@@ -141,10 +141,16 @@ async function runSmoke({ win, service, state, liveSmoke, globalShortcut, handle
     service.cli.searchDelay = 0;
     report.staleSearchDiscarded = true;
     key('Escape');
+    const { runEditorSmoke } = require('./editor-smoke.cjs');
+    Object.assign(report, await runEditorSmoke({ win, service, evaluate, key, waitFor }));
     const initialImage = await win.webContents.capturePage();
     await fs.writeFile(path.join(out, 'windows-preview.png'), initialImage.toPNG());
     await evaluate('document.querySelector(".ProseMirror").focus()');
-    win.webContents.insertText(' Windows 中文 input & "quotes"');
+    const writesBeforeTyping = service.cli.writes;
+    await win.webContents.insertText(' Windows 中文 input & "quotes"');
+    const autosaveDeadline = Date.now() + 25_000;
+    while (service.cli.writes === writesBeforeTyping && Date.now() < autosaveDeadline) await new Promise((resolve) => setTimeout(resolve, 100));
+    assert.ok(service.cli.writes > writesBeforeTyping, 'New typing must trigger another autosave.');
     await waitFor('document.getElementById("status").textContent === "Saved"');
     assert.match((await service.read('journal', today())).content, /Windows 中文 input/);
     report.autosave = true;

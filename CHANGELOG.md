@@ -1,3 +1,20 @@
+### [2026-11-08 01:16] - Fix code-block caret and indentation on Windows
+
+* **修改檔案**：`src/commands.js`, `src/editor.js`, `windows/windows.css`, `windows/smoke.cjs`, `windows/editor-smoke.cjs`, `test/editor-commands.test.mjs`, `scripts/build-windows.mjs`, `package.json`, `package-lock.json`, README/architecture/start/operator guides, `docs/WORKSPACE_HANDOFF.md`, `AGENT_CONTEXT/00..06`, `AGENT_CONTEXT/08_QA_PIPELINE.md`
+* **變更細節**：
+  * user confirmed Tab should indent, and narrowed Enter-then-typing's apparent second line to `/code block`
+  * a native mock run showed one stored newline while the old overlay caret moved down a line on subsequent typing; gated the macOS WebKit overlay to macOS and use the native Windows caret
+  * added four-space Tab / Shift+Tab text/code indentation after existing list nesting commands, including selected lines, literal-tab removal and exclusion of an unselected following line
+  * code Enter inserts one newline retaining the current indentation; Shift+Enter is explicit in prose and code; no schema change, new dependency or private-note mutation
+  * verification: 30 unit tests passed; native mock UI passed actual slash conversion, native caret, Enter-then-English/Chinese typing, Chromium composition, Tab/Shift+Tab, undo/redo, code save/readback, autosave and existing search/window checks; sample-only screenshot inspected
+  * packaged `dist/0.9.12-win.3/HeptaFloat-win32-x64/HeptaFloat.exe` (file version `0.9.12.3`); final EXE mock smoke passed all editor/IME/indentation/save-readback and existing search/window checks; ZIP SHA-256 verified: `f6781794f59ca022ec566955768b5ca397817afbd2198f0dcaf7955620b55025`
+  * loaded live Router v0.9.3 and actual software-development v0.1 in full; registry identity/version matched; Card IDs, hashes, source and read time recorded in project conventions
+  * Git inventory: clean baseline `ed8f27c`; all current source/tests/scripts/package/docs changes belong to this task; build/dist/node_modules and private runtime data stay ignored; parent handoff files remain outside Git
+  * skill assessment: no skill/card edit needed; platform-caret boundaries and keyboard-test sequencing are repository-specific conventions and regressions; upstream access was rechecked as `push:false`
+* **下一步建議 (Next Steps)**：
+  * quit the old tray app, open `dist/0.9.12-win.3/HeptaFloat-win32-x64/HeptaFloat.exe`, and confirm `/code` with the user's physical input method
+  * retain Windows/DPI/macOS acceptance boundaries; use a writable remote for push/remote CI
+
 ### [2026-10-24 00:39] - Fix Windows card search and add page history shortcuts
 * **修改檔案**：`src/editor.js`, `src/palette.js`, `src/menus.js`, `src/platform.js`, `src/navigation.js`, `windows/search.cjs`, `windows/service.cjs`, `windows/chrome.js`, `windows/main.cjs`, `windows/smoke.cjs`, `test/windows.test.mjs`, build/package scripts, package metadata, README/architecture/start guide, `docs/`, `AGENT_CONTEXT/`
 * **變更細節**：

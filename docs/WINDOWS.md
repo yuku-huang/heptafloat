@@ -1,10 +1,10 @@
 # HeptaFloat for Windows
 
-Version: `0.9.12-win.2` · Windows 10/11 x64 · based on upstream `f32f34f`.
+Version: `0.9.12-win.3` · Windows 10/11 x64 · based on upstream `f32f34f`.
 
 ## Run the portable app
 
-1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.2-windows-x64.zip` to a permanent folder.
+1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.3-windows-x64.zip` to a permanent folder.
 2. Open `HeptaFloat-win32-x64/HeptaFloat.exe`. Keep the accompanying files beside it.
 3. Keep Heptabase running and enable **Settings → AI Features → CLI**. An active Heptabase subscription is required by its CLI.
 4. Press **Ctrl+Alt+J** to show/hide the floating journal. Closing the window hides it to the system tray; choose **Quit HeptaFloat** in the tray menu to exit.
@@ -25,10 +25,18 @@ The app requires no separate Node.js installation. This development build is uns
 | Open current card in Heptabase | Ctrl+Shift+O |
 | Bold / italic / underline | Ctrl+B / Ctrl+I / Ctrl+U |
 | Undo / redo | Ctrl+Z / Ctrl+Y |
+| Indent / outdent selected lines | Tab / Shift+Tab |
+| New line / soft break | Enter / Shift+Enter |
 | Text size | Ctrl+= / Ctrl+- / Ctrl+0 |
 | Hide window | Esc (first closes any open menu) |
 
 The original ProseMirror editor provides slash commands, card mentions, lists, checkboxes, headings, links, image paste/drop, 600 ms autosave, 3 s polling while visible, and local-date journal rollover. The host exports/imports supported images through the official CLI. A new empty card is only created in Heptabase after typing. Theme, size, window position, shortcut, and recent cards persist between runs.
+
+### Type and indent code
+
+Type `/code` and choose **Code block**. **Enter** inserts one newline and keeps the current line's indentation. **Tab** adds four spaces at the start of the current or selected lines; **Shift+Tab** removes one level (a tab character or up to four spaces). Selecting multiple lines changes them together; a selection ending exactly at the following line's start leaves that line alone. Undo/redo works on these edits.
+
+Ordinary paragraphs support text indentation too. List items keep their existing structural nesting when a parent item is available. **Shift+Enter** creates a soft break in prose, and a newline inside code. Windows uses the native text caret: the old macOS caret overlay could remain one line behind after code Enter and move down when typing resumed, making one newline look like two. The code content is checked separately from the cursor display.
 
 ### Find and navigate cards
 
@@ -71,11 +79,11 @@ npm run package:windows
 
 `test:windows` uses an isolated profile and mock CLI; it never writes real Heptabase notes. `test:windows:live` reads today's real journal and an existing note, searches its full title, exercises Ctrl+O and Alt navigation, then compares content hashes without writes or screenshots. It also lists card metadata through the official CLI for title search. Reports contain only counts/booleans, not private titles or bodies. Tests use Control+Alt+Shift+F24 (mock) / F23 (live) to avoid the normal app shortcut. Reports/images go under ignored `build/`. Unit tests use ignored `build/test-tmp/` to avoid Windows path-length issues.
 
-Packaging produces `dist/0.9.12-win.2/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP at `dist/HeptaFloat-0.9.12-win.2-windows-x64.zip`, and a SHA-256 sidecar. Versioned output folders avoid replacing an older running app; rebuilding the same version checks for running executables first and asks you to quit that version. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
+Packaging produces `dist/0.9.12-win.3/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZIP at `dist/HeptaFloat-0.9.12-win.3-windows-x64.zip`, and a SHA-256 sidecar. Versioned output folders avoid replacing an older running app; rebuilding the same version checks for running executables first and asks you to quit that version. Extract the entire ZIP, not just the EXE. `package-lock.json` pins the Windows build; `bun.lock` remains the upstream macOS dependency lock. `build.sh` remains the macOS build entrypoint.
 
 ## Validation boundaries
 
-Validated locally: 20 unit tests covering CLI invocation, Unicode, conflict/offline recovery, new-card fill failure, schema preservation, modifiers, paginated title search, partial search failures and session history. Native Electron smoke covers rendering, autosave/new-card with mock data, Ctrl+O from the toolbar, Chinese-title search, Alt navigation/forward-branch truncation, stale-search suppression, error retry, palette switching, pinning, settings and close-to-tray. Live integration is read-only.
+Validated locally: 30 unit tests covering editor Enter/Tab/Shift+Tab/Shift+Enter, multi-line selection, list nesting, undo/redo, attribute preservation, CLI invocation, Unicode, conflict/offline recovery, new-card fill failure, schema preservation, modifiers, paginated title search, partial search failures and session history. Native Electron smoke uses the real `/code` picker, native Windows caret, English/Chinese typing after Enter, Chromium IME composition, selected-line indentation, code save/readback and autosave, alongside the existing search/window tests. Real-note integration checks remain read-only.
 
 Real note mutation/image import, physical Chinese IME interaction, multi-monitor/DPI transitions, reboot/login startup, and Windows 10 hardware acceptance still need a user acceptance pass. macOS native compilation is not available on this Windows machine. CI configuration is provided; it has not run remotely until the branch is pushed to a writable repository.
 

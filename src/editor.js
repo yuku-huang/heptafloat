@@ -7,12 +7,12 @@ import { EditorState, Plugin, Selection, TextSelection } from 'prosemirror-state
 import { EditorView } from 'prosemirror-view';
 import { history, undo, redo } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
-import { baseKeymap, toggleMark, setBlockType } from 'prosemirror-commands';
+import { baseKeymap, chainCommands, toggleMark, setBlockType } from 'prosemirror-commands';
 import { inputRules, wrappingInputRule, textblockTypeInputRule, InputRule } from 'prosemirror-inputrules';
 import { dropCursor } from 'prosemirror-dropcursor';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { LIST_ITEMS, schemaFor, schemaCovers, serialize, titles, formatDate } from './schema.js';
-import { backspaceAtItemStart, deleteAtLineEnd, enterInItem, itemLineDepth, lift, selectBlock, setChecked, sink, toggleTodo, turnInto } from './commands.js';
+import { backspaceAtItemStart, deleteAtLineEnd, enterInCode, enterInItem, indentText, insertLineBreak, itemLineDepth, lift, outdentText, selectBlock, setChecked, sink, toggleTodo, turnInto } from './commands.js';
 import { caretPlugin, placeholderPlugin, suggestKey, suggestPlugin, toggleHighlight, toolbarPlugin } from './menus.js';
 import { createPalette } from './palette.js';
 import { renderSetup } from './setup.js';
@@ -603,9 +603,10 @@ function buildPlugins(schema) {
     keymap({
       ...remappable,
       'Mod-z': undo, 'Shift-Mod-z': redo, 'Mod-y': redo,
-      Enter: enterInItem,
+      Enter: chainCommands(enterInCode, enterInItem),
+      'Shift-Enter': chainCommands(enterInCode, insertLineBreak),
       Backspace: backspaceAtItemStart, Delete: deleteAtLineEnd, 'Ctrl-d': deleteAtLineEnd,
-      Tab: sink, 'Shift-Tab': lift, 'Mod-a': selectBlock,
+      Tab: chainCommands(sink, indentText), 'Shift-Tab': chainCommands(lift, outdentText), 'Mod-a': selectBlock,
       Escape: () => { post({ action: 'hide' }); return true; },
     }),
     keymap({ ...baseKeymap, Tab: () => true, 'Shift-Tab': () => true }),
@@ -613,7 +614,9 @@ function buildPlugins(schema) {
     dropCursor({ color: 'var(--active-item)', width: 2 }),
     gapCursor(),
     placeholderPlugin(),
-    caretPlugin(el('main')),
+    // The overlay caret compensates for macOS WebKit. Chromium on Windows has
+    // its own IME-aware caret; the overlay can lag a line behind code Enter.
+    ...(isMac ? [caretPlugin(el('main'))] : []),
     new Plugin({ view: () => ({ update: (v, prev) => { if (!v.state.doc.eq(prev.doc)) onLocalChange(); } }) }),
   ];
 }

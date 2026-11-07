@@ -1,5 +1,7 @@
 # Parent workspace handoff
 
+2026-11-08 editor update: `0.9.12-win.3` uses the native Windows caret for code/newline display and adds Tab/Shift+Tab text/code indentation. Thirty unit tests and native mock keyboard/composition/save-readback checks pass; final packaged verification is in `CHANGELOG.md`. Parent navigation/status/changelog entries are updated additively; all implementation and durable rules are committed in this nested repository.
+
 The parent `Heptabae_project` folder is a multi-project workspace, not a Git repository. This task added only the new `heptafloat` checkout and additive navigation/status entries to the parent's README, ARCHITECTURE, START_HERE, CHANGELOG, and AGENT_CONTEXT files 00–08. Existing project files and personal assets were preserved.
 
 Those parent entries point to this repository's user guide, architecture, schema, tests, status, and next steps. This tracked document records the same durable handoff without importing unrelated private workspace documentation into the upstream-derived Git repository.

@@ -1,5 +1,14 @@
 # Agent changelog
 
+## 2026-11-08 Code-block Enter, Tab and Windows caret
+
+- User clarified Tab should indent and the apparent second newline occurs in `/code`. Mock instrumentation showed one newline in code text but an overlay-caret line jump after typing. Windows now uses its native caret; macOS keeps the WebKit overlay.
+- Added code Enter with indentation retention, Tab/Shift+Tab text/code fallback after structural list commands, and explicit Shift+Enter. No content-schema migration or dependency was introduced.
+- Thirty unit tests and native mock checks cover actual slash conversion, Enter then typing, Chromium IME composition, selected-line indentation, undo/redo, new autosave and code save/readback. Packaged results are recorded in the root changelog.
+- Loaded current software-development v0.1 through the live Router registry; source/version/hash/read-time evidence is in `04_RULES_AND_CONVENTIONS.md`. Skill files/cards were not changed: the reusable caret and keyboard-test rules belong in this repository.
+- Starting Git baseline: clean `ed8f27c` on `codex/windows-port`. Task-related source/tests/scripts/docs are intended for commit; build/dist/node_modules remain ignored, parent handoff docs stay outside Git. Upstream access was rechecked as `push:false`.
+- Final versioned EXE passed packaged mock smoke, including code IME/Enter/indentation/readback. File/product versions are `0.9.12.3` / `0.9.12-win.3`; ZIP hash was verified and is recorded in the root changelog. No live card writes were run for this editor task.
+
 ## 2026-10-24 Windows search and card navigation
 
 - Version `0.9.12-win.2`: Ctrl+O window-wide card search, visible search button, recent default list, official paginated title fallback, explicit errors/retry/partial warnings, stale-result rejection, Alt arrow session history and Ctrl bracket aliases.

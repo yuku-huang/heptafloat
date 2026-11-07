@@ -220,6 +220,70 @@ export function enterInItem(state, dispatch, view) {
   return true;
 }
 
+const INDENT = '    ';
+
+/** Code Enter is a single document edit; retain the current line's indentation. */
+export function enterInCode(state, dispatch) {
+  const { $from, $to } = state.selection;
+  if (!$from.sameParent($to) || $from.parent.type.name !== 'code_block') return false;
+  const before = $from.parent.textContent.slice(0, $from.parentOffset);
+  const indent = before.slice(before.lastIndexOf('\n') + 1).match(/^[\t ]*/)[0];
+  dispatch?.(state.tr.insertText(`\n${indent}`).scrollIntoView());
+  return true;
+}
+
+/** A soft break in prose, without letting the browser create an extra block. */
+export function insertLineBreak(state, dispatch) {
+  const { $from, $to } = state.selection;
+  const type = state.schema.nodes.hard_break;
+  if (!$from.sameParent($to) || !$from.parent.canReplaceWith($from.index(), $to.index(), type)) return false;
+  dispatch?.(state.tr.replaceSelectionWith(type.create()).scrollIntoView());
+  return true;
+}
+
+/** Line starts selected by Tab. A selection ending at the next line excludes that line. */
+function indentPositions(state) {
+  const { from, to } = state.selection, positions = [];
+  state.doc.nodesBetween(from, to, (node, pos) => {
+    if (/^table_(cell|header)$/.test(node.type.name)) return false;
+    if (!['paragraph', 'heading', 'code_block'].includes(node.type.name)) return;
+    const start = pos + 1;
+    if (from !== to && to === start) return false;
+    if (node.type.name !== 'code_block') { positions.push(start); return false; }
+    const text = node.textContent, offset = Math.max(0, from - start);
+    let line = offset === 0 ? 0 : text.lastIndexOf('\n', offset - 1) + 1;
+    while (line <= text.length && (from === to || line < to - start)) {
+      positions.push(start + line);
+      const next = text.indexOf('\n', line);
+      if (next < 0 || from === to) break;
+      line = next + 1;
+    }
+    return false;
+  });
+  return positions;
+}
+
+function indentLines(state, dispatch, remove) {
+  const positions = indentPositions(state);
+  if (!positions.length) return false;
+  if (dispatch) {
+    const tr = state.tr;
+    for (const pos of positions.reverse()) {
+      if (!remove) tr.insertText(INDENT, pos);
+      else {
+        const $pos = state.doc.resolve(pos);
+        const prefix = $pos.parent.textContent.slice($pos.parentOffset).match(/^(?:\t| {1,4})/);
+        if (prefix) tr.delete(pos, pos + prefix[0].length);
+      }
+    }
+    if (tr.docChanged) dispatch(closeHistory(tr).scrollIntoView());
+  }
+  return true;
+}
+
+export const indentText = (state, dispatch) => indentLines(state, dispatch, false);
+export const outdentText = (state, dispatch) => indentLines(state, dispatch, true);
+
 export function setChecked(tr, pos, node, checked) {
   const now = new Date().toISOString();
   return tr.setNodeMarkup(pos, null, { ...node.attrs, checked, lastCheckedTime: checked ? now : null, lastUpdatedTime: now });
