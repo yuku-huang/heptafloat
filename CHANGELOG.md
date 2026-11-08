@@ -1,3 +1,14 @@
+### [2026-11-08 19:30] - Correct no-prompt evidence and preserve the unresolved handoff
+
+* **修改檔案**：`docs/DEEPLINK_TEST_RESULTS.md`, `docs/BROWSER_BRIDGE.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`, `CHANGELOG.md`
+* **變更細節**：
+  * latest human clarification supersedes earlier prompt answers: left click and native new-tab opening both have no prompt/card. A second 60-second observer overlaps a confirmed left click, sees no new process and has max gap 79 ms; polling can miss short-lived children, so no unsupported root cause is claimed
+  * actual marked HTTPS test tab reached handoff metadata after ERR_ABORTED; no extension UI access or concurrent OS probe. Final native inventory has no new card window; normal win.7 primary PID is preserved
+  * source repair committed as `06299d3`, actual branch push rejected HTTP 403 for the current account. Follow-up changes only evidence/guides; bridge source and 66 passing unit tests are unchanged. Standalone guide ZIP refreshed and checked against the current eight built files; SHA-256 `eb7f82df7b0b687e9006314ed7058d853945e8cdd8cefe7138270fbfe636fd24`. Earlier same-version ZIP hashes below are historical
+  * no private content, raw launch URLs or observation reports are staged. No skill edit: correction and diagnostic limits belong in project records
+* **下一步建議 (Next Steps)**：
+  * obtain the user's actual handoff screenshot/status before further source changes. Observers are stopped; no repeat of the expired timed-click instruction. Browser/Discord app launch remains unresolved
+
 ### [2026-11-08 19:21] - Restore native manual protocol navigation and record failed browser acceptance
 
 * **修改檔案**：`browser-extension/handoff.js`, `browser-extension/launcher.js`, `browser-extension/manifest.json`, `test/browser-launcher.test.mjs`, `scripts/observe-protocol-launch.ps1`, README/START_HERE/ARCHITECTURE, bridge/deep-link/operator docs, `AGENT_CONTEXT/00..06,08`

@@ -1,5 +1,11 @@
 # Agent changelog
 
+## 2026-11-08 19:30 — Clarified real no-prompt failure
+
+- Latest user evidence is no prompt/card for both left click and native new-tab opening, superseding the earlier prompt answer. A confirmed left click overlapped a second read-only sample with zero new processes, max gap 79 ms; short-lived children may be missed. Native inventory shows no new card window; no concurrent OS probe was sent.
+- Marked HTTPS test tab reached handoff metadata after an aborted web navigation; no extension UI access. Observer windows ended; next input is the actual page screenshot/status, not another expired timed-click instruction.
+- Source repair `06299d3` is locally committed; actual upstream branch push failed HTTP 403. This follow-up updates evidence only; 66 unit tests and bridge code remain unchanged. No skill edit is needed: evidence correction belongs in project records.
+
 ## 2026-11-08 evening — Native manual bridge link, 1.0.2
 
 - Actual updated result: user confirms 1.0.2 loaded and an external-app prompt, but no card; before/after native windows show no extra card without an OS probe. App delivery remains failed. Added a read-only PID/parent/argument-presence observer, AST/sanity checked; a first 60-second sample had no new process but lacks a synchronized user-click reply and can miss short-lived children. No root cause beyond the click interception is claimed.
