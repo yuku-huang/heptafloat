@@ -13,7 +13,7 @@ export function createLauncher({ open, isForeground, report }) {
     const request = ++sequence;
     report({ phase: 'requesting', mode });
     let result;
-    // Invoke now, without await/timers, to retain a manual click's user gesture.
+    // Dispatch the automatic attempt immediately when the page is foreground.
     try { result = open(); } catch (error) { result = Promise.reject(error); }
     return Promise.resolve(result).then(() => {
       if (request === sequence) report({ phase: 'sent', mode });
@@ -31,7 +31,6 @@ export function createLauncher({ open, isForeground, report }) {
   return {
     enableAuto(value) { enabled = value === true; return foreground(); },
     foreground,
-    manual() { automaticDone = true; return attempt('manual'); },
     pause() { enabled = false; automaticDone = true; ++sequence; pending = false; },
   };
 }

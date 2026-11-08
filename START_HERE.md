@@ -1,6 +1,6 @@
 # Start here
 
-Bridge continuation: app win.7 is unchanged; extension source/build is 1.0.1, delivered separately with `npm run package:extension`. Read `docs/BROWSER_BRIDGE.md` for reload/version checks. Actual Discord Desktop unmarked card click → same-card Edge HTTPS passed at 14:25. Platform URL policy blocks internal extension observation/input, so reload/manual-prompt/marked-app acceptance remains unverified. Old normal win.5 remains alive while handler points to win.7; use tray Quit before activating win.7.
+Bridge continuation: app win.7 is unchanged; extension 1.0.2 restores native manual-link navigation, delivered separately with `npm run package:extension`. Read `docs/BROWSER_BRIDGE.md` for reload/version checks. Normal win.7 is now active; independent OS opening and its full card toolbar were observed. User-confirmed Discord→handoff does not prove app launch; 1.0.2 prompt/card acceptance remains pending. Platform URL policy blocks Agent input to internal extension pages. Do not repeat the old tray-Quit request for this bridge-only update.
 
 This checkout adds Windows support to upstream HeptaFloat `f32f34f` (0.9.12).
 

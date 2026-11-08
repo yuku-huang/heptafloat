@@ -1,5 +1,7 @@
 # Parent workspace handoff
 
+2026-11-08 evening: bridge 1.0.2 preserves native manual-link navigation; normal win.7 is active after the user's safe Quit/restart. OS target rendering/new-window evidence is separate from user-confirmed Discord→handoff and unresolved app delivery. The earlier app-open report was corrected to failure. 66 unit tests pass; internal extension UI remains blocked to Agent input. No private parent data, messages or Bot deployment are included.
+
 2026-11-08 afternoon: bridge 1.0.1 source/build/standalone delivery continues browser diagnostics without replacing app win.7. Actual unmarked Discord→same-card Edge passed. Platform rejects internal extension pages; reload/prompts/marked app delivery remain pending user evidence. No Bot deployment or message sending. Parent receives additive navigation only.
 
 2026-11-08 win.7 user revision: complete editable card windows per link replace the old read-only/reused preview. Shared UI, independent pin/history, sender-bound IPC and scoped recovery are documented in this repo. Parent handoff gets additive pointers only; no surrounding private data is imported into Git.

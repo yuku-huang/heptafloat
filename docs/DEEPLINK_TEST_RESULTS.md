@@ -1,5 +1,21 @@
 # Deep Link 驗證紀錄（2026-11-08，Asia/Taipei）
 
+## 19:08：1.0.2 原生手動連結修補
+
+| 項目 | 結果與界線 |
+| --- | --- |
+| 使用者回報更正 | 截圖確認 1.0.1 頁面／已載入版本；後續明確更正先前「卡片已開啟」，一般左鍵無反應。右鍵新分頁有外部程式提示，但使用者仍未看到卡片。最新回報 Discord 已到中繼頁，按鈕仍無效；不記為 App 成功 |
+| 已重現的程式問題 | source API/DOM 回歸先失敗：準備完成後，左鍵被 `preventDefault()` 取消並改用 `tabs.update`。1.0.2 保留原生 anchor，不另外發出手動 API 請求；此修補尚未證明是全部實機問題的唯一原因 |
+| 測試 | 66/66 單元測試通過；其中 14 項橋接啟動測試涵蓋原生重試、初始化早期、延遲 API 成功／失敗、過期錯誤與網頁備援。這些是 API/DOM doubles，不是實際瀏覽器提示 |
+| 正常帳號 win.7 | 使用者正常 Quit 舊版後，確認沒有舊程序才從 OS 開指定卡；正常 win.7 已接手。再次獨立 OS 開相同卡建立新 window ID，主 PID 維持同一個。原先卡片窗最小化；新窗經 CUA Raise 後實際顯示指定內容及搜尋／置頂／新增／設定工具列 |
+| 前景／置頂界線 | 新窗出現不等於使用者看到前景。畫面曾被 Edge 全螢幕影片蓋住，置頂切換的後續點擊因目標被遮擋遭工具拒絕，不計為置頂實機通過；原生前景自動切換尚需獨立驗收。沒有將 OS probe 混入瀏覽器結果 |
+| 官方資料讀取 | 目前官方 CLI 0.10.0；實際 source 與安裝版均使用 `card properties`，指定卡為可讀文字 note，`note read` 有 doc/MD5。診斷誤用的 `card type` 已更正，不是 App 根因；沒有修改官方 bundle 或讀取私有 DB |
+| 1.0.2 載入／Edge／Discord | 使用者確認兩個版本均為 1.0.2，有提示但卡片未開；獨立比對前後 window IDs 沒有新增，所以 **仍未通過 App 喚起**。沒有在此測試期間用 OS 指令另外開卡。Agent 的 internal-extension URL 禁止仍有效，使用者允許操作不會取消此工具邊界 |
+| 啟動觀察器 | 新增唯讀 `observe-protocol-launch.ps1`，PowerShell AST 與 1 秒 sanity run 通過。19:17 的 60 秒採樣無新增程序，最長間隔 68 ms；尚無對應的使用者點擊時間／提示程式名稱回報，因此不記為有效的同步端到端測試，且輪詢本來可能漏掉短命程序。報告忽略於 Git，不含原始 URI／內容 |
+| 系統檢查 | HKCR/HKCU handler 皆為測過的 win.7；沒有 flowhepta UserChoice 覆寫。本次 shell 為 medium integrity；只查詢的 `ELECTRON_RUN_AS_NODE` process/user/machine 值皆未設定，近期 Application Error 沒有 HeptaFloat crash。這些不證明 Edge 自己的環境或子程序已通過。沒有安全／profile／政策變更 |
+
+正常 win.7 的獨立 OS 結果只支持桌面端可讀卡與同實例新窗；不能當成 Edge／Discord 自動喚起通過。此次桌面 runtime 與既有 win.7 ZIP 保持不變。未新增服務／Native Messaging、外部訊息、Bot 部署或真實卡片編輯。
+
 ## 14:32：橋接 1.0.1 接續
 
 | 項目 | 結果與界線 |

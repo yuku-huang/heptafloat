@@ -1,5 +1,10 @@
 # Rules and conventions
 
+Manual-link continuation policy: live `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-08T11:03:25.809692+00:00`. Full Router/Skill read separately without truncation: Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matches; no card/skill writes.
+
+- Preserve the native default action of the manual protocol anchor. A successful automatic tabs API call cannot replace native confirmation or prove app acknowledgement. Test ready/early/manual choices, API failures and stale results independently. Keep OS probes out of browser acceptance windows.
+- Background shell checks need no visible pointer movement; explain when switching to native UI. Physical Escape still stops Computer Use. User permission does not override an explicit browser URL-policy rejection.
+
 Final live re-read before Git delivery: `2026-11-08T06:43:15.997011+00:00`, official_heptabase_desktop_cli, cached=false. Full Router/Skill read again; card IDs, versions, registry match and hashes below are unchanged.
 
 Bridge-task policy provenance: live official_heptabase_desktop_cli, cached=false, readAt `2026-11-08T06:13:23.459726+00:00`; Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Identity/registry matched and full texts read. No skill/card edits.

@@ -1,5 +1,15 @@
 # Agent changelog
 
+## 2026-11-08 evening — Native manual bridge link, 1.0.2
+
+- Actual updated result: user confirms 1.0.2 loaded and an external-app prompt, but no card; before/after native windows show no extra card without an OS probe. App delivery remains failed. Added a read-only PID/parent/argument-presence observer, AST/sanity checked; a first 60-second sample had no new process but lacks a synchronized user-click reply and can miss short-lived children. No root cause beyond the click interception is claimed.
+
+- Removed manual `preventDefault()`/API dispatch and its unused controller entry; the validated anchor handles ordinary left clicks. Manual/web choices invalidate pending automatic status, including initialization errors after an early choice. No extra permissions, framework or desktop runtime update.
+- Red→green regression proves the old ready-page click was cancelled. 66 total tests pass; 14 bridge launcher/entry tests cover native retries, early choices, pending completion/rejection and error clearing. Real Edge/Discord app acceptance remains pending.
+- Corrected loaded-version and user outcome records: 1.0.1 loaded was confirmed, app-open was later explicitly retracted. Normal win.7 now owns the single instance and a repeated independent OS link opened a new target-card window with full toolbar. Browser fullscreen obscured some UI; native pin/foreground acceptance is not claimed.
+- Official CLI 0.10.0 reads succeeded using the existing `card properties`/`note read`; the diagnostic `card type` mistake was corrected without a source change. No real note edits, external messages, Bot deployment or policy workaround.
+- Skill verdict: no installed/Heptabase skill edit; native manual-link and source-specific acceptance rules belong in repository conventions/tests. Artifact and Git results are recorded in the root changelog.
+
 ## 2026-11-08 afternoon — Bridge 1.0.1 and actual Discord baseline
 
 - Foreground one-shot launch, immediate manual API dispatch, early-choice/stale-status guards, redacted failures, build/loaded versions and explicit reload. No new permissions/dependencies.

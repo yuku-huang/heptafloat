@@ -1,6 +1,6 @@
 # Project overview
 
-Bridge source/build 1.0.1 continues browser-launch work independently of app win.7. Foreground dispatch, immediate manual retry, version/reload help and optional external-Bot Markdown helper are source-tested. Actual unmarked Discord→Edge passed; marked Discord/app acceptance requires permitted/manual UI evidence.
+Bridge 1.0.2 continues browser-launch work independently of app win.7. Native manual-link navigation, foreground automatic dispatch, version/reload help and the optional external-Bot Markdown helper are source-tested. Normal win.7 is active and renders the target card on independent OS dispatch. Actual unmarked Discord→Edge passed; marked Discord/app acceptance still requires permitted/manual UI evidence.
 
 Current win.7 behavior: every deep link opens a new complete editable card window, with independent pin/history/buffers and the same toolbar/commands as the primary journal. This explicit user revision supersedes the earlier read-only/reuse preview specification. Browser/Discord external launch remains a separate unresolved acceptance item.
 

@@ -14,16 +14,18 @@ async function start() {
   document.getElementById('reload-hint').hidden = loadedVersion === __BRIDGE_BUILD_VERSION__;
   app.href = deepLink; app.hidden = false; web.hidden = false;
   let launcher, chosen = false;
-  app.addEventListener('click', (event) => {
+  app.addEventListener('click', () => {
     chosen = true;
-    if (!launcher) { status.textContent = '請在瀏覽器提示中確認開啟；若沒有反應，可改用網頁版。'; return; }
-    event.preventDefault();
-    void launcher.manual();
+    launcher?.pause();
+    error.hidden = true;
+    status.textContent = '已交由瀏覽器處理連結；請確認開啟提示。此頁無法確認程式是否已開啟。';
+    // Keep the anchor's native navigation and user gesture. The automatic API
+    // attempt is separate and must never replace or duplicate this click.
   });
   web.onclick = async () => {
     chosen = true;
     launcher?.pause();
-    app.setAttribute('aria-disabled', 'false'); error.hidden = true;
+    error.hidden = true;
     status.textContent = '正在開啟 Heptabase 網頁版…';
     let result;
     try { result = await chrome.runtime.sendMessage({ action: 'openWeb' }); }
@@ -40,10 +42,9 @@ async function start() {
       report(result) {
         error.textContent = result.error || '';
         error.hidden = !result.error;
-        app.setAttribute('aria-disabled', String(result.phase === 'requesting'));
         status.textContent = result.phase === 'requesting' ? '正在送出開啟請求…'
-          : result.phase === 'sent' ? '已送出請求，尚未確認程式是否開啟。請確認瀏覽器提示；沒有卡片窗時可再按一次開啟。'
-          : '瀏覽器未完成開啟請求。可再按一次開啟，或改用網頁版。下方顯示原因。';
+          : result.phase === 'sent' ? '自動開啟請求已送出，尚未確認程式是否開啟。若沒有卡片窗，請按「以 Flow HeptaBase 開啟」，並確認瀏覽器提示。'
+          : '瀏覽器未完成自動開啟請求。請按「以 Flow HeptaBase 開啟」，或改用網頁版。下方顯示原因。';
       },
     });
     if (chosen) launcher.pause();
@@ -56,6 +57,7 @@ async function start() {
       : '卡片已準備好。選擇使用桌面卡片窗或網頁版。';
     await launcher.enableAuto(settings.autoLaunch);
   } catch (failure) {
+    if (chosen) return;
     status.textContent = '無法準備自動開啟。仍可按開啟按鈕或使用網頁版。';
     error.textContent = launchError(failure); error.hidden = false;
   }

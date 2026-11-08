@@ -1,3 +1,20 @@
+### [2026-11-08 19:21] - Restore native manual protocol navigation and record failed browser acceptance
+
+* **修改檔案**：`browser-extension/handoff.js`, `browser-extension/launcher.js`, `browser-extension/manifest.json`, `test/browser-launcher.test.mjs`, `scripts/observe-protocol-launch.ps1`, README/START_HERE/ARCHITECTURE, bridge/deep-link/operator docs, `AGENT_CONTEXT/00..06,08`
+* **變更細節**：
+  * clean preflight on `codex/discord-hepta-preview` at `ddb544c`; all resulting source/test/script/docs changes belong to this task. Builds, distributions, observations and private user data remain ignored; no ambiguous or unrelated dirty work was staged
+  * bridge 1.0.2 preserves the validated manual anchor's native default action instead of cancelling it for a tabs API request. Manual/web choices invalidate delayed automatic results, including initialization errors after an early choice; removed the unused manual API entry and retained one-shot foreground automatic launch
+  * the new ready-page regression first failed on the old code, then passed; 66/66 total tests pass, including 14 launcher/entry API/DOM-double tests. Source/built JavaScript syntax and whitespace checks pass. No new dependencies or permissions
+  * user confirmed both loaded/page versions are 1.0.2 and a browser prompt appears, but no card. Before/after and delayed native inventory checks show no new card window, with no simultaneous OS probe. **Browser/Discord App delivery remains failed/unaccepted**; this is a partial repair, not an end-to-end completion claim
+  * normal win.7 is now active after the user's safe tray Quit. Independent OS cold/warm dispatch showed the target card and full toolbar, with repeated A opening a distinct window in the same primary process. Native foreground/pin acceptance remains limited by fullscreen Edge occlusion; no real notes were edited
+  * existing `card properties`/`note read` succeeded through official CLI 0.10.0. The diagnostic-only `card type` mistake was corrected and was not an App source defect. HKCR/HKCU association remains win.7; no UserChoice override, queried RunAsNode variables or recent HeptaFloat crash event was found; no root cause is inferred from these negative checks
+  * added a bounded read-only process observer and documented its invocation. PowerShell AST and final 1-second sanity run pass; a 60-second sample saw no new process, but lacks a synchronized user-click reply and may miss short-lived children. Reports contain PID/parent/version/argument-presence metadata, never raw URLs/content; no registry changes, elevation, process termination or service
+  * standalone bridge ZIP contains the current eight built files and guide; SHA-256 `5144330133a71b00fd64c430274cf2f9d1576ac00e11623f72314748a4646502`. Tested win.7 ZIP/installed ASAR hashes remain unchanged. Existing 1.0.1 ZIP is retained for rollback
+  * skill verdict: no installed/Heptabase skill edit; native-link default action, source-specific evidence and background-vs-UI communication are project rules/tests. Dynamic policy was loaded live and fully read; provenance recorded. Internal extension input is still tool-policy blocked; no workaround, Bot deployment, message sending or private data writes
+* **下一步建議 (Next Steps)**：
+  * obtain the prompt's app name and a synchronized confirmation under the read-only observer; determine whether Edge creates a URI-bearing process before changing Electron or proposing P2. Do not replace missing evidence with OS probes
+  * finish browser/Discord A/B, foreground/pin and web fallback acceptance after launch works; apply the external Bot helper only in its actual repository. Upstream write permission is still needed for push/CI
+
 ### [2026-11-08 14:32] - Harden browser handoff and verify unmarked Discord navigation
 
 * **修改檔案**：`browser-extension/`, `scripts/build-browser-extension.mjs`, `scripts/package-browser-extension.mjs`, `package.json`, `test/browser-launcher.test.mjs`, `test/hepta-links.test.mjs`, `integrations/discord/`, README/start/architecture/operator/bridge guides, `AGENT_CONTEXT/00..08`; parent handoff navigation updated additively
