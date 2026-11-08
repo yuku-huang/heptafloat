@@ -2,7 +2,8 @@
 
 - `shared/hepta-links.cjs`, `test/hepta-links.test.mjs`: strict HTTPS/custom URI/IPC intent and marker utility.
 - `windows/chrome.js`, `windows/preview-smoke.cjs`: shared complete window chrome and native multi-window/pin/save/conflict/close regressions; old read-only preview assets removed.
-- `browser-extension/`: MV3 worker, pure bridge, handoff/options UI and scoped manifest; `test/browser-bridge.test.mjs` tests behavior with explicit API doubles.
+- `browser-extension/`: MV3 worker/bridge/scoped manifest; `launcher.js` controls foreground/one-shot/manual/cancel behavior. `test/browser-bridge.test.mjs` and `test/browser-launcher.test.mjs` use explicit API/DOM doubles.
+- `scripts/package-browser-extension.mjs`, `docs/BROWSER_BRIDGE.md`: standalone versioned extension ZIP/update/rollback. `integrations/discord/card-link.cjs` is an optional external-Bot Markdown helper, not a deployed Bot.
 - `scripts/build-browser-extension.mjs`: repeatable extension bundle; `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`: per-user install/rollback and actual HKCU lifecycle QA.
 - `docs/DEEPLINK.md`, `docs/DEEPLINK_TEST_RESULTS.md`, `integrations/discord/README.md`: operator flow, honest acceptance matrix and external-Bot patch example.
 

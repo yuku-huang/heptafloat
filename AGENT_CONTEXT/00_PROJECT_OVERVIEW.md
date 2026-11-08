@@ -1,5 +1,7 @@
 # Project overview
 
+Bridge source/build 1.0.1 continues browser-launch work independently of app win.7. Foreground dispatch, immediate manual retry, version/reload help and optional external-Bot Markdown helper are source-tested. Actual unmarked Discord→Edge passed; marked Discord/app acceptance requires permitted/manual UI evidence.
+
 Current win.7 behavior: every deep link opens a new complete editable card window, with independent pin/history/buffers and the same toolbar/commands as the primary journal. This explicit user revision supersedes the earlier read-only/reuse preview specification. Browser/Discord external launch remains a separate unresolved acceptance item.
 
 Windows port of MIT-licensed HeptaFloat, based on upstream `f32f34f` / macOS 0.9.12. Reuse the original rich-text editor and official Heptabase CLI. The native Windows shell is Electron; no replacement web backend is needed.

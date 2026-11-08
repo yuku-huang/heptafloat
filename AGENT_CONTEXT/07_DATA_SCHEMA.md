@@ -1,5 +1,7 @@
 # Data schema and bridge
 
+Bridge 1.0.1 adds no persisted data/settings. Launcher enabled/one-shot/pending/sequence state is page-local. Errors are rendered after URL/UUID redaction, never stored. UI version is injected from source manifest; loaded version comes from runtime.getManifest. Local settings/session bypass and Heptabase note schemas are unchanged.
+
 Window-local host state: `{intent?,pinned,recoveryKey,ready,closing,allowClose,title}`; `recoveryKey` is a fresh host UUID and is never chosen by the renderer. Main overwrites it on save/create requests. Recovery JSON gains optional `recoveryKey`; filenames and verified retry-base keys derive from `kind:id:recoveryKey`. Legacy unscoped files are preserved. Note-body JSON/schema is unchanged. No window registry/pin/history/buffer is persisted beyond the existing main-window defaults. Theme/font/hotkey/startup and recents stay app-wide.
 
 Deep Link intent remains `{spaceId,cardId,canonicalUrl}`. Each registered window has its own validated initial intent; preload/renderer validate the bootstrap event. Link windows now share normal editor IPC with the journal, including validated read/save/create/image actions. Window controls and replies target the sender; no cross-window navigation is implied. `previewRead` only bootstraps the initial card; it is no longer a read-only permission mode.

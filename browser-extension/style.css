@@ -5,6 +5,7 @@ h1 { font-size: 30px; letter-spacing: -.6px; margin: 14px 0 24px; }
 p { line-height: 1.8; }
 .eyebrow { font-size: 12px; font-weight: 700; color: light-dark(#2f678b,#90c9eb); letter-spacing: 2px; }
 .hint { font-size: 13px; color: light-dark(#5a6673,#aebcca); }
+.error { padding: 12px; border-radius: 8px; background: light-dark(#fff0ef,#4c2628); overflow-wrap: anywhere; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
 button, a.primary { font: 600 14px inherit; font-family: inherit; border: 1px solid light-dark(#c9d2de,#4b5b6e); color: inherit; background: transparent; border-radius: 9px; padding: 12px 16px; cursor: pointer; text-decoration: none; }
 a.primary { color: white; background: #276184; border-color: #276184; }

@@ -1,5 +1,7 @@
 # Architecture handoff
 
+Bridge 1.0.1: handoff → foreground/focused one-shot launcher → cached-tab API invoked synchronously on manual click → browser protocol confirmation → existing Windows handler. Choosing web cancels late auto/status. Build/loaded versions are distinct; explicit reload retains storage. Independent extension packaging preserves the existing tested win.7 app. `integrations/discord/card-link.cjs` optionally formats validated marked Markdown destinations; it never sends or deploys anything.
+
 Deep Link pipeline: validated intent queue → new registered card window per link → the same chrome/editor and sender-bound IPC → official CLI. Initial linked loads skip the journal; all toolbar/editor commands are enabled. Pin/history/buffers belong to each window; appearance/hotkey/startup remain app preferences. Closing flushes that renderer and stays open on error; app Quit checks every renderer. Host UUIDs scope recovery files and retry hashes; serial writes and MD5/keep-both conflicts remain intact. See architecture and Deep Link guides for the user override of the old preview design.
 
 Shared editor (`src/`) → platform-specific bridge → official Heptabase CLI.

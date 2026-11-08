@@ -1,5 +1,13 @@
 # Rules and conventions
 
+Final live re-read before Git delivery: `2026-11-08T06:43:15.997011+00:00`, official_heptabase_desktop_cli, cached=false. Full Router/Skill read again; card IDs, versions, registry match and hashes below are unchanged.
+
+Bridge-task policy provenance: live official_heptabase_desktop_cli, cached=false, readAt `2026-11-08T06:13:23.459726+00:00`; Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Identity/registry matched and full texts read. No skill/card edits.
+
+- Dispatch user-gesture-dependent APIs before awaits. Defer automatic launch until foreground; suppress stale results/late auto after user choices. API completion is not app acknowledgement.
+- Record build and loaded versions separately; source updates do not prove runtime reload. Standalone bridge updates preserve tested Electron artifacts.
+- Verify actual destination after native AX clicks; wrapped/offscreen links may yield no useful click geometry. A fresh screenshot can guide a permitted native-app click. This never permits native browser input to a URL-policy-rejected page.
+
 Win.7 policy provenance: live `official_heptabase_desktop_cli`, readAt `2026-11-07T20:27:39.774201+00:00`, cached=false. Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; actual software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Identity/registry version matched and both full texts were read. Refreshed live again before final installation at `2026-11-07T21:02:43.910366+00:00`; IDs, versions and hashes were unchanged and both full texts were read again. No skill/card edit: window lifecycle, scope and keyboard focus rules belong here and in tests.
 
 - Validate protocol intents before creating windows or opening URLs. Every linked window uses normal editor privileges only after registered main-frame validation; bind controls/replies to its sender. Open each link in a new complete card window as explicitly requested. Scope verified retry bases and recovery filenames per host-owned window UUID; never drop another window draft or borrow its unknown MD5. Close/Quit must inspect all relevant save queues.

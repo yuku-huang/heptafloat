@@ -1,3 +1,22 @@
+### [2026-11-08 14:32] - Harden browser handoff and verify unmarked Discord navigation
+
+* **修改檔案**：`browser-extension/`, `scripts/build-browser-extension.mjs`, `scripts/package-browser-extension.mjs`, `package.json`, `test/browser-launcher.test.mjs`, `test/hepta-links.test.mjs`, `integrations/discord/`, README/start/architecture/operator/bridge guides, `AGENT_CONTEXT/00..08`; parent handoff navigation updated additively
+* **變更細節**：
+  * clean start on `codex/discord-hepta-preview` at `10e1d00`; source/docs/tests only, generated outputs/profiles/private data stay ignored; prior tested app win.7 distribution preserved
+  * bridge 1.0.1 waits for visible/focused handoff before its automatic attempt, dispatches manual API before awaits, coalesces pending calls and cancels late auto/stale status after choices; request completion never means App acknowledgement
+  * redacted launch errors, build/loaded versions and explicit settings reload preserving options; no new permissions/framework/dependencies, security/profile/policy or HTTP(S) changes
+  * optional external-Bot marked Markdown helper with escaped labels/destination boundaries; actual Bot stack is not assumed, no deployment or message sending
+  * 62 unit tests pass: ten new launcher/entry API/DOM-double tests and two Bot helper tests. Syntax/extension bundle pass; these are not real extension UI/prompt acceptance
+  * standalone `dist/FlowHeptaBase-Link-Bridge-1.0.1.zip` integrity/current files/sidecar verified, SHA-256 `f6bb273472395735a9561384e21877e46f035646cd32416d86a8cb1703cde52e`; original win.7 ZIP and tested ASAR hashes unchanged; final source/built syntax and diff checks pass
+  * actual Discord Desktop visible unmarked text link at 14:25 reached the matching Edge 156.0.4314.58 HTTPS card route; destination checked after screenshot-based click. Prior no-error AX input alone was not counted
+  * baseline marked Edge URL reached handoff metadata without a new Flow window during the background probe; no mixed OS probe. Platform URL policy rejected internal extension observation/input and disallowed workarounds; manual prompt/reload evidence is pending
+  * old normal win.5 remains alive while handler points to win.7; no forced quit/real card edits. Added separate versioned bridge packaging and rollback to preserve tested Electron runtime
+  * a large batch documentation/packaging shell call was rejected before execution with only `blocked by policy`; purpose-built file patches and separate packaging are used instead
+  * skill verdict: no edit; focus/gesture, source-vs-loaded version and actual-destination checks are recorded in project conventions/tests. Live development policy reloaded, provenance recorded
+* **下一步建議 (Next Steps)**：
+  * reload bridge to 1.0.1, normally Quit old tray app, confirm real prompt/card outcome through permitted UI; then marked Discord A/B with explicit sending authorization or existing user messages
+  * preserve unmarked web behavior/fallback; apply Bot patch only in its actual repo. P2 Native Messaging still requires the separate spec decision
+
 ### [2026-11-08 05:03] - Open complete editable card windows for deep links
 
 * **修改檔案**：`windows/main.cjs`, `windows/service.cjs`, `windows/chrome.js`, `windows/windows.css`, removed `windows/preview.js`, `src/editor.js`, `windows/preview-smoke.cjs`, `test/windows.test.mjs`, build/package scripts, package metadata, README/START_HERE/ARCHITECTURE, `docs/`, `AGENT_CONTEXT/00..08`; seven parent handoff pointers updated additively outside nested Git

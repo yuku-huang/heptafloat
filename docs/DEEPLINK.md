@@ -1,5 +1,7 @@
 # Windows 卡片連結預覽與 Discord 橋接
 
+橋接 1.0.1 獨立更新：見 [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md)，`npm run package:extension` 不改寫既有 win.7 桌面產物。已實測 Discord Desktop 未標記文字連結→Edge 同卡網頁；標記連結的程式啟動與首次提示仍未驗收。更新檔案不代表已載入版本更新。
+
 此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者最新要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。瀏覽器橋接目前是實驗功能：Edge 的 HTTPS→中繼頁已觀察到，外部程式啟動尚未通過實機驗收，不能當成已完成 Discord 端到端整合。詳見 [實測紀錄](DEEPLINK_TEST_RESULTS.md)。
 
 ## 安裝桌面協定
@@ -64,11 +66,11 @@ npm run build:extension
 2. 在該瀏覽器手動開啟 `edge://extensions` 或 `chrome://extensions`。
 3. 開啟「開發人員模式」，按「載入解壓縮」，選取 `build\browser-extension`，或 distribution 內的 `browser-extension`。
 4. 資料夾選擇視窗只顯示子資料夾，裡面看似空白是正常的；直接按「選擇資料夾」，不用找 ZIP 或選 manifest。
-5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；目前不能聲稱它會自動熱更新。
+5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；新設定頁也提供「重新載入橋接」，保留選項。中繼頁的頁面／已載入版本都應為 1.0.1。未加入自動熱更新；平台禁止工具操作 internal extension pages，這次不能代按或宣稱已重新載入。
 
 不會自動發布到商店、修改瀏覽器政策、安裝 Native Messaging 或改全域 HTTP(S) handler。只有 `webNavigation`、`storage` 及該 HTTPS host 權限，沒有 `<all_urls>`／內容擷取／外部訊息入口。
 
-預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留「以 Flow HeptaBase 開啟」及「改用 Heptabase 網頁版」；自動嘗試一次 `tabs.update`，Promise 成功也不等於 App 已開。瀏覽器仍可拒絕或顯示確認，不會繞過安全提示。
+預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留「以 Flow HeptaBase 開啟」及「改用 Heptabase 網頁版」。頁面可見且有焦點後才自動嘗試一次；手動按鈕在點擊時立即呼叫 API，初始化失敗時保留原生連結備援。選擇網頁會取消後續自動嘗試／過期狀態。Promise 成功不等於 App 已開；錯誤會顯示並遮罩 URL／UUID。瀏覽器仍可拒絕或顯示確認，不會繞過安全提示。
 
 點擴充功能圖示可進設定：
 
@@ -82,7 +84,7 @@ npm run build:extension
 
 Bot 不在這個 Repo，沒有部署。外部 Bot 的最小修補見 [integrations/discord/README.md](../integrations/discord/README.md)：只將既有 HTTPS URL 經過 `markHeptaCardUrl`，保留其他 query/hash；Link Button 仍使用 HTTPS。
 
-測試訊息與卡片權限應沿用 Bot 的既有控管。未驗證手機版前不要全面改寫訊息。目前僅確認未安裝擴充功能的瀏覽器仍能到 Heptabase 登入／開啟選擇頁；登入後的卡片、Android/iOS、Discord Desktop 點擊尚需實測，不以該頁面代替完整驗收。
+測試訊息與卡片權限應沿用 Bot 的既有控管。未驗證手機版前不要全面改寫訊息。未安裝擴充功能仍能到 Heptabase 登入／開啟選擇頁；本輪已確認未標記 Discord 文字連結到達 Edge 同卡網頁。Android/iOS、標記 Discord→App 仍需實測，不以網頁到達代替完整驗收。Markdown 文字連結的最小 helper 也在 `integrations/discord`，沒有部署外部 Bot。
 
 ## 重現測試與來源
 

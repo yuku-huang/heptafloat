@@ -1,5 +1,13 @@
 # Agent changelog
 
+## 2026-11-08 afternoon — Bridge 1.0.1 and actual Discord baseline
+
+- Foreground one-shot launch, immediate manual API dispatch, early-choice/stale-status guards, redacted failures, build/loaded versions and explicit reload. No new permissions/dependencies.
+- Ten launcher/entry API/DOM-double tests and two Bot Markdown helper tests added: 62 total pass. App win.7 distribution/runtime is preserved; standalone packaging touches versioned bridge outputs only.
+- Standalone bridge ZIP integrity/current files/sidecar verified; SHA-256 `f6bb273472395735a9561384e21877e46f035646cd32416d86a8cb1703cde52e`. Prior win.7 ZIP and tested ASAR are unchanged. Syntax/diff checks pass; loaded bridge version is not confirmed.
+- Actual unmarked Discord Desktop text-link click opened matching Edge HTTPS at 14:25. Marked handoff metadata observed; platform rejected internal extension observation/input. No workaround, real card edits or messages. Reload/manual prompt/marked A/B remain pending.
+- Skill verdict: no edit; gesture/focus, source/runtime version and actual-destination evidence belong in repository conventions/tests. Final ZIP/hash/Git details are in the root changelog.
+
 ## 2026-11-08 Complete linked card windows
 
 - Explicit user override: replace read-only/reused preview with full editable card windows and new-window-per-link default. Removed separate preview assets; reused normal chrome/editor/commands and per-sender controls/title/mention replies. Pins/history/buffers stay independent; appearance/hotkey settings remain global.

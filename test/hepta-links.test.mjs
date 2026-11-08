@@ -1,10 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import links from '../shared/hepta-links.cjs';
+import discordLinks from '../integrations/discord/card-link.cjs';
 const { cardIntent, validateCardIntent, parseHeptaCardUrl, buildFlowHeptaDeepLink, parseFlowHeptaDeepLink, intentFromArgv, markHeptaCardUrl } = links;
 const spaceId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', cardId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const web = `https://app.heptabase.com/${spaceId}/card/${cardId}`;
 const deep = `flowhepta://card/${cardId}?space=${spaceId}`;
+
+test('Discord Markdown helper marks an explicit HTTPS destination without sending anything', () => {
+  const original = `${web}?source=bot#block-1`;
+  const expected = `[中文卡片](<${web}?source=bot&flowhepta=1#block-1>)`;
+  assert.equal(discordLinks.discordCardLink('中文卡片', original), expected);
+  assert.equal(discordLinks.discordCardLink('中文卡片', markHeptaCardUrl(original)), expected);
+});
+
+test('Discord helper escapes labels and rejects invalid destinations', () => {
+  assert.equal(discordLinks.discordCardLink('[不變成其他連結]\\測試\n', web), `[\\[不變成其他連結\\]\\\\測試](<${web}?flowhepta=1>)`);
+  assert.equal(discordLinks.discordCardLink('  ', web), `[開啟卡片](<${web}?flowhepta=1>)`);
+  for (const target of ['https://evil.example', deep, `${web}/unexpected`, `${web}?flowhepta=2`]) {
+    assert.throws(() => discordLinks.discordCardLink('卡片', target));
+  }
+});
 test('HTTPS and protocol URLs roundtrip canonical IDs, marker and query/hash', () => {
   const intent = cardIntent({ spaceId, cardId });
   assert.deepEqual(parseHeptaCardUrl(`${web}?q=hello&flowhepta=1#block-1`), { ...intent, marked: true });

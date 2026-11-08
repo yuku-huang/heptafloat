@@ -1,5 +1,7 @@
 # HeptaFloat for Windows
 
+Bridge-only update: `npm run package:extension` builds version 1.0.1 independently of the existing tested app win.7 ZIP. Reload/version/rollback steps and current limits are in [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md). Old normal win.5 still running must be normally quit from the tray; installing or closing a window does not transfer its single-instance lock. Current unit suite: 62 tests; prior win.7 native mock and installation checks remain distinct from browser/Discord app acceptance.
+
 Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
 
 ## Run the portable app
@@ -89,7 +91,7 @@ Packaging produces `dist/0.9.12-win.7/HeptaFloat-win32-x64/HeptaFloat.exe`, a ZI
 
 ## Validation boundaries
 
-Validated locally: 50 unit tests cover editing/languages, guarded official CLI access/search/history, strict links and the MV3 bridge logic. Native editor/preview smoke and actual installed-protocol results are separated in `docs/DEEPLINK_TEST_RESULTS.md`. Real-note integration checks remain read-only; simulated browser APIs do not prove Discord or browser external-launch acceptance.
+Validated locally: 62 unit tests cover editing/languages, guarded official CLI access/search/history, strict links, bridge dispatch/choices and optional Bot Markdown helpers. Prior native editor/preview smoke, installed-protocol tests and current browser/Discord evidence are separated in `docs/DEEPLINK_TEST_RESULTS.md`. Real-note integration checks remain read-only; simulated browser APIs do not prove browser external launch or marked Discord app delivery.
 
 Real note mutation/image import, physical Chinese IME interaction, multi-monitor/DPI transitions, reboot/login startup, and Windows 10 hardware acceptance still need a user acceptance pass. macOS native compilation is not available on this Windows machine. CI configuration is provided; it has not run remotely until the branch is pushed to a writable repository.
 
