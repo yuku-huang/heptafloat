@@ -18,4 +18,23 @@ Editor update: `/code` uses the native Windows caret, language selector and synt
 
 Native bridge builds need the existing Windows .NET Framework compiler: `npm run test:native-host` builds/tests before installation. Freeze that binary, then `npm run package:native-bridge`. Do not rebuild and overwrite an installed same-version host. The ZIP also contains a current-user installer; Node is only needed for source builds, not to run the delivered host.
 
-The workspace containing this checkout is not itself a Git repository. Keep source commits inside this nested `heptafloat` repository; do not add surrounding personal data. The original `origin` is `madeyexz/heptafloat`; verified access is read-only. Push requires a writable fork/remote.
+The workspace containing this checkout is not itself a Git repository. Keep source commits inside this nested `heptafloat` repository; do not add surrounding personal data.
+
+## Push Windows work
+
+The 403 was repository authorization: the authenticated `yuku-huang` account has `push:false` on `madeyexz/heptafloat`. Its login works. Keep that original `origin` for fetching upstream changes; the owned [yuku-huang/heptafloat](https://github.com/yuku-huang/heptafloat) fork is now the writable `fork` remote. Commit `ba027071ee3c4fe8c9efc78729ebb602cbc97d98` was pushed on `codex/discord-hepta-preview` and independently read back through Git and the GitHub API.
+
+From this checkout, repeat setup or push committed work using the existing GitHub CLI login:
+
+```powershell
+powershell.exe -NoProfile -File .\scripts\push-fork.ps1 -ExpectedAccount yuku-huang
+powershell.exe -NoProfile -File .\scripts\push-fork.ps1 -ExpectedAccount yuku-huang -Push
+```
+
+The script checks the account, selected upstream, named task branch, existing remote URLs, fork parent/owner/write permission and clean worktree before pushing. It reuses the fork, preserves `origin`, sets only this branch's `pushRemote`, uses normal `git push --set-upstream`, and compares local HEAD with Git's advertised SHA and GitHub's branch SHA. An existing conflicting remote is refused. No credentials are exported or reset; the connector and local CLI may use different accounts.
+
+For this configured branch, plain `git push` now targets `fork`. No PR, merge, release, artifact upload or CI success is implied by a successful push. The application packages remain local under ignored `dist/`.
+
+To undo only local push routing, run `git config --local --unset branch.codex/discord-hepta-preview.pushRemote` and `git branch --unset-upstream codex/discord-hepta-preview`. This retains both remotes, the GitHub fork and published history; upstream will still reject unauthorized writes. Deliberate deletion of the fork is separate work.
+
+References: [GitHub fork workflow](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo), [GitHub CLI fork options](https://cli.github.com/manual/gh_repo_fork).

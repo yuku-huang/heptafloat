@@ -1,5 +1,11 @@
 # Rules and conventions
 
+Git delivery task policy: live `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-08T14:26:24.201921+00:00`. Full Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 and software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 were read without truncation; identity/registry matched. SHA-256: `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa` / `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`.
+
+- Diagnose 403 using the actual pushing account and repository permissions before resetting credentials. Connector and local CLI identity are separate. Preserve read-only origin, verify the user's fork owner/parent/push permission, refuse conflicting remotes, scope push routing to the task branch, and read back exact remote SHA after a normal push. Never equate fork delivery with permission to write upstream. These repository workflow rules do not require a global/Heptabase Skill edit.
+
+Pre-delivery live re-read: `2026-11-08T14:34:56.726996+00:00`, same official source, cached=false; complete Router/Skill contents, IDs, versions, registry match and hashes are unchanged from the fully read 14:26 source above.
+
 Auto-close task policy: `2026-11-08T13:49:35.756869+00:00`, live `official_heptabase_desktop_cli`, cached=false; full Router v0.9.3 (`662077f1-6f0a-4d25-95fa-5a3d48f3853d`) and actual software-development v0.1 (`7004b48d-cb3f-4d09-87f8-663f184c5c8c`) read separately without truncation. Registry matched; SHA-256 values remain `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa` and `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. No card/skill writes.
 
 - Auto-close is an explicit user override: close only after native acceptance and only the validated sender's still-current top-frame handoff. Unknown preferences, native failure/timeout or alternate choices fail open; never accept a caller-selected tab ID. Preserve the distinction between process acceptance and card-render completion.

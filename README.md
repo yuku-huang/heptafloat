@@ -217,6 +217,8 @@ HeptaFloat runs entirely on your Mac. It reads and saves your journal through th
 
 ## For developers
 
+Windows task branches are published to [yuku-huang/heptafloat](https://github.com/yuku-huang/heptafloat/tree/codex/discord-hepta-preview). The original `origin` remains the read-only upstream; the `fork` remote is writable and selected for this task branch's pushes. See [repeatable setup/push and rollback](START_HERE.md#push-windows-work) and `scripts/push-fork.ps1`.
+
 HeptaFloat is a native Swift shell (non-activating floating `NSPanel` with a unified `NSToolbar`, a borderless notch panel sized from the screen's safe area, global hotkey, SwiftUI Settings) around a [ProseMirror](https://prosemirror.net) editor in a `WKWebView`. The editor is bundled as one IIFE, so minified names never leak into the page's globals (where they once clashed with `window.hf`, the bridge to Swift). It reads and writes cards with the Heptabase CLI (`heptabase journal|note read/save`, `note create`, `file import/export`, `card list/properties`), with md5 conflict checks. Saves are a queue of per-card snapshots, so switching cards never waits on a save.
 
 ```

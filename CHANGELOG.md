@@ -1,3 +1,16 @@
+### [2026-11-08 22:31] - Resolve GitHub 403 and push the accepted bridge commit
+
+* **修改檔案**：`scripts/push-fork.ps1`, `README.md`, `START_HERE.md`, `ARCHITECTURE.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/03_FILE_MAP.md`, `AGENT_CONTEXT/04_RULES_AND_CONVENTIONS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`, `CHANGELOG.md`
+* **變更細節**：
+  * clean preflight at ba02707 on codex/discord-hepta-preview; GitHub CLI is authenticated as yuku-huang, but upstream madeyexz/heptafloat reports push=false. The 403 is repository authorization; no login reset, token export or upstream permission change was needed
+  * created owned public fork yuku-huang/heptafloat of the existing public upstream. Original origin remains unchanged; added writable fork and configured only this task branch's pushRemote/tracking. ba027071ee3c4fe8c9efc78729ebb602cbc97d98 was actually pushed; Git ls-remote and GitHub API both returned the exact SHA
+  * added a repeatable, guarded setup/push script and documented usage/local routing rollback. PowerShell parse, wrong-account refusal and dirty-worktree refusal pass. Existing fork/remote setup is idempotent and plain git push --dry-run returned up-to-date. The first gh invocation rejected an unsupported positional-repository/remote-flag combination before mutation; corrected CLI routing is verified
+  * checked all 15 task commits for known private acceptance identifiers and common credential/private-key patterns, with no matches. Only source history is published; ignored build/dist/operational reports and user data remain local. Existing runtime/native/extension and versioned installation packages are unchanged
+  * live Router/Skill fully reloaded and matched; skill update unnecessary because these account/fork/remote/SHA checks are repository publishing conventions. No Heptabase card, PR, merge, release, artifact upload or CI success is claimed
+* **下一步建議 (Next Steps)**：
+  * use plain git push on this configured branch, or run the guarded script with -ExpectedAccount yuku-huang -Push after committing. See START_HERE for setup and rollback
+  * any upstream contribution, release or CI enablement remains separate work; original upstream write access is still read-only
+
 ### [2026-11-08 22:20] - Verify 1.1.1 delivery archives and repeatable bundle installation
 
 * **修改檔案**：`CHANGELOG.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/04_RULES_AND_CONVENTIONS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`

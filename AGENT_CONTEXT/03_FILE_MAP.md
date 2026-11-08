@@ -1,5 +1,7 @@
 # File map
 
+- `scripts/push-fork.ps1`, `START_HERE.md#push-windows-work`: repeatable account/fork/remote-guarded task-branch configuration and normal push with exact Git/API SHA readback; original origin remains upstream. Local routing rollback is documented.
+
 - `browser-extension/bridge.js`, `handoff.js`, `options.js/html`: 1.1.1 accepted-request auto-close preference and strict same-handoff sender/tab removal. Bridge/launcher tests cover native failure retention, stale cancellation, setting persistence and arbitrary-tab refusal.
 
 - `native-host/Program.cs`: bounded exact-origin stdio host, receipt-owned fixed EXE launch and child-handle isolation.

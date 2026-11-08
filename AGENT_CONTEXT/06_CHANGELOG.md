@@ -1,5 +1,11 @@
 # Agent changelog
 
+## 2026-11-08 22:31 — Resolve 403 through the owned writable fork
+
+- Live CLI identity is yuku-huang; upstream API permissions show pull=true/push=false. Created its public fork of the existing public upstream, preserved origin, and configured only this task branch to push/track the writable fork. ba027071ee3c4fe8c9efc78729ebb602cbc97d98 was actually pushed and independently read back through Git and the GitHub API.
+- Added repeatable `scripts/push-fork.ps1`: explicit account and selected-source checks, fork owner/parent/write verification, conflicting-remote refusal, clean-worktree guard, ordinary push and exact SHA readback. PowerShell parse, wrong-account and dirty-worktree refusal checks pass; setup repeated successfully and plain push dry-run is up-to-date. An initial unsupported gh flag combination was rejected before mutation, corrected by checking the selected source and omitting the positional repository when using --remote=false.
+- Fifteen task commits were checked for known private acceptance identifiers and common token/private-key patterns, with no matches. Ignored packages, diagnostics, note data and working app files stay local. No PR, merge, release or CI result claimed. Skill unchanged; verified publishing safeguards are in project conventions and this script.
+
 ## 2026-11-08 22:20 — Final 1.1.1 delivery verification
 
 - Both current ZIPs were built; combined/extension archives contain exactly 18/8 files, each matching current expected source/build, with correct SHA-256 sidecars. Exact hashes are in root CHANGELOG. The packaged manager passed default-source idempotent installation, preserving the two receipt-owned keys and running primary app. Frozen installed/build native, desktop ASAR and previous desktop/1.0.2 ZIPs remain unchanged.
