@@ -1,5 +1,13 @@
 # Rules and conventions
 
+P2 policy read: live `official_heptabase_desktop_cli`, cached=false, `2026-11-08T12:45:54.250467+00:00` (also read before installation at `12:36:06.161163+00:00`). Full Router and Skill were read separately without truncation: Router v0.9.3 / `662077f1-6f0a-4d25-95fa-5a3d48f3853d` SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; actual `software-development` v0.1 / `7004b48d-cb3f-4d09-87f8-663f184c5c8c` SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matched. User explicitly approved the documented P2 scope; do not ask for that approval again. No skill/card writes.
+
+- Native host changes must remain action/UUID-only, exact-origin and receipt-owned; never expose a generic agent command channel, shell/path API, network service or note/credential access.
+- Test actual message framing and inherited child handles, not just JSON parsing. Host acceptance is only process creation; source mocks, installed-host CLI probes, browser pages, visible cards and Discord clicks are independent evidence.
+- Freeze a tested native binary before installation/packaging. Classic C# rebuilds can change bytes in the same version; same-version installs must refuse mismatches. Copy the frozen host into delivery archives, keeping the existing Electron artifact unchanged.
+- System changes belong in rerunnable scripts with ownership/path guards and rollback. A temporary documented registry comparison is not a proven fix; restore its owned key after testing. Unknown existing registrations must remain untouched.
+- No global skill update is needed: these native framing/install/evidence rules belong to repository conventions and regressions. Historical provenance/phase-specific rules below do not override 1.1.0's approved native-first primary button; preserve native navigation on its explicit protocol fallback.
+
 Association-task policy read: `2026-11-08T11:36:03.416821+00:00`, official_heptabase_desktop_cli, cached=false. Full Router and software-development Skill were read separately without truncation: Router v0.9.3 / `662077f1-6f0a-4d25-95fa-5a3d48f3853d` SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; Skill v0.1 / `7004b48d-cb3f-4d09-87f8-663f184c5c8c` SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matched; no skill/card writes.
 
 - Notify Windows after association register/restore. Check receipt ownership before refreshing a live install; do not copy files or stop a user process for registration maintenance.

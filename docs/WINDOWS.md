@@ -1,6 +1,6 @@
 # HeptaFloat for Windows
 
-Bridge source is 1.0.2; normal win.7 is active. The user's screenshots confirm native click handling, while Edge Console reports no registered handler. Windows shell/API checks succeed, including the exact screenshot card; they are separate from browser acceptance. The source installer supports `-Action Refresh` and notifies Windows after association changes. Refresh passed lifecycle checks, but both refresh and a confirmed full Edge restart left the browser error unresolved. See [DEEPLINK.md](DEEPLINK.md) and the unimplemented [Native Messaging proposal](NATIVE_MESSAGING_PROPOSAL.md). Existing tested app/bridge ZIPs remain unchanged. The JavaScript suite previously passed 66 tests; this task validates PowerShell and real HKCU behavior.
+Bridge source/loaded version is 1.1.0; normal win.7 is unchanged. The user approved P2 Native Messaging, and its current-user exact-origin host 1.0.0 is installed. Sixty-seven common/bridge tests, six actual host-EXE test groups and actual HKCU lifecycle checks pass. An independent installed-host request opened the right card, but actual Edge currently reports native host not found; this is not browser/Discord acceptance. The original protocol also still fails in Edge after refresh/restart. See [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md) and [actual results](DEEPLINK_TEST_RESULTS.md). The tested win.7 runtime/ZIP and old 1.0.2 ZIP are preserved.
 
 Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
 

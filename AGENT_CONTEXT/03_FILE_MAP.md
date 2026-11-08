@@ -1,11 +1,16 @@
 # File map
 
-- `docs/NATIVE_MESSAGING_PROPOSAL.md`: unimplemented P2 scope, permissions, maintenance/rollback and verification; requires additional user approval before host/extension changes.
+- `native-host/Program.cs`: bounded exact-origin stdio host, receipt-owned fixed EXE launch and child-handle isolation.
+- `scripts/build-native-host.ps1`, `test/native-host.test.mjs`: built-in C# compiler and six actual host-EXE regression groups using fake desktop applications.
+- `scripts/install-native-host.ps1`, `scripts/test-native-host-install.ps1`: current-user immutable host versions, exact extension origin and actual HKCU lifecycle QA.
+- `scripts/package-native-bridge.mjs`, `docs/NATIVE_MESSAGING.md`: combined native-host/extension delivery, setup, status, rollback and removal. `docs/NATIVE_MESSAGING_PROPOSAL.md` preserves the approved original P2 plan.
+- `scripts/probe-native-host-discovery.ps1`: temporary owned Chromium-fallback comparison for Edge discovery; restore after testing, never writes browser policies or HKLM.
+- `scripts/diagnose-native-host.ps1`: read-only owned native registry/manifest/binary report. `scripts/edge-native-diagnostics.{cmd,ps1}`: manual existing-profile logging launcher with active-browser guard; no remote debugging, internal-page control or forced termination.
 - `scripts/install-windows.ps1`: current source manager includes `Refresh`, association-change notifications and native Windows API status; `scripts/test-protocol-install.ps1` verifies refresh/idempotence/API during actual lifecycle QA. Frozen win.7 ZIP still has the prior manager.
 
 - `shared/hepta-links.cjs`, `test/hepta-links.test.mjs`: strict HTTPS/custom URI/IPC intent and marker utility.
 - `windows/chrome.js`, `windows/preview-smoke.cjs`: shared complete window chrome and native multi-window/pin/save/conflict/close regressions; old read-only preview assets removed.
-- `browser-extension/`: MV3 worker/bridge/scoped manifest; `launcher.js` controls foreground/one-shot/cancel behavior; `handoff.js` leaves manual protocol anchors native. `test/browser-bridge.test.mjs` and `test/browser-launcher.test.mjs` use explicit API/DOM doubles.
+- `browser-extension/`: MV3 worker/bridge/scoped manifest; `native.js` sends UUID-only requests to the fixed host; `launcher.js` controls foreground/one-shot/coalesce/cancel behavior. `handoff.js` uses native messaging first and retains a separate native protocol anchor. `test/browser-bridge.test.mjs` and `test/browser-launcher.test.mjs` use explicit API/DOM doubles.
 - `scripts/package-browser-extension.mjs`, `docs/BROWSER_BRIDGE.md`: standalone versioned extension ZIP/update/rollback. `integrations/discord/card-link.cjs` is an optional external-Bot Markdown helper, not a deployed Bot.
 - `scripts/build-browser-extension.mjs`: repeatable extension bundle; `scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`: per-user install/rollback and actual HKCU lifecycle QA.
 - `scripts/observe-protocol-launch.ps1`: optional read-only, bounded process sampler; records argument presence rather than raw URI/content, preserves existing reports and does not configure handlers or terminate apps.

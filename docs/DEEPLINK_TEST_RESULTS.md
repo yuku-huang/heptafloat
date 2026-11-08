@@ -1,5 +1,28 @@
 # Deep Link 驗證紀錄（2026-11-08，Asia/Taipei）
 
+最新受控對照：只有最後加入官方文件的 Google Chrome fallback key 後，使用者確認 Edge 主藍色按鈕成功開卡；native inventory 同時新增一個符合目標的 win.7 卡片窗，未混入 OS／CLI 開卡。這是首次真正 Edge native-button 成功，尚未代表自動開啟／Discord A/B／正式雙登錄安裝驗收。下一步把暫時 probe-owned key 納入 receipt 管理，維持同一 host／單一 origin／目前帳號；不能由此推論所有 Edge 版本的內部根因。下方失敗紀錄為此前對照。
+
+## 21:16：已核准 P2、Native Messaging 實作與真正 Edge 失敗
+
+使用者已明確同意原提案的 P2 開發、目前帳號安裝與實測。下表是目前狀態；先前「尚未實作／未獲准」段落為當時歷史，不再代表現況。
+
+| 項目 | 結果與界線 |
+| --- | --- |
+| Source／build | 插件 1.1.0 新增已核准 nativeMessaging 權限、UUID-only native adapter、手動／自動合併、8 秒 timeout、過期狀態抑制及獨立協定／網頁備援。67/67 共用／橋接測試通過，其中 15 項使用 API/DOM doubles；不是瀏覽器實測 |
+| Windows host EXE | host 1.0.0 以現有 .NET Framework C# 編譯器建置；六組實際 EXE 測試通過：framing、strict UTF-8、JSON／UUID／origin／argv、receipt／路徑／junction 拒絕、清除 child Node mode、超過 2 MB child stdout 不污染 frame。全用假桌面程式，不寫真實筆記 |
+| 真正 HKCU 生命週期 | task-owned 副本安裝／同版重跑、拒絕 origin 換權與外部 root 接管、1.0.0→1.0.1 升級、回退、首版回退保留檔案、最終移除通過；native 登錄、桌面 flowhepta 與 HTTPS 復原，noteWrites=0。測完才安裝正常 host，沒有覆蓋未知登錄 |
+| 正常帳號 host | 20:36 安裝 Edge exact-origin host 1.0.0。獨立 framed CLI probe 回 accepted:true，native inventory 新增 A 的正確標題 win.7 視窗，原主程序不變。僅證實 host／桌面路由；未當成 Edge 成功、未證明前景／置頂 |
+| 真正 Edge 1.1.0 | 使用者截圖確認頁面／已載入均 1.1.0；主要藍色按鈕回報 **Specified native messaging host not found**。右側協定錯誤是保留的另一條備援，不能用來代替 native 錯誤。F12 沒有其他訊息，App 喚起仍未通過 |
+| 唯讀安裝檢查 | HKCU 32/64 views、明確 HKEY_USERS 帳號 hive、兩階段 minimal-query 開 key、default REG_SZ、JSON／ASCII host name、單一 origin、binary 可讀與 ACL 均符合；Edge 與診斷 SID 相同。另一個 ShellExecute child 亦讀到相同結果，但 parent 仍為命令程序，不能稱為 Explorer-broker 對照 |
+| 政策 | 使用者政策頁截圖顯示未設定任何政策；指定 HKCU/HKLM native-policy 值亦無。沒有修改安全政策、profile、瀏覽器預設或擴大其他插件權限 |
+| Chromium 備援登錄對照 | 可重跑的暫時 owned leaf 指向同一 manifest／origin；使用者主按鈕仍回相同錯誤，無新卡片窗。已 Restore 並再次冪等 Restore，確認 alias 不存在、正式 Edge host 保留。不納入正式安裝或宣稱修復 |
+| 冷啟動對照 | 原 Edge 19:55 啟動早於 20:36 host 安裝；使用者再重開後，確認 21:12 的新主 PID，仍回 host not found，沒有新卡片窗。這次不把失敗說成已解決的快取問題 |
+| Agent HTTPS 對照 | 正常 HTTPS 導覽到 handoff metadata（ERR_ABORTED），native inventory 無新增卡片；未驗證背景新 tab 的前景 auto eligibility。工具禁止讀／操作 internal extension 頁，沒有另用 browser UI、CDP、profile 或日誌讀取繞過頁面限制 |
+| 後續診斷 | 已提供手動 `edge-native-diagnostics.cmd`／PowerShell launcher，使用現有 Edge/profile、無 remote-debugging、只擷取此 host 的 log 行，不強制關程序。首次執行因 Edge 尚在執行而 guard 拒絕；尚未取得真正 host 查找日誌，不把 AST 通過當成該腳本執行通過 |
+| 尚未驗收 | 1.1.0 真正 Edge／Discord A/B/重複 A、foreground／pin、網頁備援、Chrome／行動版／其他 Windows 裝置。原 win.7 mock/window／OS 結果仍是獨立層級。外部 Bot 僅交付最小 patch helper，未部署或發送訊息 |
+
+目前正常 win.7、既有測過的 ASAR／ZIP 及前版 bridge 1.0.2 ZIP 均保留。Host 凍結 SHA-256：`8c3f028ded04b08d2b94e3b0d7485876223d1af30d4b875e797f0a0e1cf8c0ef`。本輪沒有執行真實卡片編輯；政策卡的 live read 仍與開卡前全文相同。安裝／host probe／瀏覽器來源分時測試，不混入開卡來製造成功。
+
 ## 20:02：實際 Console、Windows association 與重啟對照
 
 - 使用者完整截圖確認頁面／已載入均為 1.0.2；點擊前後的狀態變化符合 native click handler。Console 的實際錯誤是 `scheme does not have a registered handler`。沒有把「已交由瀏覽器處理」當成成功。

@@ -1,3 +1,19 @@
+### [2026-11-08 21:16] - Implement and install approved P2 Native Messaging bridge
+
+* **修改檔案**：`native-host/Program.cs`, `browser-extension/{native,launcher,handoff}.js`, `browser-extension/{handoff.html,manifest.json}`, `scripts/{build,install}-native-host.ps1`, `scripts/test-native-host-install.ps1`, `scripts/package-native-bridge.mjs`, native discovery/diagnostic scripts, `test/{native-host,browser-bridge,browser-launcher}.test.mjs`, `package.json`, native/bridge/Deep Link guides, README/START_HERE/ARCHITECTURE and relevant `AGENT_CONTEXT/00..08`
+* **變更細節**：
+  * explicit user approval follows the written P2 proposal; clean baseline a870cee on codex/discord-hepta-preview. All dirty/untracked source/docs/scripts/tests are this task; no ambiguous/user files. Build/dist/private reports and note data remain ignored
+  * extension 1.1.0 adds approved nativeMessaging permission, sends only validated IDs to a fixed host, coalesces pending launches and preserves focused once-only auto, explicit protocol/web fallback, timeout/error/version handling. Original protocol discovery failure is not claimed fixed
+  * host 1.0.0 uses existing .NET Framework/compiler, an 8 KB strict JSON/UUID/origin/field bound, receipt-owned fixed EXE launch without a shell, and child standard-handle isolation. No network listener, arbitrary command/path API, credential/note access, new framework or package dependency
+  * per-user Edge installer supports immutable reinstall/upgrade/rollback/uninstall, single exact allowed origin, unknown-registration refusal and path ownership checks. Combined ZIP packaging copies the tested native binary without rebuilding Electron or the frozen host
+  * 67 common/bridge tests and six actual Windows EXE groups pass; actual task-owned HKCU lifecycle/rejection/rollback/removal restores native/desktop/HTTPS state with zero note writes. Normal Edge host installed and independently dispatched a matching win.7 card window in the existing primary process; this CLI probe is excluded from browser acceptance
+  * real user screenshots confirm 1.1.0 loaded but native host not found. Registry views/explicit user hive/minimal query/manifest/EXE/ACL/SID checks pass; policy page has no configured policies. Temporary exact-origin Chromium fallback also failed and was removed. A confirmed new Edge PID after host installation still fails; no unsupported cache root cause or end-to-end success claimed
+  * added read-only discovery and a manual existing-profile Edge log launcher without remote debugging/profile/policy changes or forced exit. First logging attempt refused a still-running browser; host lookup log is pending. True Edge/Discord A/B/new-window/pin and web fallback acceptance are unfinished; Bot remains a separate un-deployed helper, no messages/real-note edits
+  * skill verdict: no installed/Heptabase skill edit; reusable native framing/immutable install/child handle/evidence rules are recorded in project conventions. Fresh 13:16 UTC policy content matches the earlier fully read Router/Skill
+* **下一步建議 (Next Steps)**：
+  * obtain the actual Edge host lookup/manifest error through the user's manual diagnostic launcher, then make an evidence-based minimal fix. Do not keep repeating unchanged install/reload/restart steps or expand HKLM/browser policy scope
+  * finish actual browser/Discord acceptance independently of CLI probes. Artifact/Git verification follows; upstream push remains subject to its existing 403 permission restriction
+
 ### [2026-11-08 20:02] - Verify association lifecycle and propose approval-gated Native Messaging
 
 * **修改檔案**：`scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`, `docs/DEEPLINK.md`, `docs/WINDOWS.md`, `docs/DEEPLINK_TEST_RESULTS.md`, new `docs/NATIVE_MESSAGING_PROPOSAL.md`, README/START_HERE/ARCHITECTURE, `AGENT_CONTEXT/01..08` as applicable

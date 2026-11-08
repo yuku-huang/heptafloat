@@ -1,46 +1,32 @@
-# Flow HeptaBase Link Bridge 1.0.2
+# Flow HeptaBase Link Bridge 1.1.0
 
-此版搭配已安裝的 HeptaFloat win.7。橋接可獨立更新；既有 win.7 Windows ZIP 仍內附橋接 1.0.0，並未改寫已測過的桌面產物。橋接更新包是 `FlowHeptaBase-Link-Bridge-1.0.2.zip`。
+這版使用已核准的 Windows 本機橋接。舊版 1.0.2 在目前 Edge 持續回報沒有註冊處理程式；1.1.0 改由 Native Messaging 只傳送合法卡片 ID，直接啟動既有 win.7，不依賴瀏覽器辨識 `flowhepta`。程式、CLI 及真正瀏覽器的驗證分開記錄，不能只因 host 回覆 accepted 就宣稱卡片已顯示。
 
-## 更新與重新載入
+## 更新
 
-1. 已從本 Repo 載入者，沿用 `build/browser-extension`；檔案已建置更新。從 ZIP 使用者，先解壓縮，再選內含 `FlowHeptaBase-Link-Bridge` 資料夾。
-2. 到 Edge／Chrome 的擴充功能管理頁，對 **Flow HeptaBase Link Bridge** 按「重新載入」。已載入的是本 Repo 的新設定頁時，也可點擴充功能圖示進設定，按「重新載入橋接」。選項會保留。
-3. 重開原卡片連結。中繼頁最下方應顯示「頁面 1.0.2 · 已載入 1.0.2」；有舊版提示時，代表檔案已更新而瀏覽器尚未重新載入。既有舊中繼頁不會自動更新。
-4. 若仍在使用舊版桌面程式，從系統匣正常 **Quit HeptaFloat** 後再使用 win.7；只關閉視窗不會退出。2026-11-08 晚間已確認正常帳號 win.7 在執行，本次只更新橋接時不需再次退出 App。
+1. 既有使用者沿用 Repo 的 `build/browser-extension`；從整合包使用者載入包內 `browser-extension`。資料夾改變可能改變插件 ID，需使用新的實際 ID 安裝 host。
+2. 先安裝本機 host，指令與範圍見 [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md)（Repo）；整合包內的根目錄 README 包含同樣步驟。Host 只註冊於目前帳號，且只允許指定插件。
+3. 到 Edge 擴充功能管理頁重新載入 **Flow HeptaBase Link Bridge**，必要時確認新增的本機橋接權限並重新啟用。已開的設定頁也有「重新載入橋接」。選項保留。
+4. 重開原卡片 HTTPS 連結；頁底應是「頁面 1.1.0 · 已載入 1.1.0」。舊頁面不會自動換成新程式。
 
-平台目前禁止 Agent 讀取／操作 `chrome-extension://` 和擴充功能管理頁，亦禁止換用其他介面繞過；因此這次重新載入／首次確認必須由使用者操作。檔案建置成功不代表已載入版本已更新。未修改瀏覽器安全設定、政策、profile 或 HTTP(S) 預設程式。
+平台工具禁止 Agent 讀取／操作擴充功能管理頁及 extension scheme 頁面，因此重載／權限步驟由使用者完成；不換用其他介面繞過。正常 win.7 已在執行，本次不需要再 Quit 桌面程式。
 
-## 開啟行為
+## 開啟與備援
 
-只有精確 `app.heptabase.com/<space-uuid>/card/<card-uuid>?flowhepta=1` 的頂層連結預設交給桌面程式。未標記的卡片及其他網頁維持原本網頁流程。
+只有精確 `app.heptabase.com/<space-uuid>/card/<card-uuid>?flowhepta=1` 的頂層連結預設進橋接；未標記連結與其他網站維持網頁。自動開啟仍等待頁面可見且有焦點，僅嘗試一次。手動按鈕走受限的本機橋接，重複的待完成請求會合併，完成後可自行再開一個新卡片窗。
 
-自動嘗試會等到中繼頁可見且有焦點，僅嘗試一次；在背景開啟時不會提前消耗請求。瀏覽器可能顯示「開啟 HeptaFloat」確認。手動「以 Flow HeptaBase 開啟」直接使用原生 `flowhepta://` 連結，不再以 `preventDefault()` 攔截左鍵後改呼叫 `tabs.update`。手動點擊會取消尚未完成的自動狀態與後續自動嘗試，保留瀏覽器的原生確認流程；仍由瀏覽器決定是否允許。頁面無法確認 App 是否已收到，狀態文字不當作開啟成功。
+「改用 Heptabase 網頁版」會停止此頁後續自動嘗試，並略過該分頁／卡片的橋接 30 秒，避免迴圈。另保留明確的「改用 Windows 協定連結」；它維持原生連結與瀏覽器確認，並不宣稱已解決目前 Edge 的舊協定錯誤。
 
-「改用 Heptabase 網頁版」會取消此頁後續的自動嘗試，並略過該分頁／卡片的橋接 30 秒，避免迴圈。失敗時保留手動重試；錯誤原因會遮罩完整網址及卡片 UUID，不保存卡片內容或診斷紀錄。
+本機橋接失敗／缺失時顯示原因，保留重試和網頁備援。8 秒未回覆會結束等待；晚到結果不會覆寫使用者已選的網頁／協定狀態。Host 只回報程序啟動，頁面不能驗證卡片內容已載入。不保存卡片內容、原始錯誤 URL 或診斷紀錄。
 
-## Discord 連結
+## Discord 與驗收
 
-現有 Discord Bot 的一般 HTTPS 卡片連結不帶標記時，開網頁是預設行為。Bot 不在此 Repo；最小修改是**在產生卡片網址的地方**套用 `markHeptaCardUrl`，訊息及 Link Button 仍使用 HTTPS。範例見 `integrations/discord/README.md`；沒有修改或部署外部 Bot，也沒有代發測試訊息。
+Bot 不在此 Repo，最小修改仍是在產生 HTTPS 網址的位置套用 `markHeptaCardUrl`。範例見 Repo 的 `integrations/discord/README.md`；沒有修改或部署外部 Bot，也沒有代發測試訊息。無法修改 Bot 時可自行開啟「攔截所有合法卡片」，預設 OFF，會同時影響一般瀏覽器。
 
-無法修改 Bot 時，可自行開啟設定的「攔截所有合法卡片」，預設 OFF；它同時影響一般瀏覽器，不能可靠地只識別 Discord Desktop。關閉／移除擴充功能就回到原本網頁流程。
+67 項 JavaScript 測試、6 組原生 host EXE 測試，以及實際 HKCU host 安裝／重裝／升級／回退／移除已通過。正常帳號 host 的獨立 CLI 已建立指定卡片窗；這不是 Edge／Discord 成功。真正 Edge 已載入 1.1.0，但在安裝後的冷啟動仍回報 native host not found；目前尚未驗收。最新實機結果以 Repo 的 `docs/DEEPLINK_TEST_RESULTS.md` 為準。
 
-## 實測界線與回退
+## 回退與交付
 
-66 項單元測試通過，其中橋接啟動使用 API／DOM doubles，並非真實瀏覽器確認。回歸測試先重現 1.0.1 左鍵被取消，再確認 1.0.2 保留原生連結，包含載入早期、API 失敗與延遲結果。使用者已確認 1.0.2 頁面／已載入版本；最新明確回報普通左鍵與右鍵開新分頁均沒有提示或卡片，覆寫先前有提示的回答。比對也沒有新卡片窗，所以 **1.0.2 App 喚起仍未通過**。正常 win.7 的獨立 OS 協定開卡與完整工具列不算瀏覽器成功。Discord 到中繼頁由使用者確認，標記 A/B 仍待驗收。詳細紀錄以 Repo 的 `docs/DEEPLINK_TEST_RESULTS.md` 為準。
+停用插件即可回到一般網頁。需要前版可載入保留的 1.0.2 ZIP；移除本機 host 的步驟在 Native Messaging 指南，保留桌面程式與所有筆記資料。既有 win.7 桌面 ZIP／runtime 不會被這個更新覆寫。
 
-## 唯讀啟動觀察
-
-可在 Repo 根目錄執行：
-
-```powershell
-.\scripts\observe-protocol-launch.ps1 -Seconds 60 -ReportPath .\build\link-observation-01.json
-```
-
-看到 `READY` 後，才在中繼頁點擊並確認瀏覽器提示。腳本只記錄新 HeptaFloat PID、父程序名稱、命令列是否可讀／是否帶協定參數及 helper 分類，不記錄完整網址或卡片內容；不變更協定、關閉程序或要求管理員權限。報告不能覆寫，重跑請改檔名。輪詢可能漏掉很快退出的程序；沒有觀察到新程序不等於證明 Windows 從未嘗試啟動，也不代表 App 已收到。這是背景診斷，不會持續移動游標。
-
-可停用橋接保留一般網頁功能；要回到 1.0.1，解壓縮前版獨立 ZIP 並載入內含資料夾；回到 1.0.0 可使用先前 win.7 distribution 內的 `browser-extension`。這不更動 Heptabase 卡片或桌面設定。桌面協定回退依 Repo 的 `docs/DEEPLINK.md` 安裝腳本執行。
-
-開發：`npm test`、`npm run build:extension`。Windows 獨立封裝：`npm run package:extension`；產物與 SHA-256 在 `dist/`，不提交 Git。
-
-參考：[Chrome runtime.reload](https://developer.chrome.com/docs/extensions/reference/api/runtime#method-reload)、[擴充功能更新與重新載入](https://developer.chrome.com/docs/extensions/get-started/tutorial/debug)、[Chromium 外部協定處理](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/external_protocol/external_protocol_handler.cc)。前景等待是本橋接的保守策略，未宣稱已證明它是本機先前失敗的唯一原因。
+開發：`npm test`、`npm run build:extension`、`npm run test:native-host`。來源：[Edge Native Messaging](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging)。

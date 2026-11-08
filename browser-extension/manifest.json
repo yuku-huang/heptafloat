@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Flow HeptaBase Link Bridge",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "將標記的 Heptabase 卡片連結交給 Windows 的 Flow HeptaBase 完整卡片窗。",
-  "permissions": ["webNavigation", "storage"],
+  "permissions": ["webNavigation", "storage", "nativeMessaging"],
   "host_permissions": ["https://app.heptabase.com/*"],
   "background": { "service_worker": "background.js" },
   "options_ui": { "page": "options.html", "open_in_tab": true },

@@ -1,5 +1,14 @@
 # Agent changelog
 
+## 2026-11-08 21:16 — Approved P2 Native Messaging checkpoint
+
+- User explicitly approved development/current-user install/real tests. Added bridge 1.1.0 native-first coalesced launching, bounded exact-origin .NET host, immutable per-browser HKCU install/rollback/uninstall and a separate frozen-binary delivery script. Existing win.7 and old bridge ZIP stay unchanged.
+- 67 common/bridge tests and six actual EXE groups pass. Actual task-owned native install/reinstall/upgrade/rollback/first rollback/uninstall restores registration/desktop/HTTPS with zero note writes. Permanent Edge host installed; independent framed-host request opens a matching win.7 window, not browser evidence.
+- User confirms loaded 1.1.0 but actual native host not found, also after a new post-install Edge PID. Registry/file/ACL/SID checks pass and the user policy page has no policies. Temporary owned Chromium fallback also failed; restored and rechecked absent. No security policy, profile, HKLM or private-note edits.
+- Added read-only discovery and manual Edge logging helpers; no remote debugging or automatic internal-page access. Logging guard rejected an active browser; actual host lookup log is still needed. Browser/Discord/new-window/pin acceptance remains unresolved, not concealed by unit/CLI results.
+- Git began clean at a870cee; >10-entry inventory is all current task source/scripts/tests/docs, with generated/private outputs ignored and no ambiguous files. Commit/push/artifact results follow in root changelog.
+- Skill verdict: no global skill edit; bounded host/install/handle/evidence rules are in project conventions. Live policy re-read at 13:16:50 UTC was byte-identical to the fully read 12:45 Router/Skill, registry/versions/hashes unchanged.
+
 ## 2026-11-08 20:02 — Association lifecycle diagnostics and P2 proposal
 
 - Added `SHChangeNotify` after registration/restoration, ownership-checked Refresh without file replacement/app quit, and Status fields for Windows friendly-name/executable/HRESULT queries. Source manager is newer than the frozen win.7 distribution script; current runtime/ZIP/bridge are unchanged.

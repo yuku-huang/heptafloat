@@ -63,7 +63,7 @@ test('MV3 uses only necessary scoped permissions and no remote scripts', async (
   const manifest = JSON.parse(await readFile(new URL('../browser-extension/manifest.json', import.meta.url), 'utf8'));
   assert.equal(manifest.manifest_version, 3);
   assert.deepEqual(manifest.host_permissions, ['https://app.heptabase.com/*']);
-  assert.deepEqual(manifest.permissions.sort(), ['storage', 'webNavigation']);
+  assert.deepEqual(manifest.permissions.sort(), ['nativeMessaging', 'storage', 'webNavigation']);
   assert.equal(manifest.content_scripts, undefined);
   assert.equal(manifest.externally_connectable, undefined);
 });

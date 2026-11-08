@@ -1,6 +1,6 @@
 # Windows 卡片連結預覽與 Discord 橋接
 
-橋接 1.0.2 獨立更新：見 [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md)，手動按鈕恢復原生協定連結。`npm run package:extension` 不改寫既有 win.7 桌面產物。正常 win.7 已啟用並觀察到獨立 OS 開卡；瀏覽器／Discord 程式啟動仍未驗收。更新檔案不代表已載入版本更新。
+橋接 1.1.0：使用者已核准 P2，主開啟路徑改為受限的 Native Messaging host，直接啟動既有 win.7；原協定與網頁保留為明確備援。見 [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md) 的安裝／移除及 [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md)。`npm run package:native-bridge` 複製已測 host，不改寫既有 win.7。獨立 host 開卡已通過，但目前真正 Edge 回報 host not found，瀏覽器／Discord 尚未驗收；更新檔案不代表已載入版本或實測成功。
 
 此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者最新要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。瀏覽器橋接目前是實驗功能：Edge 的 HTTPS→中繼頁已觀察到，外部程式啟動尚未通過實機驗收，不能當成已完成 Discord 端到端整合。詳見 [實測紀錄](DEEPLINK_TEST_RESULTS.md)。
 
@@ -45,7 +45,7 @@ powershell -NoProfile -File .\scripts\install-windows.ps1 -Action Refresh
 
 Status 除登錄命令外，會讀 Windows `AssocQueryString(ASSOCF_IS_PROTOCOL)` 的程式名稱與執行檔，並保留 HRESULT；成功值為 `00000000`。Refresh 只接受 receipt 仍擁有的現行安裝，透過既有 Electron 維護旗標重新註冊，並以 `SHChangeNotify(SHCNE_ASSOCCHANGED)` 通知 Windows。它不複製／替換執行中的檔案、不終止正常 App，也不更動 HTTP(S)、瀏覽器政策或安全提示。未安裝或關聯被其他程式接管時會拒絕。
 
-安裝、升級、回退、移除與失敗復原後也會送出此通知。2026-11-08 已實測完整 HKCU 生命週期、重複 Refresh、Windows API 查詢，以及正常安裝刷新時主 PID 與 HTTP(S) 不變；但使用者刷新後仍看到相同 Edge 錯誤。Edge 完整重啟（主 PID 已變）後也仍失敗，不能宣稱是已解決的快取問題。下一方案僅見 [Native Messaging 提案](NATIVE_MESSAGING_PROPOSAL.md)，尚未實作，需額外確認。
+安裝、升級、回退、移除與失敗復原後也會送出此通知。2026-11-08 已實測完整 HKCU 生命週期、重複 Refresh、Windows API 查詢，以及正常安裝刷新時主 PID 與 HTTP(S) 不變；但使用者刷新後仍看到相同 Edge 錯誤。Edge 完整重啟（主 PID 已變）後也仍失敗，不能宣稱是已解決的快取問題。使用者隨後核准 [Native Messaging 提案](NATIVE_MESSAGING_PROPOSAL.md)，已實作／安裝的替代開啟路徑見 [現行操作](NATIVE_MESSAGING.md)；這不代表原協定的瀏覽器問題已修復。
 
 參考：[Windows 關聯查詢](https://learn.microsoft.com/windows/win32/api/shlwapi/nf-shlwapi-assocquerystringw)、[註冊後通知 Windows](https://learn.microsoft.com/en-us/windows/win32/shell/default-programs)。
 
@@ -81,11 +81,11 @@ npm run build:extension
 2. 在該瀏覽器手動開啟 `edge://extensions` 或 `chrome://extensions`。
 3. 開啟「開發人員模式」，按「載入解壓縮」，選取 `build\browser-extension`，或 distribution 內的 `browser-extension`。
 4. 資料夾選擇視窗只顯示子資料夾，裡面看似空白是正常的；直接按「選擇資料夾」，不用找 ZIP 或選 manifest。
-5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；設定頁也提供「重新載入橋接」，保留選項。中繼頁的頁面／已載入版本都應為 1.0.2。未加入自動熱更新；平台禁止工具操作 internal extension pages，這次不能代按或宣稱已重新載入。
+5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；設定頁也提供「重新載入橋接」，保留選項。中繼頁的頁面／已載入版本都應為 1.1.0。新增 nativeMessaging 權限若使插件停用，需由使用者重新啟用。平台禁止工具操作 internal extension pages，不能代按或宣稱已重新載入；目前這台 Edge 的 1.1.0 已由使用者截圖確認。
 
-不會自動發布到商店、修改瀏覽器政策、安裝 Native Messaging 或改全域 HTTP(S) handler。只有 `webNavigation`、`storage` 及該 HTTPS host 權限，沒有 `<all_urls>`／內容擷取／外部訊息入口。
+不會自動發布到商店、修改瀏覽器政策或改全域 HTTP(S) handler。權限為 `webNavigation`、`storage`、已核准的 `nativeMessaging` 及該 HTTPS host，沒有 `<all_urls>`／內容擷取／外部訊息入口。Host 由明確的目前帳號安裝腳本管理；載入插件本身不會安裝本機 EXE。
 
-預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留「以 Flow HeptaBase 開啟」及「改用 Heptabase 網頁版」。頁面可見且有焦點後才自動嘗試一次；手動按鈕直接使用原生協定連結，不以 API 攔截左鍵。選擇手動或網頁會取消後續自動嘗試／過期狀態。Promise 成功不等於 App 已開；錯誤會顯示並遮罩 URL／UUID。瀏覽器仍可拒絕或顯示確認，不會繞過安全提示。
+預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留「以 Flow HeptaBase 開啟」、「改用 Heptabase 網頁版」及獨立的 Windows 協定備援。頁面可見且有焦點後才自動送出一次 Native Messaging；主要手動按鈕亦使用本機 host，同一請求未完成前合併點擊。網頁／協定選擇會取消後續自動嘗試及過期狀態。Host accepted 只表示建立程序，並非卡片載入；錯誤會顯示並遮罩 URL／UUID。協定備援仍可被瀏覽器拒絕或要求確認，不繞過安全提示。
 
 點擴充功能圖示可進設定：
 

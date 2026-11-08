@@ -31,6 +31,7 @@ export function createLauncher({ open, isForeground, report }) {
   return {
     enableAuto(value) { enabled = value === true; return foreground(); },
     foreground,
+    manual() { automaticDone = true; return attempt('manual'); },
     pause() { enabled = false; automaticDone = true; ++sequence; pending = false; },
   };
 }

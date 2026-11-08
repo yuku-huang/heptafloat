@@ -1,30 +1,47 @@
 import links from '../shared/hepta-links.cjs';
 import { DEFAULTS, handoffIntent } from './bridge.js';
 import { createLauncher, launchError } from './launcher.js';
+import { openNativeCard } from './native.js';
 const status = document.getElementById('status');
 async function start() {
   let intent;
   try { intent = handoffIntent(location.href); }
   catch { status.textContent = '卡片連結無效。請返回原始訊息，使用一般 Heptabase 網址。'; return; }
   const deepLink = links.buildFlowHeptaDeepLink(intent);
-  const app = document.getElementById('open-app'), web = document.getElementById('open-web');
+  const app = document.getElementById('open-app'), web = document.getElementById('open-web'), protocol = document.getElementById('open-protocol');
   const error = document.getElementById('launch-error');
   const loadedVersion = chrome.runtime.getManifest().version;
   document.getElementById('bridge-version').textContent = `頁面 ${__BRIDGE_BUILD_VERSION__} · 已載入 ${loadedVersion}`;
   document.getElementById('reload-hint').hidden = loadedVersion === __BRIDGE_BUILD_VERSION__;
-  app.href = deepLink; app.hidden = false; web.hidden = false;
-  let launcher, chosen = false;
-  app.addEventListener('click', () => {
+  app.href = deepLink; protocol.href = deepLink;
+  app.hidden = false; web.hidden = false; protocol.hidden = false;
+  let chosen = false;
+  const launcher = createLauncher({
+    open: () => {
+      if (typeof chrome.runtime.sendNativeMessage !== 'function') throw new Error('請重新啟用擴充功能的本機橋接權限。');
+      return openNativeCard(intent, (host, message) => chrome.runtime.sendNativeMessage(host, message));
+    },
+    isForeground: () => document.visibilityState === 'visible' && document.hasFocus(),
+    report(result) {
+      error.textContent = result.error || ''; error.hidden = !result.error;
+      status.textContent = result.phase === 'requesting' ? '正在透過本機橋接開啟卡片…'
+        : result.phase === 'sent' ? '已將請求送至桌面程式，尚未確認卡片載入。若沒有看到卡片窗，可重試或改用網頁版。'
+        : '無法透過本機橋接開啟。請確認橋接已安裝、擴充功能已啟用；也可以改用網頁版或 Windows 協定連結。';
+    },
+  });
+  app.addEventListener('click', (event) => {
+    event.preventDefault();
     chosen = true;
-    launcher?.pause();
+    void launcher.manual();
+  });
+  protocol.addEventListener('click', () => {
+    chosen = true; launcher.pause();
     error.hidden = true;
-    status.textContent = '已交由瀏覽器處理連結；請確認開啟提示。此頁無法確認程式是否已開啟。';
-    // Keep the anchor's native navigation and user gesture. The automatic API
-    // attempt is separate and must never replace or duplicate this click.
+    status.textContent = '已交由瀏覽器處理 Windows 協定連結；此頁無法確認程式是否已開啟。';
   });
   web.onclick = async () => {
     chosen = true;
-    launcher?.pause();
+    launcher.pause();
     error.hidden = true;
     status.textContent = '正在開啟 Heptabase 網頁版…';
     let result;
@@ -34,20 +51,6 @@ async function start() {
   };
   document.getElementById('settings').onclick = () => chrome.runtime.openOptionsPage();
   try {
-    const tab = await chrome.tabs.getCurrent();
-    if (!Number.isInteger(tab?.id) || tab.id < 0) throw new Error('找不到目前分頁，請按開啟按鈕使用連結備援。');
-    launcher = createLauncher({
-      open: () => chrome.tabs.update(tab.id, { url: deepLink }),
-      isForeground: () => document.visibilityState === 'visible' && document.hasFocus(),
-      report(result) {
-        error.textContent = result.error || '';
-        error.hidden = !result.error;
-        status.textContent = result.phase === 'requesting' ? '正在送出開啟請求…'
-          : result.phase === 'sent' ? '自動開啟請求已送出，尚未確認程式是否開啟。若沒有卡片窗，請按「以 Flow HeptaBase 開啟」，並確認瀏覽器提示。'
-          : '瀏覽器未完成自動開啟請求。請按「以 Flow HeptaBase 開啟」，或改用網頁版。下方顯示原因。';
-      },
-    });
-    if (chosen) launcher.pause();
     document.addEventListener('visibilitychange', () => { void launcher.foreground(); });
     window.addEventListener('focus', () => { void launcher.foreground(); });
     const settings = await chrome.storage.local.get(DEFAULTS);
