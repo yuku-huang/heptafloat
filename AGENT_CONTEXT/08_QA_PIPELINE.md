@@ -1,5 +1,11 @@
 # QA pipeline
 
+Current 1.1.1: 77/77 source tests pass, including 30 bridge/launcher/settings cases. Red→green auto-close regression; native acceptance ordering, legacy preferences, disabled auto-close, rejected host/permission/timeout, delayed settings, alternate choices, sender/frame/current-tab validation, arbitrary target refusal and close-failure UI are covered with API/DOM doubles. Build and built-JS syntax checks pass. Host/desktop code is unchanged; prior six actual host-EXE groups remain separate evidence.
+
+User-assisted real Windows test: the user reloaded 1.1.1, clicked an existing Discord card and confirmed opening plus automatic handoff disappearance. Native inventory independently added one card window, retained all previous windows and showed no new handoff tab. Normal win.7 primary PID remained unchanged; no independent OS/CLI open probe was sent. This is not an instrumented Discord click trace or a physical missing-host test; negative retention remains source coverage. Both-key host installation and lifecycle/migration/foreign-key rejection already passed and the normal host is restored. Archive integrity/current-file/frozen-binary results follow in CHANGELOG.
+
+## Prior QA snapshots
+
 Latest acceptance update: post-install Edge cold start is PID/start-time confirmed and still fails. The temporary Chromium fallback was restored. The user then successfully launched the manual logger; only the current task's native-host operational lines were filtered locally, showing “Can't find manifest”. No extension DOM/console/profile or unrelated log content was read. A final documented Chrome-key fallback comparison for Edge is pending; restore its owned key after the test. The pending Chromium/logging statements in earlier checkpoints below are superseded by this update.
 
 P2 native bridge (2026-11-08): 67 common/bridge tests pass; 15 launcher/entry/adapter cases cover fixed UUID-only native requests, coalescing, timeout/error/permission handling, early choices and stale status suppression. They use API/DOM doubles. Six Windows actual-EXE groups separately test length framing/strict UTF-8/JSON/UUID/origin/arguments, invalid receipts/paths/junctions, cleared Electron Node mode, and >2 MB child output without frame pollution. Fake desktops only; zero real note writes.

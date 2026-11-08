@@ -21,7 +21,7 @@ if (metadata.version !== nativeVersion || digest(nativeBytes) !== metadata.sha25
 const files = new Map();
 for (const file of ['manifest.json', 'background.js', 'handoff.js', 'options.js', 'handoff.html', 'options.html', 'style.css', 'README.md']) files.set(`browser-extension/${file}`, path.join(built, file));
 for (const file of ['HeptaFloat.NativeHost.exe', 'host-version.json']) files.set(`native-host/${nativeVersion}/${file}`, path.join(nativeSource, file));
-files.set('scripts/install-native-host.ps1', path.join(root, 'scripts/install-native-host.ps1'));
+for (const file of ['install-native-host.ps1', 'diagnose-native-host.ps1', 'edge-native-diagnostics.ps1', 'edge-native-diagnostics.cmd']) files.set(`scripts/${file}`, path.join(root, 'scripts', file));
 for (const file of ['NATIVE_MESSAGING.md', 'BROWSER_BRIDGE.md', 'DEEPLINK_TEST_RESULTS.md']) files.set(`docs/${file}`, path.join(root, 'docs', file));
 const stage = path.join(root, 'dist/native-bridge', manifest.version, 'FlowHeptaBase-Native-Bridge');
 await mkdir(stage, { recursive: true });
@@ -49,11 +49,13 @@ await writeFile(path.join(stage, 'README.md'), `# Flow HeptaBase Native Bridge $
 powershell.exe -NoProfile -File .\\scripts\\install-native-host.ps1 -Action Install -ExtensionId '你的32字元插件ID'
 \`\`\`
 
-安裝僅寫目前帳號的 Edge NativeMessagingHosts，允許這個 ID 傳遞合法 space/card UUID。沒有網路服務，不更改 HTTP(S) 預設、不讀取卡片內容。Chrome 尚未實測。
+安裝僅寫目前帳號的 Edge NativeMessagingHosts 及其官方 Google Chrome 備援 key，兩者指向同一份 host manifest，只允許這個 ID 傳遞合法 space/card UUID。沒有網路服務，不更改 HTTP(S) 預設、不讀取卡片內容。Chrome 瀏覽器／插件尚未獨立實測。
 
 更新時沿用同一個插件資料夾並重新載入；新增的 nativeMessaging 權限可能要求重新啟用。換資料夾可能改變插件 ID，請依 docs/NATIVE_MESSAGING.md 重新安裝 host。
 
 預設只有 flowhepta=1 標記連結進入橋接，未標記連結仍開網頁。每次開啟使用完整桌面卡片新窗。Host 接受請求不等於卡片已顯示，實際驗收界線見 docs/DEEPLINK_TEST_RESULTS.md。
+
+成功送出開卡請求後預設自動關閉中繼頁；失敗時保留頁面與重試。可在橋接設定關閉自動關頁，保留可用的 host 與桌面程式。
 
 \`\`\`powershell
 powershell.exe -NoProfile -File .\\scripts\\install-native-host.ps1 -Action Status

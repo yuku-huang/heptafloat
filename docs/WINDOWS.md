@@ -1,6 +1,6 @@
 # HeptaFloat for Windows
 
-Bridge source/loaded version is 1.1.0; normal win.7 is unchanged. The user approved P2 Native Messaging, and its current-user exact-origin host 1.0.0 is installed. Sixty-seven common/bridge tests, six actual host-EXE test groups and actual HKCU lifecycle checks pass. An independent installed-host request opened the right card, but actual Edge currently reports native host not found; this is not browser/Discord acceptance. The original protocol also still fails in Edge after refresh/restart. See [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md) and [actual results](DEEPLINK_TEST_RESULTS.md). The tested win.7 runtime/ZIP and old 1.0.2 ZIP are preserved.
+Bridge 1.1.1 uses the approved exact-origin native host 1.0.0 and closes its own handoff tab after an accepted request by default; failures preserve the page. Seventy-seven source tests pass. The user reloaded 1.1.1 and verified Discord→Edge→card plus page closure; independent window/tab observations agree. Edge's documented Google Chrome fallback key is now receipt-managed together with its primary key; actual two-key install/migration/upgrade/rollback/uninstall passed in the prior phase. This does not claim Chrome-browser acceptance or a repair of the original external protocol. See [setup/rollback](NATIVE_MESSAGING.md) and [test boundaries](DEEPLINK_TEST_RESULTS.md). win.7, the frozen native binary and prior ZIPs remain unchanged.
 
 Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
 

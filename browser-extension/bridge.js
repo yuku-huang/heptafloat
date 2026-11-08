@@ -1,5 +1,5 @@
 import links from '../shared/hepta-links.cjs';
-export const DEFAULTS = { interceptAll: false, autoLaunch: true };
+export const DEFAULTS = { interceptAll: false, autoLaunch: true, autoClose: true };
 export function handoffIntent(input) {
   const url = new URL(input);
   if (url.pathname !== '/handoff.html' || [...url.searchParams].length !== 2
@@ -39,13 +39,26 @@ export function installBridge(api) {
     await api.tabs.update(sender.tab.id, { url: intent.canonicalUrl });
     return { ok: true };
   }
+  async function closeHandoff(sender) {
+    const url = new URL(sender.url), expected = new URL(api.runtime.getURL('handoff.html'));
+    if (sender.id !== api.runtime.id || sender.frameId !== 0 || url.protocol !== expected.protocol || url.host !== expected.host
+      || !Number.isInteger(sender.tab?.id) || sender.tab.id < 0) throw new Error('不允許的來源。');
+    handoffIntent(sender.url);
+    const tab = await api.tabs.get(sender.tab.id);
+    // A delayed success must never close a tab the user has already navigated away from.
+    if (new URL(tab?.pendingUrl || tab?.url).href !== url.href) throw new Error('分頁已離開中繼頁。');
+    await api.tabs.remove(sender.tab.id);
+    return { ok: true };
+  }
   api.webNavigation.onBeforeNavigate.addListener((details) => { beforeNavigate(details).catch(() => {}); },
     { url: [{ schemes: ['https'], hostEquals: 'app.heptabase.com' }] });
   api.runtime.onMessage.addListener((message, sender, reply) => {
-    if (message?.action !== 'openWeb') return false;
-    openWeb(sender).then(reply, () => reply({ error: '無法開啟網頁，請停用擴充功能後重試。' })); return true;
+    const handler = message?.action === 'openWeb' ? openWeb : message?.action === 'closeHandoff' ? closeHandoff : null;
+    if (!handler) return false;
+    handler(sender).then(reply, () => reply({ error: message.action === 'closeHandoff'
+      ? '無法自動關閉中繼頁，可手動關閉此分頁。' : '無法開啟網頁，請停用擴充功能後重試。' })); return true;
   });
   api.tabs.onRemoved.addListener((id) => { serials.delete(id); api.storage.session.remove(bypassKey(id)).catch(() => {}); });
   api.action.onClicked.addListener(() => api.runtime.openOptionsPage());
-  return { beforeNavigate, openWeb };
+  return { beforeNavigate, openWeb, closeHandoff };
 }

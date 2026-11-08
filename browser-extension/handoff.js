@@ -15,7 +15,21 @@ async function start() {
   document.getElementById('reload-hint').hidden = loadedVersion === __BRIDGE_BUILD_VERSION__;
   app.href = deepLink; protocol.href = deepLink;
   app.hidden = false; web.hidden = false; protocol.hidden = false;
-  let chosen = false;
+  let chosen = false, choice = 0;
+  const settingsReady = Promise.resolve().then(() => chrome.storage.local.get(DEFAULTS));
+  async function closeAccepted(currentChoice) {
+    let settings;
+    try { settings = await settingsReady; } catch { return; } // Unknown preference: keep the page.
+    if (settings.autoClose !== true || currentChoice !== choice) return;
+    try {
+      const result = await chrome.runtime.sendMessage({ action: 'closeHandoff' });
+      if (!result?.ok) throw new Error(result?.error || '無法自動關閉中繼頁。');
+    } catch (failure) {
+      if (currentChoice !== choice) return;
+      status.textContent = '開卡請求已送出，此中繼頁未能自動關閉。可手動關閉此分頁。';
+      error.textContent = launchError(failure); error.hidden = false;
+    }
+  }
   const launcher = createLauncher({
     open: () => {
       if (typeof chrome.runtime.sendNativeMessage !== 'function') throw new Error('請重新啟用擴充功能的本機橋接權限。');
@@ -27,20 +41,21 @@ async function start() {
       status.textContent = result.phase === 'requesting' ? '正在透過本機橋接開啟卡片…'
         : result.phase === 'sent' ? '已將請求送至桌面程式，尚未確認卡片載入。若沒有看到卡片窗，可重試或改用網頁版。'
         : '無法透過本機橋接開啟。請確認橋接已安裝、擴充功能已啟用；也可以改用網頁版或 Windows 協定連結。';
+      if (result.phase === 'sent') void closeAccepted(choice);
     },
   });
   app.addEventListener('click', (event) => {
     event.preventDefault();
-    chosen = true;
+    chosen = true; ++choice;
     void launcher.manual();
   });
   protocol.addEventListener('click', () => {
-    chosen = true; launcher.pause();
+    chosen = true; ++choice; launcher.pause();
     error.hidden = true;
     status.textContent = '已交由瀏覽器處理 Windows 協定連結；此頁無法確認程式是否已開啟。';
   });
   web.onclick = async () => {
-    chosen = true;
+    chosen = true; ++choice;
     launcher.pause();
     error.hidden = true;
     status.textContent = '正在開啟 Heptabase 網頁版…';
@@ -53,7 +68,7 @@ async function start() {
   try {
     document.addEventListener('visibilitychange', () => { void launcher.foreground(); });
     window.addEventListener('focus', () => { void launcher.foreground(); });
-    const settings = await chrome.storage.local.get(DEFAULTS);
+    const settings = await settingsReady;
     if (chosen) return; // Never auto-launch after a user already chose an action.
     status.textContent = settings.autoLaunch === true
       ? '卡片已準備好；切到此分頁時會嘗試開啟桌面程式。瀏覽器可能要求確認。'

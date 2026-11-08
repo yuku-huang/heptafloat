@@ -5,19 +5,19 @@ import { DEFAULTS, handoffIntent, installBridge } from '../browser-extension/bri
 const space = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', card = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const web = `https://app.heptabase.com/${space}/card/${card}`, marked = `${web}?flowhepta=1`;
 function fixture() {
-  const updates = [], session = {}, settings = { ...DEFAULTS }, tabs = new Map([[1, { pendingUrl: marked }]]);
+  const updates = [], removed = [], session = {}, settings = { ...DEFAULTS }, tabs = new Map([[1, { pendingUrl: marked }]]), listeners = {};
   const event = () => ({ addListener() {} });
   const api = {
-    runtime: { id: 'test', getURL: (p) => `chrome-extension://test/${p}`, onMessage: event(), openOptionsPage() {} },
+    runtime: { id: 'test', getURL: (p) => `chrome-extension://test/${p}`, onMessage: { addListener(cb) { listeners.message = cb; } }, openOptionsPage() {} },
     storage: { local: { get: async () => ({ ...settings }) }, session: {
       get: async () => session, set: async (values) => Object.assign(session, values), remove: async (key) => delete session[key] } },
-    tabs: { get: async (id) => tabs.get(id), update: async (id, values) => { updates.push({ id, ...values }); tabs.set(id, values); }, onRemoved: event() },
+    tabs: { get: async (id) => tabs.get(id), update: async (id, values) => { updates.push({ id, ...values }); tabs.set(id, values); }, remove: async (id) => { removed.push(id); tabs.delete(id); }, onRemoved: event() },
     webNavigation: { onBeforeNavigate: event() }, action: { onClicked: event() },
   };
-  return { api, updates, settings, tabs, session, bridge: installBridge(api), details: { tabId: 1, frameId: 0, url: marked } };
+  return { api, updates, removed, settings, tabs, session, listeners, bridge: installBridge(api), details: { tabId: 1, frameId: 0, url: marked } };
 }
 test('bridge intercepts only marked top-level exact-host cards by default', async () => {
-  assert.deepEqual(DEFAULTS, { interceptAll: false, autoLaunch: true });
+  assert.deepEqual(DEFAULTS, { interceptAll: false, autoLaunch: true, autoClose: true });
   const f = fixture();
   for (const details of [{ ...f.details, frameId: 1 }, { ...f.details, url: web },
     { ...f.details, url: marked.replace('.com/', '.com.evil.example/') },
@@ -66,4 +66,28 @@ test('MV3 uses only necessary scoped permissions and no remote scripts', async (
   assert.deepEqual(manifest.permissions.sort(), ['nativeMessaging', 'storage', 'webNavigation']);
   assert.equal(manifest.content_scripts, undefined);
   assert.equal(manifest.externally_connectable, undefined);
+});
+
+test('close request removes only its own current handoff tab and ignores caller-supplied tab IDs', async () => {
+  const f = fixture(), url = `chrome-extension://test/handoff.html?space=${space}&card=${card}`;
+  f.tabs.set(1, { url }); f.tabs.set(2, { url: 'https://example.com/keep' });
+  const result = await new Promise(reply => assert.equal(f.listeners.message({ action: 'closeHandoff', tabId: 2 }, { id: 'test', url, frameId: 0, tab: { id: 1 } }, reply), true));
+  assert.deepEqual(result, { ok: true }); assert.deepEqual(f.removed, [1]); assert.equal(f.tabs.has(2), true);
+});
+
+test('close request refuses external senders, subframes, invalid cards and tabs that navigated away', async () => {
+  const f = fixture(), url = `chrome-extension://test/handoff.html?space=${space}&card=${card}`;
+  const valid = { id: 'test', url, frameId: 0, tab: { id: 1 } }; f.tabs.set(1, { url });
+  for (const sender of [{ ...valid, id: 'other' }, { ...valid, frameId: 1 }, { ...valid, frameId: undefined },
+    { ...valid, url: url.replace('://test/', '://evil/') }, { ...valid, url: url.replace(card, 'invalid') },
+    { ...valid, url: url.replace('handoff.html', 'options.html') }, { ...valid, tab: undefined }]) await assert.rejects(f.bridge.closeHandoff(sender));
+  for (const tab of [{ url: web }, { url, pendingUrl: web }, {}]) { f.tabs.set(1, tab); await assert.rejects(f.bridge.closeHandoff(valid)); }
+  assert.deepEqual(f.removed, []);
+});
+
+test('tab removal failure returns a close-specific error without replacing the card route', async () => {
+  const f = fixture(), url = `chrome-extension://test/handoff.html?space=${space}&card=${card}`;
+  f.tabs.set(1, { url }); f.api.tabs.remove = async () => { throw new Error('Removal blocked'); };
+  const result = await new Promise(reply => f.listeners.message({ action: 'closeHandoff' }, { id: 'test', url, frameId: 0, tab: { id: 1 } }, reply));
+  assert.match(result.error, /關閉/); assert.equal(f.tabs.get(1).url, url); assert.deepEqual(f.updates, []);
 });

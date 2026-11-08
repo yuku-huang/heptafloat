@@ -1,5 +1,18 @@
 # Agent changelog
 
+## 2026-11-08 22:20 — Final 1.1.1 delivery verification
+
+- Both current ZIPs were built; combined/extension archives contain exactly 18/8 files, each matching current expected source/build, with correct SHA-256 sidecars. Exact hashes are in root CHANGELOG. The packaged manager passed default-source idempotent installation, preserving the two receipt-owned keys and running primary app. Frozen installed/build native, desktop ASAR and previous desktop/1.0.2 ZIPs remain unchanged.
+- Final 77/77 tests, PowerShell parse, package/built-JS syntax, privacy scan and diff check pass. The user-assisted real Discord/Edge result is recorded below; failure retention remains API/DOM test evidence. No new native/desktop rebuild, note edits, browser policy or new permissions.
+- Thirty-one known task files, including the three prior authorized script edits, form the Git scope. Generated/private reports stay ignored. Upstream branch write preflight is HTTP 403 denied; local Git history records the delivery commit. No fork, release or CI result claimed. Skill unchanged; current project conventions/tests capture the reusable rules and live policy refresh.
+
+## 2026-11-08 21:59 — Accepted handoff auto-close and owned Edge fallback
+
+- Bridge 1.1.1 adds default auto-close after native acceptance, with a setting to retain it. Native failure/timeout/unknown preferences and web/protocol choices preserve the page; the worker validates top-frame sender, IDs and still-current URL, ignores caller-selected tab IDs and closes only its own handoff. No new permission, dependency or Electron change.
+- The regression failed on old code, then 77/77 source tests passed (30 bridge cases). User reloaded and verified Discord→card plus disappearing handoff; independent native/tab inventory added one window, retained prior windows and found no new handoff. Normal app PID remained unchanged. Failure retention is source API/DOM coverage, not claimed physical host-outage testing.
+- Preserved incoming installer/package/lifecycle edits. Both Edge and its measured successful Chrome fallback are now receipt-managed and synchronized. Actual lifecycle covers reinstall, legacy migration, foreign/changed fallback refusal, upgrade/rollback/first rollback/removal and restored native/desktop/HTTPS state. Normal installation is restored; temporary probes inactive. One caller used a relative SourceDirectory and was safely rejected, then corrected to an absolute path; no app process or notes were lost.
+- Build/ZIP/Git results are recorded in the root changelog after verification. The desktop/native binaries and previous artifacts stay frozen; private reports stay ignored. Skill unchanged; scoped closure/cancellation/owned compatibility rules are in project conventions. Fresh live Router/Skill provenance is in 04.
+
 ## 2026-11-08 21:16 — Approved P2 Native Messaging checkpoint
 
 - User explicitly approved development/current-user install/real tests. Added bridge 1.1.0 native-first coalesced launching, bounded exact-origin .NET host, immutable per-browser HKCU install/rollback/uninstall and a separate frozen-binary delivery script. Existing win.7 and old bridge ZIP stay unchanged.

@@ -1,6 +1,6 @@
 # P2 提案：Edge Native Messaging 開卡
 
-狀態：**使用者已明確核准「依提案開發、安裝並實測」；P2 程式、權限及目前帳號的 Edge host 已實作／安裝。** 以下保留原提案及驗證目標；現行操作見 [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md)，已通過／失敗項目見 [DEEPLINK_TEST_RESULTS.md](DEEPLINK_TEST_RESULTS.md)。獨立 host 開卡成功不代表真正瀏覽器成功；目前 1.1.0 的 Edge 實測仍回報 host not found。
+狀態：**使用者已明確核准「依提案開發、安裝並實測」；P2 已實作／安裝，1.1.1 的 Discord 開卡與中繼頁自動關閉亦已由使用者實測通過。** 以下保留原提案及驗證目標；現行操作見 [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md)，已通過／失敗項目見 [DEEPLINK_TEST_RESULTS.md](DEEPLINK_TEST_RESULTS.md)。實作差異：受控對照確認這台 Edge 需要官方 Google Chrome fallback key，因此安裝同步管理兩個 HKCU keys，仍只有同一份 host／manifest／單一 origin，並拒絕接管未知 key；沒有新增 Chrome 插件或宣稱 Chrome 已實測。自動關頁依使用者後續明確要求，覆寫原先不自動關頁設計。
 
 ## 已知證據與限制
 

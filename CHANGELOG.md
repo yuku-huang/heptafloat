@@ -1,3 +1,33 @@
+### [2026-11-08 22:20] - Verify 1.1.1 delivery archives and repeatable bundle installation
+
+* **修改檔案**：`CHANGELOG.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/04_RULES_AND_CONVENTIONS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`
+* **變更細節**：
+  * final `npm test`: 77/77 passed; PowerShell installer/lifecycle parse, package-script syntax, three built extension JS checks and `git diff --check` passed. The user-assisted Discord/Edge success and source-only negative tests remain distinguished in the 21:59 entry
+  * `npm run package:native-bridge` and `npm run package:extension` passed. Combined ZIP contains exactly 18 files, standalone extension ZIP exactly 8; every archived file matches the current expected source/build and both SHA-256 sidecars match. Extension 1.1.1 retains the same three permissions and single HTTPS host scope
+  * `dist/FlowHeptaBase-Native-Bridge-1.1.1-windows-x64.zip`: SHA-256 `d545264a1223221e0ff7d7e790c1b4ffb052e43d1b82efa71445a6830ae4edf2`; `dist/FlowHeptaBase-Link-Bridge-1.1.1.zip`: SHA-256 `51f21c11eb4f3c1a1d0981f8532eaf112a93314cd99ac08b5334594cf869577b`
+  * executing the bundled PowerShell installer with default source resolution passed an idempotent reinstall. Both receipt-owned native registrations remain synchronized and the existing primary app process is unchanged. Frozen build/installed native host, installed desktop ASAR, win.7 ZIP and old 1.0.2 ZIP hashes remain unchanged
+  * Git inventory is limited to the 31 known task files, including the three incoming authorized scripts. Build/dist, operational reports, verifier and user data remain ignored; source/docs/scripts/tests contain none of the private acceptance card/space IDs or actual installed extension ID
+  * live policy re-read at 14:15 UTC is byte-identical to the fully read Router/Skill; identity, versions and hashes match. No skill or Heptabase card edits are needed; reusable task-specific safeguards remain in project conventions/tests
+  * upstream write preflight (`git push --dry-run origin codex/discord-hepta-preview`) was rejected with HTTP 403, permission denied to yuku-huang. No force-push, fork, remote release or CI success is claimed; local Git history identifies the delivery commit
+* **下一步建議 (Next Steps)**：
+  * no reinstall/restart is needed on the accepted machine. To retain handoffs, disable auto-close in bridge settings; use the versioned ZIPs for a future controlled install
+  * obtain writable access to the existing remote before retrying the branch push. Independent Chrome/mobile/device testing and external Bot deployment remain separate follow-ups
+
+### [2026-11-08 21:59] - Close accepted card handoffs and finalize Edge fallback installation
+
+* **修改檔案**：`browser-extension/bridge.js`, `handoff.js/html`, `options.js/html`, `manifest.json`, `test/browser-bridge.test.mjs`, `test/browser-launcher.test.mjs`, carried `scripts/install-native-host.ps1`, `scripts/test-native-host-install.ps1`, `scripts/package-native-bridge.mjs`, native/browser/Deep Link/Windows/Bot guides, README/ARCHITECTURE/START_HERE and `AGENT_CONTEXT/00..08`
+* **變更細節**：
+  * resumed on codex/discord-hepta-preview at 622d994 with three known, authorized installer/package/lifecycle edits from the prior phase; preserved and completed them. All subsequent source/tests/docs belong to this task; generated/private reports remain ignored, no ambiguous files included
+  * bridge 1.1.1 adds default autoClose after native acceptance. Native failure/timeout, unknown/disabled preferences and alternate-route choices retain the handoff. Background validates own top-frame sender, card IDs and still-current URL; removes only sender.tab.id, ignoring caller-selected targets. A close failure offers manual closure without repeating the card launch
+  * new regression first failed on old code, then 77/77 source tests passed (30 bridge cases), MV3 build and built-JS syntax passed. Negative error-retention cases are API/DOM doubles, not claimed physical host-outage tests. No new permission, framework, dependency, Electron change or native rebuild
+  * user reloaded 1.1.1 and clicked an existing Discord card, confirming card opening and handoff disappearance. Independent window/tab inventories found one new card, all old windows retained and no new handoff; normal app PID stayed unchanged. No concurrent OS/CLI opening or real note edits
+  * documented Google Chrome fallback was the successful controlled Edge difference. Formal installation now receipt-manages both keys with one manifest/exact origin, rejects foreign/changed fallback, supports legacy migration and synchronized rollback/removal. Actual prior-phase HKCU lifecycle and restoration checks pass; current normal host is installed and both pointers are owned. Corrected a caller's rejected relative SourceDirectory to an absolute path, preserving the App and data
+  * user explicitly overrides the prior no-auto-close design. Setting autoClose OFF is the smallest behavior rollback; normal host/notes remain. Native acceptance is process creation, not renderer acknowledgement. Chrome/device scenarios and external Bot deployment remain separate scopes
+  * skill verdict: no global/Heptabase skill edit; scoped close/cancellation/owned-key rules and fresh live policy provenance are recorded in project conventions. Runtime/private artifacts remain outside Git
+* **下一步建議 (Next Steps)**：
+  * see final artifact/Git verification below; use bridge settings to retain the handoff if desired. Broader Chrome/mobile/device and real-host-outage tests are optional follow-ups, not inferred from source tests
+  * upstream writable permission is still required if branch push is rejected; do not force-push, create a fork or claim CI/release without evidence
+
 ### [2026-11-08 21:16] - Implement and install approved P2 Native Messaging bridge
 
 * **修改檔案**：`native-host/Program.cs`, `browser-extension/{native,launcher,handoff}.js`, `browser-extension/{handoff.html,manifest.json}`, `scripts/{build,install}-native-host.ps1`, `scripts/test-native-host-install.ps1`, `scripts/package-native-bridge.mjs`, native discovery/diagnostic scripts, `test/{native-host,browser-bridge,browser-launcher}.test.mjs`, `package.json`, native/bridge/Deep Link guides, README/START_HERE/ARCHITECTURE and relevant `AGENT_CONTEXT/00..08`

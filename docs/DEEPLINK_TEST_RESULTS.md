@@ -1,5 +1,21 @@
 # Deep Link 驗證紀錄（2026-11-08，Asia/Taipei）
 
+## 21:59：1.1.1 自動關閉中繼頁完成驗收
+
+| 項目 | 結果與證據界線 |
+| --- | --- |
+| Source 回歸 | 新測試先在舊版失敗（native accepted 後沒有 closeHandoff），修正後 77/77 測試通過，其中橋接／launcher／設定 30 項。包含成功先後順序、舊設定預設值、手動早期點擊、host 拒絕／權限／timeout 保留、關閉 auto-close、改選網頁／協定取消、拒絕其他 sender／iframe／非法 ID／已導航 tab、忽略 caller tabId 與關頁失敗提示 |
+| Build | MV3 1.1.1 建置及三個 built JS 的 node --check 通過；與 1.1.0 相同權限，沒有加入 tabs／activeTab／all_urls。Native host 與 win.7 不重新編譯 |
+| 真正 Discord／Edge | 由使用者重載 1.1.1，再從 Discord 點一張既有卡片；明確回報「卡片已開啟，中繼頁自動消失」。工具禁止操作 internal extension pages，所以這是使用者協助的實機驗收，不是 Agent 代按重載 |
+| 獨立 native／tab 觀察 | 對照前後 inventory，新增一個 HeptaFloat 卡片窗、全部原有卡片窗保留，沒有新 handoff tab 留下；正常 win.7 主 PID 與此前相同。沒有同時送出獨立 OS／CLI 開卡 probe，也沒有把 DOM doubles 當成這次實機證據 |
+| 失敗保留界線 | host 拒絕、權限不足、timeout、未知／關閉設定及延遲取消已由 API/DOM doubles 驗證；沒有為本輪負向驗收停用正常 host，不能宣稱實機 host outage 已測。accepted 表示程序建立，不是卡片讀取完成；卡片內容錯誤仍由桌面窗處理 |
+| 正式安裝修正 | 前輪最後的 Google Chrome fallback key 對照成功後，已撤回暫時 probe，改由 receipt 管理 Edge／fallback 兩個 key、同一 manifest／origin。實際 HKCU 重裝／舊 receipt 遷移／未知與被改動 fallback 拒絕／升級／回退／首版回退／移除皆通過，復原 native／desktop／HTTPS，noteWrites=0。正常 host 已裝回；裝回呼叫的相對 SourceDirectory 曾被安全檢查拒絕，改用絕對路徑後確認成功，主 App 保留 |
+| 原資料與外部範圍 | 本輪未編輯真實卡片、未發送 Discord 訊息或部署外部 Bot。既有 win.7／native binary／舊 ZIP 保留。Chrome、行動版、其他 Windows 裝置與每個 pin／foreground 情境仍為獨立驗收 |
+
+自動關頁是使用者對原先「不自動關閉」的明確修訂，預設 ON 且可在設定關閉。新背景動作僅能移除其 own top-frame valid/current handoff tab；沒有引入一般分頁控制入口。安裝包與 Git 的最終校驗見根目錄 CHANGELOG。
+
+## 此前階段紀錄
+
 最新受控對照：只有最後加入官方文件的 Google Chrome fallback key 後，使用者確認 Edge 主藍色按鈕成功開卡；native inventory 同時新增一個符合目標的 win.7 卡片窗，未混入 OS／CLI 開卡。這是首次真正 Edge native-button 成功，尚未代表自動開啟／Discord A/B／正式雙登錄安裝驗收。下一步把暫時 probe-owned key 納入 receipt 管理，維持同一 host／單一 origin／目前帳號；不能由此推論所有 Edge 版本的內部根因。下方失敗紀錄為此前對照。
 
 ## 21:16：已核准 P2、Native Messaging 實作與真正 Edge 失敗

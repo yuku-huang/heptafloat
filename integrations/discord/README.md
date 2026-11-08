@@ -2,6 +2,8 @@
 
 目前 Repository 沒有 Discord Bot。這份文件是外部 Bot Repo 的修改範例，沒有讀取 Bot token、傳送訊息或部署。
 
+橋接 1.1.1 的既有 Discord 連結開卡／自動關閉中繼頁已由使用者實測通過；這不表示 Bot 已加入 marker。是否處理未標記連結取決於使用者既有的 intercept-all 選項，預設仍為 OFF。Bot 修改仍須在實際 Bot Repo 另行套用以下最小 helper。
+
 2026-11-08 實際 Discord Desktop 的現有 Bot 訊息使用未標記 HTTPS；點擊文字卡片連結後，Edge 開啟對應網頁，符合預設。這些舊訊息不會因擴充功能更新就變成標記連結，也不能據此宣稱 Bot 已整合。
 
 1. 先在目標瀏覽器停用橋接，確認 Bot 原有 Heptabase 卡片網址加上 `flowhepta=1` 後，仍能開到原卡片。登入／手機版相容性要由各裝置驗證。

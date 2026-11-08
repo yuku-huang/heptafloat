@@ -1,5 +1,13 @@
 # Rules and conventions
 
+Auto-close task policy: `2026-11-08T13:49:35.756869+00:00`, live `official_heptabase_desktop_cli`, cached=false; full Router v0.9.3 (`662077f1-6f0a-4d25-95fa-5a3d48f3853d`) and actual software-development v0.1 (`7004b48d-cb3f-4d09-87f8-663f184c5c8c`) read separately without truncation. Registry matched; SHA-256 values remain `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa` and `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. No card/skill writes.
+
+- Auto-close is an explicit user override: close only after native acceptance and only the validated sender's still-current top-frame handoff. Unknown preferences, native failure/timeout or alternate choices fail open; never accept a caller-selected tab ID. Preserve the distinction between process acceptance and card-render completion.
+- Edge's Chrome fallback key is a measured compatibility route, not proof of every Edge's underlying cause. Manage both keys together in the receipt; reject unknown/changed fallback ownership and use absolute SourceDirectory paths when explicitly passing them.
+- Skill verdict: no global/Heptabase skill update. Same-tab closure, asynchronous choice cancellation and local registry compatibility belong in these project rules and regressions.
+
+Delivery policy refresh: `2026-11-08T14:15:37.279658+00:00`, live official desktop CLI, cached=false. Router and Skill full contents are byte-identical to the fully read 13:49 texts above; card IDs, versions, hashes and registry match are unchanged.
+
 P2 policy read: live `official_heptabase_desktop_cli`, cached=false, `2026-11-08T12:45:54.250467+00:00` (also read before installation at `12:36:06.161163+00:00`). Full Router and Skill were read separately without truncation: Router v0.9.3 / `662077f1-6f0a-4d25-95fa-5a3d48f3853d` SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; actual `software-development` v0.1 / `7004b48d-cb3f-4d09-87f8-663f184c5c8c` SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matched. User explicitly approved the documented P2 scope; do not ask for that approval again. No skill/card writes.
 
 - Native host changes must remain action/UUID-only, exact-origin and receipt-owned; never expose a generic agent command channel, shell/path API, network service or note/credential access.

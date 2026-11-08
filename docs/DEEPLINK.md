@@ -1,8 +1,8 @@
 # Windows 卡片連結預覽與 Discord 橋接
 
-橋接 1.1.0：使用者已核准 P2，主開啟路徑改為受限的 Native Messaging host，直接啟動既有 win.7；原協定與網頁保留為明確備援。見 [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md) 的安裝／移除及 [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md)。`npm run package:native-bridge` 複製已測 host，不改寫既有 win.7。獨立 host 開卡已通過，但目前真正 Edge 回報 host not found，瀏覽器／Discord 尚未驗收；更新檔案不代表已載入版本或實測成功。
+橋接 1.1.1：已核准的 Native Messaging host 直接啟動既有 win.7，成功接受請求後預設關閉原中繼分頁，失敗時保留重試／網頁版。使用者已重載並從 Discord 實測成功，Agent 亦確認新卡片窗、舊窗保留與無新中繼頁。Edge 安裝同步管理官方 Google Chrome fallback key，兩者共用同一 manifest／origin。原協定與網頁仍是明確備援。見 [本機安裝／回退](NATIVE_MESSAGING.md)、[橋接設定](BROWSER_BRIDGE.md) 及 [實測界線](DEEPLINK_TEST_RESULTS.md)。打包只複製已測 host，不重建 win.7。
 
-此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者最新要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。瀏覽器橋接目前是實驗功能：Edge 的 HTTPS→中繼頁已觀察到，外部程式啟動尚未通過實機驗收，不能當成已完成 Discord 端到端整合。詳見 [實測紀錄](DEEPLINK_TEST_RESULTS.md)。
+此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。1.1.1 自動關閉中繼頁亦是使用者對原先不自動關頁的明確修訂。已通過目前 Windows／Edge 的使用者協助驗收，Chrome、其他裝置與外部 Bot 部署仍不能由此推論完成。
 
 ## 安裝桌面協定
 
@@ -81,15 +81,16 @@ npm run build:extension
 2. 在該瀏覽器手動開啟 `edge://extensions` 或 `chrome://extensions`。
 3. 開啟「開發人員模式」，按「載入解壓縮」，選取 `build\browser-extension`，或 distribution 內的 `browser-extension`。
 4. 資料夾選擇視窗只顯示子資料夾，裡面看似空白是正常的；直接按「選擇資料夾」，不用找 ZIP 或選 manifest。
-5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；設定頁也提供「重新載入橋接」，保留選項。中繼頁的頁面／已載入版本都應為 1.1.0。新增 nativeMessaging 權限若使插件停用，需由使用者重新啟用。平台禁止工具操作 internal extension pages，不能代按或宣稱已重新載入；目前這台 Edge 的 1.1.0 已由使用者截圖確認。
+5. 確認管理頁出現 **Flow HeptaBase Link Bridge** 且開關啟用。更動 source 後需重新 build 並在管理頁重新載入；設定頁也提供「重新載入橋接」，保留選項。版本應為 1.1.1；從 1.1.0 更新沒有新增權限。平台禁止工具操作 internal extension pages，不能代按或宣稱已重新載入；本次由使用者重新載入並完成開卡／關頁測試。
 
 不會自動發布到商店、修改瀏覽器政策或改全域 HTTP(S) handler。權限為 `webNavigation`、`storage`、已核准的 `nativeMessaging` 及該 HTTPS host，沒有 `<all_urls>`／內容擷取／外部訊息入口。Host 由明確的目前帳號安裝腳本管理；載入插件本身不會安裝本機 EXE。
 
-預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留「以 Flow HeptaBase 開啟」、「改用 Heptabase 網頁版」及獨立的 Windows 協定備援。頁面可見且有焦點後才自動送出一次 Native Messaging；主要手動按鈕亦使用本機 host，同一請求未完成前合併點擊。網頁／協定選擇會取消後續自動嘗試及過期狀態。Host accepted 只表示建立程序，並非卡片載入；錯誤會顯示並遮罩 URL／UUID。協定備援仍可被瀏覽器拒絕或要求確認，不繞過安全提示。
+預設只處理 `flowhepta=1` 的合法頂層卡片導覽；一般卡片、iframe、其他網站照常。背景程式先轉到自己的中繼頁，保留桌面／網頁／Windows 協定選擇。頁面可見且有焦點後自動送出一次 Native Messaging；主要手動按鈕也使用 host，待完成請求會合併。Host accepted 只表示建立程序，並非卡片載入；預設在此時關閉同一個仍在 handoff 的 tab。失敗、未知設定、關閉 auto-close 或已改選網頁／協定時保留頁面。錯誤以文字顯示並遮罩 URL／UUID。協定備援仍可被瀏覽器拒絕或要求確認，不繞過安全提示。
 
 點擴充功能圖示可進設定：
 
 - 「嘗試自動開啟」預設 ON；OFF 時停在選擇頁。
+- 「送出開卡請求後，自動關閉中繼頁」預設 ON；OFF 時成功後也保留分頁。native 失敗時無論此選項都會保留。
 - 「攔截所有合法卡片」預設 OFF。Bot 不能修改時才考慮開啟；它也影響一般瀏覽器連結，無法識別 Discord Desktop 來源。
 - 網頁備援使用 canonical HTTPS；該分頁／卡片在 30 秒內略過橋接，避免 all-card 模式無限迴圈。暫存只在 extension session，關閉分頁移除；偏好只存 local storage，不同步外部服務。
 

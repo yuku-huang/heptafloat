@@ -1,5 +1,7 @@
 # File map
 
+- `browser-extension/bridge.js`, `handoff.js`, `options.js/html`: 1.1.1 accepted-request auto-close preference and strict same-handoff sender/tab removal. Bridge/launcher tests cover native failure retention, stale cancellation, setting persistence and arbitrary-tab refusal.
+
 - `native-host/Program.cs`: bounded exact-origin stdio host, receipt-owned fixed EXE launch and child-handle isolation.
 - `scripts/build-native-host.ps1`, `test/native-host.test.mjs`: built-in C# compiler and six actual host-EXE regression groups using fake desktop applications.
 - `scripts/install-native-host.ps1`, `scripts/test-native-host-install.ps1`: current-user immutable host versions, exact extension origin and actual HKCU lifecycle QA.
