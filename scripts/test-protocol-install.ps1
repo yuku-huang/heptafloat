@@ -20,7 +20,7 @@ function Run-Manager([string]$Mode, [string]$Source) {
 }
 $before = CurrentCommand
 $httpsBefore = HttpsDefault
-$result = [ordered]@{ mode='actual-HKCU-install-lifecycle'; install=$false; reinstall=$false; upgrade=$false; rollback=$false; uninstall=$false; priorAssociationRestored=$false; httpsUnchanged=$false; noteWrites=0 }
+$result = [ordered]@{ mode='actual-HKCU-install-lifecycle'; install=$false; reinstall=$false; refresh=$false; refreshIdempotent=$false; systemAssociationVerified=$false; upgrade=$false; rollback=$false; uninstall=$false; priorAssociationRestored=$false; httpsUnchanged=$false; noteWrites=0 }
 try {
   Run-Manager 'Install' (Resolve-Path -LiteralPath $SourceDirectory).Path
   $installed = CurrentCommand
@@ -29,6 +29,15 @@ try {
   Run-Manager 'Install' (Resolve-Path -LiteralPath $SourceDirectory).Path
   if((CurrentCommand) -ne $installed){ throw 'Reinstall was not idempotent.' }
   $result.reinstall = $true
+  Run-Manager 'Refresh' ''
+  if((CurrentCommand) -ne $installed){ throw 'Refresh changed the managed command.' }
+  $result.refresh = $true
+  Run-Manager 'Refresh' ''
+  if((CurrentCommand) -ne $installed){ throw 'Refresh was not idempotent.' }
+  $result.refreshIdempotent = $true
+  $status = & powershell.exe -NoProfile -File $manager -Action Status -InstallRoot $qaRoot | ConvertFrom-Json
+  if($LASTEXITCODE -ne 0 -or $status.systemAssociation.friendlyNameResult -ne '00000000' -or !$status.systemAssociation.friendlyName -or $status.systemAssociation.executableResult -ne '00000000' -or !$status.systemAssociation.executable.StartsWith("$qaRoot\",[StringComparison]::OrdinalIgnoreCase)){ throw 'Windows association API did not resolve the QA app.' }
+  $result.systemAssociationVerified = $true
   if($UpgradeDirectory){
     Run-Manager 'Install' (Resolve-Path -LiteralPath $UpgradeDirectory).Path
     if((CurrentCommand) -eq $installed){ throw 'Upgrade did not change the versioned handler.' }

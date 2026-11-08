@@ -1,5 +1,7 @@
 # Data schema and bridge
 
+Installer CLI addition (source manager): `Status` keeps `{installRoot,installed,command}` and adds `systemAssociation:{friendlyName,friendlyNameResult,executable,executableResult}`; result strings are eight-digit Windows HRESULT hex, `00000000` on success. `Refresh` returns `{registered,associationChangeNotified,systemAssociation}` after validating the existing receipt/current executable. Receipt/state/card/recovery schemas are unchanged. These fields do not acknowledge browser delivery. The Native Messaging message schema remains proposal-only and is not accepted by current runtime.
+
 Bridge 1.0.1 adds no persisted data/settings. Launcher enabled/one-shot/pending/sequence state is page-local. Errors are rendered after URL/UUID redaction, never stored. UI version is injected from source manifest; loaded version comes from runtime.getManifest. Local settings/session bypass and Heptabase note schemas are unchanged.
 
 Window-local host state: `{intent?,pinned,recoveryKey,ready,closing,allowClose,title}`; `recoveryKey` is a fresh host UUID and is never chosen by the renderer. Main overwrites it on save/create requests. Recovery JSON gains optional `recoveryKey`; filenames and verified retry-base keys derive from `kind:id:recoveryKey`. Legacy unscoped files are preserved. Note-body JSON/schema is unchanged. No window registry/pin/history/buffer is persisted beyond the existing main-window defaults. Theme/font/hotkey/startup and recents stay app-wide.

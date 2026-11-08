@@ -2,7 +2,7 @@
 # HTTP(S)/heptabase changes, services, or user-note removal.
 [CmdletBinding()]
 param(
-  [ValidateSet('Install','Status','Rollback','Uninstall')][string]$Action = 'Status',
+  [ValidateSet('Install','Status','Refresh','Rollback','Uninstall')][string]$Action = 'Status',
   [string]$SourceDirectory,
   [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'Programs\HeptaFloat')
 )
@@ -13,6 +13,32 @@ if ($rootPath -eq [IO.Path]::GetPathRoot($rootPath).TrimEnd('\')) { throw 'Insta
 $receiptPath = Join-Path $rootPath 'install-state.json'
 $backupPath = Join-Path $rootPath 'previous-flowhepta.reg'
 $schemeKey = 'HKCU:\Software\Classes\flowhepta'
+if (-not ('HeptaFloat.ProtocolAssociation' -as [type])) {
+  Add-Type -TypeDefinition @'
+using System;
+using System.Text;
+using System.Runtime.InteropServices;
+namespace HeptaFloat {
+  public static class ProtocolAssociation {
+    [DllImport("shell32.dll")] static extern void SHChangeNotify(uint change,uint flags,IntPtr item1,IntPtr item2);
+    [DllImport("shlwapi.dll", CharSet=CharSet.Unicode)] static extern int AssocQueryString(uint flags,uint kind,string scheme,string extra,StringBuilder output,ref uint size);
+    // SHCNE_ASSOCCHANGED, with SHCNF_DWORD | SHCNF_FLUSH.
+    public static void Notify() { SHChangeNotify(0x08000000,0x1003,IntPtr.Zero,IntPtr.Zero); }
+    public static string[] Query(uint kind) {
+      uint size=4096; var output=new StringBuilder((int)size);
+      int result=AssocQueryString(0x1000,kind,"flowhepta",null,output,ref size); // ASSOCF_IS_PROTOCOL
+      return new string[] {result.ToString("X8"),output.ToString()};
+    }
+  }
+}
+'@
+}
+function Notify-ProtocolChange { [HeptaFloat.ProtocolAssociation]::Notify() }
+function Get-SystemAssociation {
+  $name = [HeptaFloat.ProtocolAssociation]::Query(4)
+  $executable = [HeptaFloat.ProtocolAssociation]::Query(2)
+  [pscustomobject]@{ friendlyName=$name[1]; friendlyNameResult=$name[0]; executable=$executable[1]; executableResult=$executable[0] }
+}
 function Get-ProtocolCommand {
   if (Test-Path -LiteralPath "$schemeKey\shell\open\command") { return (Get-Item -LiteralPath "$schemeKey\shell\open\command").GetValue('') }
   return $null
@@ -51,6 +77,7 @@ function Register-App([string]$Executable) {
   } finally {
     if ($null -ne $oldNodeMode) { $env:ELECTRON_RUN_AS_NODE = $oldNodeMode }
   }
+  Notify-ProtocolChange
   return Get-ProtocolCommand
 }
 function Restore-Original($Receipt) {
@@ -63,6 +90,7 @@ function Restore-Original($Receipt) {
     & reg.exe import $backupPath | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Could not restore original flowhepta association.' }
   }
+  Notify-ProtocolChange
 }
 function Remove-VersionFiles($Receipt) {
   foreach ($version in $Receipt.versions) { Assert-NotRunning (Assert-OwnedVersion $version) }
@@ -78,7 +106,19 @@ if (Test-Path -LiteralPath $receiptPath) {
   if ($receipt.owner -ne 'heptafloat-protocol-install-v1') { throw 'Unknown install receipt; refusing to overwrite.' }
 }
 if ($Action -eq 'Status') {
-  [pscustomobject]@{ installRoot=$rootPath; installed=($null -ne $receipt -and $receipt.installed); command=(Get-ProtocolCommand) } | ConvertTo-Json
+  [pscustomobject]@{ installRoot=$rootPath; installed=($null -ne $receipt -and $receipt.installed); command=(Get-ProtocolCommand); systemAssociation=(Get-SystemAssociation) } | ConvertTo-Json -Depth 3
+  exit 0
+}
+if ($Action -eq 'Refresh') {
+  if (!$receipt -or !$receipt.installed -or !@($receipt.versions).Count) { throw 'No managed installation to refresh. Use Install first.' }
+  if ((Get-ProtocolCommand) -ne $receipt.command) { throw 'Association changed; refresh left it untouched.' }
+  $version = @($receipt.versions)[-1]
+  $installedExe = Join-Path (Assert-OwnedVersion $version) 'HeptaFloat.exe'
+  $expectedCommand = '"' + $installedExe + '" "%1"'
+  if ($receipt.command -ne $expectedCommand) { throw 'Receipt does not match the current managed version; nothing changed.' }
+  $newCommand = Register-App $installedExe
+  if ($newCommand -ne $expectedCommand) { throw 'Refreshed registration differs from the managed executable.' }
+  [pscustomobject]@{ registered=$true; associationChangeNotified=$true; systemAssociation=(Get-SystemAssociation) } | ConvertTo-Json -Depth 3
   exit 0
 }
 if ($Action -eq 'Install') {
@@ -133,6 +173,7 @@ if ($Action -eq 'Install') {
         & reg.exe import $pendingBackup | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Could not restore the pre-update association.' }
       }
+      Notify-ProtocolChange
     }
     throw $failure
   } finally { if (Test-Path -LiteralPath $pendingBackup) { Remove-Item -LiteralPath $pendingBackup -Force } }

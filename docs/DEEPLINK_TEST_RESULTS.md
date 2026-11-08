@@ -1,5 +1,16 @@
 # Deep Link 驗證紀錄（2026-11-08，Asia/Taipei）
 
+## 20:02：實際 Console、Windows association 與重啟對照
+
+- 使用者完整截圖確認頁面／已載入均為 1.0.2；點擊前後的狀態變化符合 native click handler。Console 的實際錯誤是 `scheme does not have a registered handler`。沒有把「已交由瀏覽器處理」當成成功。
+- 截圖按鈕指向另一張文字卡。使用既有官方 service/CLI 唯讀確認 doc/MD5，獨立 Windows 冷啟動建立該卡 win.7 視窗，之後 MD5 未變。只記結果，不提交私人 ID／標題／內容。這個 OS probe 在瀏覽器驗收之外。
+- HKCR/HKCU 與 32 位元檢視都有 `URL Protocol` 和正確命令；Windows `AssocQueryString(ASSOCF_IS_PROTOCOL)` 的 friendly-name／executable 查詢均成功。Edge 與診斷程序同帳號、非提高權限、沒有套件身分。查不到 URLBlocklist 的指定登錄值，不能因此宣稱所有管理政策都已排除。
+- 補上安裝生命週期的標準關聯變更通知與 `Refresh`。真正 HKCU 的 task-owned win.6 安裝／重裝→Refresh 兩次→Windows API 狀態檢查→win.7 升級→回退→移除全部通過，finally 恢復原 handler，HTTPS 不變，卡片寫入為 0。未受管理的 Refresh 被拒絕，沒有建立目錄或改寫關聯。
+- 正常安裝亦完成 Refresh；原命令、HTTP(S)、正常主 PID 都保留。使用者刷新後仍回報相同錯誤，沒有新卡片窗；這不是已完成的根因修復。
+- 使用者接著完整重啟 Edge；新主 PID／啟動時間已確認，截圖仍為相同錯誤，沒有新卡片窗。不能繼續稱作已解決的快取問題，亦不能推廣為所有 Chromium 的限制。
+- 本輪只改 PowerShell 安裝／測試腳本與文件，未改 bridge 1.0.2 或 win.7 runtime／已測 ZIP。JavaScript 66 測試為前輪結果；本輪驗證是 PowerShell AST、真實 Windows 生命週期／API 與負向 guard。
+- P2 僅交付 `NATIVE_MESSAGING_PROPOSAL.md` 的範圍、權限、維運、回退與驗證方案。尚未新增 nativeMessaging 權限、host 或 registry entry；須依原規格額外確認才可實作。Bot／真實 Discord 端到端仍未完成。
+
 ## 19:30：使用者釐清為無提示，仍未開啟
 
 - 最新明確回報：目前看得到「以 Flow HeptaBase 開啟」；普通左鍵與右鍵「在新索引標籤中開啟連結」均沒有提示或卡片。這次以最新回報為準，不能沿用先前有提示的回答來宣稱流程通過。

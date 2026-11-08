@@ -1,3 +1,19 @@
+### [2026-11-08 20:02] - Verify association lifecycle and propose approval-gated Native Messaging
+
+* **修改檔案**：`scripts/install-windows.ps1`, `scripts/test-protocol-install.ps1`, `docs/DEEPLINK.md`, `docs/WINDOWS.md`, `docs/DEEPLINK_TEST_RESULTS.md`, new `docs/NATIVE_MESSAGING_PROPOSAL.md`, README/START_HERE/ARCHITECTURE, `AGENT_CONTEXT/01..08` as applicable
+* **變更細節**：
+  * clean baseline `abd7f9b` on `codex/discord-hepta-preview`; the resulting changes are the two known source scripts and task docs/proposal only. Build reports, distributions, screenshots and private user/card data remain ignored; no unrelated/ambiguous files are included
+  * installer now notifies Windows after association register/restore, exposes Windows friendly-name/executable/HRESULT status, and provides receipt-checked Refresh using the installed Electron maintenance flag without replacing running files or quitting the app
+  * PowerShell AST and actual HKCU task-owned install/reinstall/Refresh twice/system API/upgrade/rollback/uninstall pass; finally restores original handler/HTTPS with zero note writes. An unmanaged refresh is rejected without changing registration or creating directories. Normal-profile Refresh preserves the command, primary process and HTTP(S)
+  * user screenshots confirm bridge 1.0.2 and click handling; actual Console says no registered handler. The exact clicked card independently opens by Windows cold start and its official content MD5 remains unchanged. No private IDs/titles/body are committed
+  * Windows association APIs and 32-bit registry view resolve win.7; Edge/shell are same-user, non-elevated and unpackaged. Yet user retries after refresh and a verified full Edge restart still fail/no new card. Missing notification was corrected, but is not claimed as the proven browser root cause or fix
+  * wrote a concrete P2 Native Messaging proposal covering nativeMessaging permission, exact extension origin, a UUID-only on-demand local host, current C# toolchain feasibility, owned HKCU installation/rollback and real-browser acceptance. No host code, native permission or native-host registry entry was implemented; original specification requires additional approval
+  * app/bridge source and frozen win.7/1.0.2 ZIPs are preserved. JavaScript 66-test result belongs to the prior round; this task uses focused Windows checks. No new dependencies/services/security changes, Bot deployment, messages or real-note writes
+  * skill verdict: no installed/Heptabase skill edit; lifecycle notifications, OS-vs-browser evidence and P2 approval boundaries are recorded in project conventions. Live policy was fully read and provenance recorded
+* **下一步建議 (Next Steps)**：
+  * obtain additional approval for the documented P2 scope before changing permissions or installing a host; otherwise retain protocol/web fallback and unresolved acceptance. Do not repeat completed plugin reload/restart/Console steps
+  * after any approved implementation, verify actual Windows/Edge/Discord A/B and foreground/pin behavior separately from mocks. Upstream push remains permission-limited
+
 ### [2026-11-08 19:30] - Correct no-prompt evidence and preserve the unresolved handoff
 
 * **修改檔案**：`docs/DEEPLINK_TEST_RESULTS.md`, `docs/BROWSER_BRIDGE.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`, `CHANGELOG.md`

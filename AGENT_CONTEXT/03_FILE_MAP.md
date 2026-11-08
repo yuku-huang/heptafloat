@@ -1,5 +1,8 @@
 # File map
 
+- `docs/NATIVE_MESSAGING_PROPOSAL.md`: unimplemented P2 scope, permissions, maintenance/rollback and verification; requires additional user approval before host/extension changes.
+- `scripts/install-windows.ps1`: current source manager includes `Refresh`, association-change notifications and native Windows API status; `scripts/test-protocol-install.ps1` verifies refresh/idempotence/API during actual lifecycle QA. Frozen win.7 ZIP still has the prior manager.
+
 - `shared/hepta-links.cjs`, `test/hepta-links.test.mjs`: strict HTTPS/custom URI/IPC intent and marker utility.
 - `windows/chrome.js`, `windows/preview-smoke.cjs`: shared complete window chrome and native multi-window/pin/save/conflict/close regressions; old read-only preview assets removed.
 - `browser-extension/`: MV3 worker/bridge/scoped manifest; `launcher.js` controls foreground/one-shot/cancel behavior; `handoff.js` leaves manual protocol anchors native. `test/browser-bridge.test.mjs` and `test/browser-launcher.test.mjs` use explicit API/DOM doubles.

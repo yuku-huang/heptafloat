@@ -1,5 +1,11 @@
 # Rules and conventions
 
+Association-task policy read: `2026-11-08T11:36:03.416821+00:00`, official_heptabase_desktop_cli, cached=false. Full Router and software-development Skill were read separately without truncation: Router v0.9.3 / `662077f1-6f0a-4d25-95fa-5a3d48f3853d` SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; Skill v0.1 / `7004b48d-cb3f-4d09-87f8-663f184c5c8c` SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matched; no skill/card writes.
+
+- Notify Windows after association register/restore. Check receipt ownership before refreshing a live install; do not copy files or stop a user process for registration maintenance.
+- Registry, Electron default-client checks and even Windows association API success are distinct from a real browser attempt. Use the actual Console result; verify a restart with PID/start time before testing a cache hypothesis. Keep private IDs out of committed evidence.
+- P2 Native Messaging changes permissions/local installation scope and needs the original specification's additional approval. A written proposal is not an implemented or deployed host.
+
 Manual-link continuation policy: live `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-08T11:03:25.809692+00:00`. Full Router/Skill read separately without truncation: Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 SHA-256 `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa`; software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Registry matches; no card/skill writes.
 
 - Preserve the native default action of the manual protocol anchor. A successful automatic tabs API call cannot replace native confirmation or prove app acknowledgement. Test ready/early/manual choices, API failures and stale results independently. Keep OS probes out of browser acceptance windows.

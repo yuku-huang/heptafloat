@@ -1,5 +1,13 @@
 # Agent changelog
 
+## 2026-11-08 20:02 — Association lifecycle diagnostics and P2 proposal
+
+- Added `SHChangeNotify` after registration/restoration, ownership-checked Refresh without file replacement/app quit, and Status fields for Windows friendly-name/executable/HRESULT queries. Source manager is newer than the frozen win.7 distribution script; current runtime/ZIP/bridge are unchanged.
+- PowerShell AST, actual task-owned win.6→win.7 lifecycle (including two Refresh calls/system API checks), final handler/HTTPS restoration, and an unmanaged-root rejection check pass. Normal Refresh preserves the original command, primary process and HTTP(S).
+- User-provided Console confirms no registered handler despite current-user/32-bit/API results. Exact screenshot card independently cold-started normally and retained its content MD5. Refresh and a confirmed full Edge restart both still fail/no new card; no unsupported root cause or browser success is claimed.
+- Added an explicitly unimplemented Native Messaging proposal with permission scope, constrained host, local compiler feasibility, maintenance/rollback and acceptance plan. Original P2 requires additional user approval; no permission/host/native registry entry was added.
+- Skill verdict: no global/Heptabase skill edit. OS-vs-browser evidence and lifecycle notifications are project-specific conventions. Screenshots, private IDs/content and runtime reports stay outside Git.
+
 ## 2026-11-08 19:30 — Clarified real no-prompt failure
 
 - Latest user evidence is no prompt/card for both left click and native new-tab opening, superseding the earlier prompt answer. A confirmed left click overlapped a second read-only sample with zero new processes, max gap 79 ms; short-lived children may be missed. Native inventory shows no new card window; no concurrent OS probe was sent.

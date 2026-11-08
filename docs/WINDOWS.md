@@ -1,6 +1,6 @@
 # HeptaFloat for Windows
 
-Bridge-only update: `npm run package:extension` builds version 1.0.1 independently of the existing tested app win.7 ZIP. Reload/version/rollback steps and current limits are in [BROWSER_BRIDGE.md](BROWSER_BRIDGE.md). Old normal win.5 still running must be normally quit from the tray; installing or closing a window does not transfer its single-instance lock. Current unit suite: 62 tests; prior win.7 native mock and installation checks remain distinct from browser/Discord app acceptance.
+Bridge source is 1.0.2; normal win.7 is active. The user's screenshots confirm native click handling, while Edge Console reports no registered handler. Windows shell/API checks succeed, including the exact screenshot card; they are separate from browser acceptance. The source installer supports `-Action Refresh` and notifies Windows after association changes. Refresh passed lifecycle checks, but both refresh and a confirmed full Edge restart left the browser error unresolved. See [DEEPLINK.md](DEEPLINK.md) and the unimplemented [Native Messaging proposal](NATIVE_MESSAGING_PROPOSAL.md). Existing tested app/bridge ZIPs remain unchanged. The JavaScript suite previously passed 66 tests; this task validates PowerShell and real HKCU behavior.
 
 Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
 

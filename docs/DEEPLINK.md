@@ -34,6 +34,21 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-windows.ps
 
 有兩個受管理版本時，Rollback 將協定指回前一版；只有一版時恢復安裝前的關聯並保留程式檔。Uninstall 先要求該安裝目錄的程式已退出，再移除 receipt 記錄的版本資料夾並恢復原關聯；保留使用者設定／recovery 與所有 Heptabase 卡片。若協定已被其他 App 改走，腳本會停止，不覆蓋它。不要手動刪掉仍被 handler 指向的版本目錄。
 
+### Edge 回報沒有註冊處理程式
+
+若 Console 顯示 `scheme does not have a registered handler`，不能把頁面的「已交由瀏覽器處理」當成桌面確認。使用最新版 **Repo 腳本**（舊 win.7 ZIP 內腳本尚無 Refresh）查詢與刷新：
+
+```powershell
+powershell -NoProfile -File .\scripts\install-windows.ps1 -Action Status
+powershell -NoProfile -File .\scripts\install-windows.ps1 -Action Refresh
+```
+
+Status 除登錄命令外，會讀 Windows `AssocQueryString(ASSOCF_IS_PROTOCOL)` 的程式名稱與執行檔，並保留 HRESULT；成功值為 `00000000`。Refresh 只接受 receipt 仍擁有的現行安裝，透過既有 Electron 維護旗標重新註冊，並以 `SHChangeNotify(SHCNE_ASSOCCHANGED)` 通知 Windows。它不複製／替換執行中的檔案、不終止正常 App，也不更動 HTTP(S)、瀏覽器政策或安全提示。未安裝或關聯被其他程式接管時會拒絕。
+
+安裝、升級、回退、移除與失敗復原後也會送出此通知。2026-11-08 已實測完整 HKCU 生命週期、重複 Refresh、Windows API 查詢，以及正常安裝刷新時主 PID 與 HTTP(S) 不變；但使用者刷新後仍看到相同 Edge 錯誤。Edge 完整重啟（主 PID 已變）後也仍失敗，不能宣稱是已解決的快取問題。下一方案僅見 [Native Messaging 提案](NATIVE_MESSAGING_PROPOSAL.md)，尚未實作，需額外確認。
+
+參考：[Windows 關聯查詢](https://learn.microsoft.com/windows/win32/api/shlwapi/nf-shlwapi-assocquerystringw)、[註冊後通知 Windows](https://learn.microsoft.com/en-us/windows/win32/shell/default-programs)。
+
 ## 連結格式與使用
 
 ```text
