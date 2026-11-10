@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, globalShortcut, nativeTheme, ipcMain, protocol, shell, dialog, screen } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, globalShortcut, nativeTheme, ipcMain, protocol, shell, dialog, screen, clipboard } = require('electron');
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
@@ -263,6 +263,9 @@ async function handle(message, sender = win) {
       persist(); return {};
     }
     case 'forgetCard': state.recents = state.recents.filter((r) => r.id !== message.id); persist(); return {};
+    case 'copyCardLink':
+      await clipboard.writeText(await service.cardLink(message.kind, message.id, context.intent?.spaceId));
+      return { copied: true };
     case 'openURL': await shell.openExternal(safeExternal(message.url)); return {};
     case 'openHeptabase': {
       const runtime = await discoverApp();

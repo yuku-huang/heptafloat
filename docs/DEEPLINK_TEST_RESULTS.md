@@ -1,4 +1,10 @@
-# Deep Link 驗證紀錄（2026-11-08，Asia/Taipei）
+# Deep Link 驗證紀錄（Asia/Taipei）
+
+## 2026-11-10：win.8 卡片複製與同窗跳轉
+
+- 80/80 source tests pass. Copy/journal-date regressions first failed before implementation; supported/malformed card URLs and unknown-space native fallback are checked. Live CLI shape checks confirmed journals expose dates, not UUIDs, before the final native-date compatibility fix.
+- Development Windows general/preview and the exact packaged EXE's preview smoke pass. Native mouse/keyboard/IPC tests cover Ctrl+L with toolbar focus, independent windows, A-to-B current-link copying, native card and HTTPS same-window clicks, Alt+Left/Right, only-Heptabase dropdown, Ctrl+click override and empty-draft explanation. OS clipboard/external launch calls are substituted; notes are sample data. This is not a physical clipboard or new Discord-desktop acceptance claim.
+- External new-window, independent pin, autosave/conflict/offline/close/quit regressions still pass. Prior win.7/native/bridge artifacts are preserved. Current install/archive/activation/Git evidence follows in root CHANGELOG; earlier browser results below are historical.
 
 ## 21:59：1.1.1 自動關閉中繼頁完成驗收
 

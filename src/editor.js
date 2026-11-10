@@ -18,6 +18,7 @@ import { createPalette } from './palette.js';
 import { renderSetup } from './setup.js';
 import { isMac, modLabel, modPressed, shortcutName, shortcutGlyphs } from './platform.js';
 import { CardHistory } from './navigation.js';
+import { linkedCard } from './card-links.js';
 import { CodeBlockView, codeHighlightPlugin } from './code-block.js';
 import heptaLinks from '../shared/hepta-links.cjs';
 const previewMode = window.heptafloat?.preview === true;
@@ -94,6 +95,14 @@ function editableKind(objectType, id) {
 
 function openInHeptabase(id) {
   if (id) post({ action: 'openURL', url: `heptabase://card/${id}` });
+}
+
+async function copyCardLink() {
+  if (!current || current.kind === 'draft') { status('Save this card before copying its link.'); return; }
+  const target = { ...current };
+  const result = await call('copyCardLink', { kind: target.kind, id: target.id });
+  if (current?.id !== target.id || current?.kind !== target.kind) return;
+  status(result.error || (result.copied ? 'Card link copied' : 'Could not copy card link'), { error: !!result.error });
 }
 
 /** Opens a card in the floating card if it's a note or journal, otherwise in Heptabase. */
@@ -333,6 +342,7 @@ const bindings = {
   highlight: 'Mod-Shift-h', toggleTodo: 'Mod-Enter', paragraph: 'Mod-Alt-0',
   heading1: 'Mod-Alt-1', heading2: 'Mod-Alt-2', heading3: 'Mod-Alt-3',
   actions: 'Mod-k', pinCard: 'Mod-.', back: isMac ? 'Mod-[' : 'Alt-ArrowLeft', forward: isMac ? 'Mod-]' : 'Alt-ArrowRight', newCard: 'Mod-n', search: 'Mod-o', recent: 'Mod-p', today: 'Mod-Shift-d', openInHeptabase: 'Mod-Shift-o',
+  ...(!isMac && { copyCardLink: 'Mod-l' }),
   // the app's own (its menus take these keys first); here so the action menu can show them
   settings: 'Mod-,', keepOnTop: 'Mod-Shift-p', biggerText: 'Mod-=', smallerText: 'Mod--', actualSize: 'Mod-0',
 };
@@ -356,6 +366,7 @@ function commandFor(name, schema) {
     forward: run(() => isMac ? step(-1) : stepHistory(1)),
     today: run(() => show({ kind: 'journal', id: today() })),
     openInHeptabase: run(() => { if (current?.kind !== 'draft') openInHeptabase(current?.id); }),
+    ...(!isMac && { copyCardLink: run(() => { void copyCardLink(); }) }),
     ...(!isMac && Object.fromEntries(['settings', 'keepOnTop', 'biggerText', 'smallerText', 'actualSize']
       .map((id) => [id, run(() => post({ action: 'appCommand', name: id }))]))),
   }[name];
@@ -411,6 +422,7 @@ function actionSections() {
       canStep(1) && row('back', 'Back', 'back previous older', command('back')),
       canStep(-1) && row('forward', 'Forward', 'forward next newer', command('forward')),
       card && row('openInHeptabase', 'Open in Heptabase', 'open heptabase app', command('openInHeptabase')),
+      !isMac && card && row('copyCardLink', 'Copy card link', 'copy link clipboard share', command('copyCardLink')),
       card && row('pinCard', pinned ? 'Unpin card' : 'Pin card', 'pin unpin favorite recent', command('pinCard')),
     ] },
     { title: 'Window', items: [
@@ -474,6 +486,7 @@ if (!isMac) document.addEventListener('keydown', (e) => {
   if (!view || e.isComposing || e.keyCode === 229 || view.composing || document.querySelector('dialog[open]')) return;
   let command;
   if (e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && (e.code === 'KeyO' || e.key.toLowerCase() === 'o')) command = 'search';
+  if (e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && (e.code === 'KeyL' || e.key.toLowerCase() === 'l')) command = 'copyCardLink';
   if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
     if (e.key === 'ArrowLeft') command = 'back';
     if (e.key === 'ArrowRight') command = 'forward';
@@ -501,7 +514,7 @@ function keyName(e) {
   return shortcutName(e);
 }
 
-// MARK: mention popup — choose where to open a linked card
+// MARK: mention popup — Windows clicks navigate here; the popup offers Heptabase
 
 const mentionPopup = (() => {
   const pop = document.createElement('div');
@@ -523,7 +536,7 @@ const mentionPopup = (() => {
     chip = target;
     pinned = pin;
     const { kind, id } = target.dataset;
-    const here = kind === 'card' || kind === 'date';
+    const here = isMac && (kind === 'card' || kind === 'date');
     const label = target.textContent || 'Card';
     pop.innerHTML = `<div class="mp-title">${label.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</div>`
       + (here ? '<button data-where="here"><span>Open here</span></button>' : '')
@@ -533,7 +546,7 @@ const mentionPopup = (() => {
     pop.dataset.kind = kind;
   }
 
-  function close() { pop.style.display = 'none'; chip = null; pinned = false; }
+  function close() { clearTimeout(hideTimer); clearTimeout(showTimer); pop.style.display = 'none'; chip = null; pinned = false; }
   function hideSoon() { clearTimeout(hideTimer); if (!pinned) hideTimer = setTimeout(close, 220); }
 
   pop.addEventListener('mousedown', (e) => {
@@ -783,7 +796,20 @@ function load(result, { keepSelection } = {}) {
         const chip = event.target.closest('.chip[data-id]');
         if (chip && chip.dataset.id) {
           if (modPressed(event)) openInHeptabase(chip.dataset.id);
-          else mentionPopup.open(chip, true);
+          else if (isMac) mentionPopup.open(chip, true);
+          else {
+            mentionPopup.close();
+            if (chip.dataset.kind === 'card' || chip.dataset.kind === 'date') void openHere({ id: chip.dataset.id, objectType: chip.dataset.kind === 'date' ? 'journal' : undefined });
+            else openInHeptabase(chip.dataset.id);
+          }
+          return true;
+        }
+        const anchor = event.target.closest('a[href]');
+        const linked = !isMac && anchor && linkedCard(anchor.href);
+        if (linked) {
+          mentionPopup.close();
+          if (modPressed(event)) openInHeptabase(linked.id);
+          else void openHere(linked);
           return true;
         }
         const bookmark = event.target.closest('a.bookmark[href]');

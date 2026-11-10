@@ -1,5 +1,17 @@
 # Agent changelog
 
+## 2026-11-10 13:40 — Activated and verified win.8
+
+- Final journal-date-compatible packaged QA passes; six critical archive entries/checksum/path checks and installed/staged/archive ASAR equality pass. User normally quit win.7, installer preserved pre-start state bytes, native registrations and HTTPS default, then win.8 started. Native UI Ctrl+L shows Card link copied through the actual API; clipboard contents were not read back or transmitted.
+- Previous installed win.7 ASAR/ZIP, frozen native host and 1.1.1 bridge ZIP hashes are unchanged. Root CHANGELOG records exact new hashes and rollback. Fork routing is configured for codex/card-link-navigation; Git delivery reports final commit/SHA verification. Generated/private outputs remain ignored. Skill unchanged; final live policy refresh matches the fully read source.
+
+## 2026-11-10 13:28 — Current-card copying and direct card navigation
+
+- New clean task branch codex/card-link-navigation from cd1c03a. win.8 adds Windows Ctrl+L/Copy card link using current kind/id, narrow main-process clipboard IPC and validated HTTPS/native construction. Live CLI properties echoes a journal date, and journal reads return no UUID; journal copy therefore keeps the existing native date link without an extra read. A failing regression caught the earlier UUID assumption before installation; unit and primary-journal input coverage now include this case. No guessed space, arbitrary clipboard text endpoint or direct database access.
+- Normal Windows card chips and supported card URLs use existing same-window navigation/history; Alt+Left/Right returns/advances. Hover dropdown retains only Heptabase; Ctrl+click still overrides externally. macOS keeps its existing UI. External Discord/browser/OS intents still create full new card windows.
+- Copy regressions failed on old code, then all 80 source tests pass. General/development preview and exact packaged preview smoke pass, covering toolbar-focused shortcut, independent windows, copy after A-to-B, native card/HTTPS clicks, Alt history, single-action menu and empty draft guard. Clipboard/external launches use substitutes; all note writes are samples. A stationary pointer can hover a newly rendered link, so the no-popup assertion moves off links before checking delayed UI.
+- User normally quit win.7 for activation. Final versioned ZIP/install/process/Git checks follow in root CHANGELOG; old runtime/artifacts and native/extension remain frozen. Skill unchanged; project-specific copy identity/evidence rules and live Router v0.9.4 provenance are in 04.
+
 ## 2026-11-08 22:31 — Resolve 403 through the owned writable fork
 
 - Live CLI identity is yuku-huang; upstream API permissions show pull=true/push=false. Created its public fork of the existing public upstream, preserved origin, and configured only this task branch to push/track the writable fork. ba027071ee3c4fe8c9efc78729ebb602cbc97d98 was actually pushed and independently read back through Git and the GitHub API.

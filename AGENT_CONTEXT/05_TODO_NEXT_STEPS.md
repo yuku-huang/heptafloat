@@ -1,5 +1,7 @@
 # Next steps
 
+2026-11-10 win.8 is installed/running after the user's normal win.7 Quit, with 80 source tests and exact packaged sample-card QA passing. Real native Ctrl+L also shows successful copy; clipboard contents were not read back. Archive/installed-ASAR/state-preservation hashes/checks are in CHANGELOG. Keep native host 1.0.0 and extension 1.1.1; neither needs a rebuild/reload for this editor update. Ctrl+L uses HTTPS for notes with known space, otherwise a native Heptabase reference (journals retain dates). Prior win.7 remains for controlled rollback; broader device and old acceptance gaps stay distinct.
+
 Current feature is accepted: 1.1.1 closes the original handoff after native acceptance and retains it on failure. The user reloaded and verified Discord opening/closure; native window/tab metadata agrees. Seventy-seven tests pass. Edge's working Google Chrome fallback and primary key are now one receipt-managed installation, with actual lifecycle/legacy/foreign-key checks passing. No further blind reloads, host-discovery probes or browser restarts are needed for this fix. Final archive/Git results are in CHANGELOG.
 
 Delivery complete: the 1.1.1 combined/extension ZIPs passed exact-file/hash verification and the bundled installer passed default-source repeat installation without restarting the app. Existing native/desktop bytes remain frozen. Commit ba02707 is now remotely verified on the owned `yuku-huang/heptafloat` fork. Upstream remains read-only; this task branch tracks/pushes to `fork`, preserving the original `origin`.

@@ -1,12 +1,16 @@
 # HeptaFloat for Windows
 
+win.8 adds **Ctrl+L** (Copy card link) and direct same-window card-link clicks. Alt+Left/Right returns/advances through visited cards; the hover dropdown retains only **Open in Heptabase**, also available through Ctrl+click. This applies inside HeptaFloat; external Discord/browser/OS links still create a new full window.
+
+Known-space note windows copy standard `https://app.heptabase.com/<space>/card/<current-card>` links. Ordinary windows without space context copy `heptabase://card/<current-card>`; no space ID is guessed. Journals keep their native `heptabase://card/YYYY-MM-DD` reference, matching the existing Open in Heptabase action: the live CLI exposes their date rather than a card UUID. Empty unsaved drafts show an explanation; copy failure leaves the card and content intact. The shortcut works with editor/toolbar/palette focus, except during IME composition or modal settings.
+
 Bridge 1.1.1 uses the approved exact-origin native host 1.0.0 and closes its own handoff tab after an accepted request by default; failures preserve the page. Seventy-seven source tests pass. The user reloaded 1.1.1 and verified Discord→Edge→card plus page closure; independent window/tab observations agree. Edge's documented Google Chrome fallback key is now receipt-managed together with its primary key; actual two-key install/migration/upgrade/rollback/uninstall passed in the prior phase. This does not claim Chrome-browser acceptance or a repair of the original external protocol. See [setup/rollback](NATIVE_MESSAGING.md) and [test boundaries](DEEPLINK_TEST_RESULTS.md). win.7, the frozen native binary and prior ZIPs remain unchanged.
 
-Version: `0.9.12-win.7` · Windows 10/11 x64 · based on upstream `f32f34f`.
+Version: `0.9.12-win.8` · Windows 10/11 x64 · based on upstream `f32f34f`.
 
 ## Run the portable app
 
-1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.7-windows-x64.zip` to a permanent folder.
+1. Quit the previous HeptaFloat from its tray menu, then extract `HeptaFloat-0.9.12-win.8-windows-x64.zip` to a permanent folder.
 2. Open `HeptaFloat-win32-x64/HeptaFloat.exe`. Keep the accompanying files beside it.
 3. Keep Heptabase running and enable **Settings → AI Features → CLI**. An active Heptabase subscription is required by its CLI.
 4. Press **Ctrl+Alt+J** to show/hide the floating journal. Closing the window hides it to the system tray; choose **Quit HeptaFloat** in the tray menu to exit.

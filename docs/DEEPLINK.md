@@ -1,5 +1,7 @@
 # Windows 卡片連結預覽與 Discord 橋接
 
+win.8：在 HeptaFloat 內點擊卡片或合法卡片網址，預設直接在同窗跳轉，以 Alt+左／右回到前後卡片；滑鼠提示選單只留「Open in Heptabase」。Ctrl+L 複製目前顯示的卡片連結：一般卡片已知空間時為標準 HTTPS，未知時為 Heptabase 專用 URI；日記沿用現有的日期專用連結，不猜測 UUID。外部 Discord／瀏覽器連結仍維持每次開新完整視窗，橋接 1.1.1／host 1.0.0 沿用；以下原 win.7 驗收紀錄保留為歷史依據。
+
 橋接 1.1.1：已核准的 Native Messaging host 直接啟動既有 win.7，成功接受請求後預設關閉原中繼分頁，失敗時保留重試／網頁版。使用者已重載並從 Discord 實測成功，Agent 亦確認新卡片窗、舊窗保留與無新中繼頁。Edge 安裝同步管理官方 Google Chrome fallback key，兩者共用同一 manifest／origin。原協定與網頁仍是明確備援。見 [本機安裝／回退](NATIVE_MESSAGING.md)、[橋接設定](BROWSER_BRIDGE.md) 及 [實測界線](DEEPLINK_TEST_RESULTS.md)。打包只複製已測 host，不重建 win.7。
 
 此功能沿用 HeptaFloat（Flow HeptaBase）的 Electron host、官方 Heptabase CLI 與卡片 renderer。win.7 依使用者要求，每個連結預設開新的完整卡片窗，包含編輯、自動儲存、搜尋、歷史、語言上色與獨立置頂；這覆寫原附檔的唯讀／單窗重用設計。1.1.1 自動關閉中繼頁亦是使用者對原先不自動關頁的明確修訂。已通過目前 Windows／Edge 的使用者協助驗收，Chrome、其他裝置與外部 Bot 部署仍不能由此推論完成。

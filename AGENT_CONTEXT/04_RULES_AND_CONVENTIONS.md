@@ -1,5 +1,11 @@
 # Rules and conventions
 
+Card-navigation task policy: live `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-10T05:13:19.977619+00:00`. Full Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.4 SHA-256 `fe5aed6e8c238aa44f3a9a351380388a923050a8b39a12eb8f06e55d6f83b0c5`; actual software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 SHA-256 `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`. Both fully read; Skill identity/Registry matched. Router changed since the prior task; software-development remains v0.1.
+
+- Copy links from the currently displayed card, never the initial deep-link card. Use known space context or the existing native URI; do not infer space IDs or read Heptabase databases/cache. The live CLI echoes journal dates rather than exposing UUIDs, so retain native date links instead of fabricating card URLs. Stub system clipboard/external launches in sample QA and distinguish that from a physical clipboard test. Existing app histories, save guards and external-link new-window behavior remain scoped separately. These app-specific rules belong here/tests; no global Skill update is needed.
+
+Install/delivery refreshes: `2026-11-10T05:31:15.483294+00:00` and `2026-11-10T05:41:27.265158+00:00`, live official source, cached=false. Complete Router/Skill text, IDs, versions, hashes and Registry match are unchanged from the fully read 05:13 source above.
+
 Git delivery task policy: live `official_heptabase_desktop_cli`, cached=false, readAt `2026-11-08T14:26:24.201921+00:00`. Full Router `662077f1-6f0a-4d25-95fa-5a3d48f3853d` v0.9.3 and software-development `7004b48d-cb3f-4d09-87f8-663f184c5c8c` v0.1 were read without truncation; identity/registry matched. SHA-256: `7e63e770addd5d5089c0dd2ad8d9a945b9c2cdd7e9ae61cdc4e6ae3bac969efa` / `4eae445e1ce80c610bc5df2151b7c6993e0029f1897d48d360060bd86feb2f02`.
 
 - Diagnose 403 using the actual pushing account and repository permissions before resetting credentials. Connector and local CLI identity are separate. Preserve read-only origin, verify the user's fork owner/parent/push permission, refuse conflicting remotes, scope push routing to the task branch, and read back exact remote SHA after a normal push. Never equate fork delivery with permission to write upstream. These repository workflow rules do not require a global/Heptabase Skill edit.

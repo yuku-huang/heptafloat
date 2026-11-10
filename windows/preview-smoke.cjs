@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { cardIntent, buildFlowHeptaDeepLink } = require('./hepta-links.cjs');
+const { runCardLinkSmoke } = require('./card-link-smoke.cjs');
 
 async function runPreviewSmoke({ win, service, handle, app, openPreview, getPreviews, flushAllWindows, dialog }) {
   const spaceId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -14,6 +15,8 @@ async function runPreviewSmoke({ win, service, handle, app, openPreview, getPrev
       { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: title }] },
       { type: 'paragraph', content: [{ type: 'text', text: '完整卡片視窗：編輯、搜尋與獨立置頂。' }] },
       { type: 'code_block', attrs: { params: 'python', id: 'sample-code' }, content: [{ type: 'text', text: 'def preview(card):\n    return "<script>literal</script>"' }] },
+      { type: 'paragraph', content: [{ type: 'card', attrs: { cardId: intent.cardId === a.cardId ? b.cardId : a.cardId } }] },
+      { type: 'paragraph', content: [{ type: 'text', text: 'HTTPS card link', marks: [{ type: 'link', attrs: { href: intent.cardId === a.cardId ? b.canonicalUrl : a.canonicalUrl } }] }] },
     ] });
     service.cli.cards.set(intent.cardId, { title, content, contentMd5: createHash('md5').update(content).digest('hex') });
   }
@@ -57,6 +60,8 @@ async function runPreviewSmoke({ win, service, handle, app, openPreview, getPrev
     assert.equal(await evaluate(target, '["pin-window","search-cards","recent-cards","new-card","settings-button"].every(id => !!document.getElementById(id))'), true);
   }
   assert.equal(service.cli.writes, 0);
+  const cardLinks = await runCardLinkSmoke({ primary: win, first, second, a, b, wait, key, evaluate, getPreviews });
+  assert.equal(service.cli.writes, 0, 'Copying and navigating sample cards must not write notes.');
   await evaluate(first, 'document.getElementById("pin-window").click()');
   await wait(() => !first.isAlwaysOnTop(), 'independent pin');
   assert.equal(second.isAlwaysOnTop(), true); assert.equal(win.isAlwaysOnTop(), true);
@@ -129,7 +134,7 @@ async function runPreviewSmoke({ win, service, handle, app, openPreview, getPrev
   assert.equal(process.pid, pid); assert.equal(win.isDestroyed(), false);
   await fs.mkdir(path.resolve('build'), { recursive: true });
   await fs.writeFile(path.resolve('build/windows-card-window-new-note.png'), (await first.webContents.capturePage()).toPNG());
-  const report = { mode: 'isolated-mock-card-windows', packaged: app.isPackaged, electron: process.versions.electron,
+  const report = { mode: 'isolated-mock-card-windows', packaged: app.isPackaged, electron: process.versions.electron, ...cardLinks,
     newWindowPerLink: true, repeatedCardNewWindow: true, singleAppProcess: true, fullToolbar: true,
     independentPin: true, pinShortcut: true, scopedSettings: true, sharedPreferences: true,
     targetedAutosave: true, codeLanguageSave: true, ctrlOSearch: true, altHistory: true, newCard: true,

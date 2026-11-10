@@ -1,3 +1,31 @@
+### [2026-11-10 13:40] - Verify and activate the win.8 release
+
+* **修改檔案**：`CHANGELOG.md`, `START_HERE.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/04_RULES_AND_CONVENTIONS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`
+* **變更細節**：
+  * final win.8 packaged preview smoke passes, including primary-journal Ctrl+L after the date compatibility fix. `dist/HeptaFloat-0.9.12-win.8-windows-x64.zip` SHA-256 `5590519c497603b4a6a2c1c602ef7b106f3dfe395a018bf4a399eca8c9d1c995`; checksum sidecar, archive paths and six critical ASAR/installer/guide/manifest entries match their current staged sources
+  * current-user installer successfully installs win.8 after the user's normal win.7 Quit. Tested/staged/archive/installed ASAR SHA-256 is `5898f515cfbb759c85eec042af1304c83d55fb634d4c16600d2f1a4b0cfbac78`. Before startup, user state bytes, both native registrations and HTTPS default are preserved; prior win.7 stays installed
+  * normal win.8 primary starts, native UI confirms its window, and actual Ctrl+L shows Card link copied after the real main-process clipboard write. Clipboard contents were not read back or posted anywhere; sample-card QA retains its explicit clipboard/launch substitutes
+  * frozen win.7 installed ASAR/ZIP, native host binary and 1.1.1 native-bridge ZIP hashes are unchanged. No browser reload, native host update, forced process termination or real-note edits by QA
+  * 05:41 UTC live policy refresh is byte-identical to the fully read current Router/Skill. Task branch fork routing is configured; final local/remote commit verification is reported with the Git delivery. Source/docs are the 26 scoped files; generated/private reports remain ignored
+* **下一步建議 (Next Steps)**：
+  * use the already running win.8. For rollback, Quit normally then use the ownership-checked desktop installer `-Action Rollback`; existing win.7 and user data are retained
+  * Chrome/other devices, clipboard-content readback and a new Discord click trace are distinct optional acceptance work. No global Skill change is required for these project-specific controls
+
+### [2026-11-10 13:28] - Add current-card copying and direct Windows card navigation
+
+* **修改檔案**：`src/editor.js`, `src/card-links.js`, `windows/main.cjs`, `windows/service.cjs`, `windows/card-link-smoke.cjs`, `windows/preview-smoke.cjs`, `test/windows.test.mjs`, `scripts/build-windows.mjs`, `package.json`, `package-lock.json`, README/START_HERE/ARCHITECTURE, Windows/Deep Link guides and `AGENT_CONTEXT/00..08`
+* **變更細節**：
+  * clean preflight at cd1c03a, new codex/card-link-navigation branch; original origin stays read-only, owned fork is the delivery target. All 26 source/test/docs entries are this task, with no ambiguous existing work. Build/dist/runtime/private diagnostics remain ignored and prior native/desktop/extension artifacts are preserved
+  * desktop win.8 adds Ctrl+L and Copy card link for the currently displayed card, including toolbar/palette focus and after same-window navigation. Narrow registered-renderer IPC constructs a validated standard HTTPS note link from known space context, otherwise the existing native Heptabase URI; no arbitrary clipboard payload or guessed space
+  * native Windows chips and supported card HTTPS/custom links now navigate in the same window using existing history/save guards; Alt+Left/Right returns/advances. Hover dropdown retains only Open in Heptabase; Ctrl+click overrides. macOS behavior and external Discord/OS new-window behavior remain scoped separately
+  * 80/80 source tests pass, including red-to-green copy and journal-date regressions. Development general/preview and packaged preview QA use real Electron mouse/key/IPC with sample cards, substitute clipboard/external launches, and cover current-card identity, primary journal, independent windows, direct chip/HTTPS navigation, Alt history, sole dropdown action, modified-click and draft guard. Existing autosave/conflict/close/quit checks remain covered
+  * live official CLI properties echoes the journal date and journal read exposes no UUID. This disproved the first journal UUID assumption before installation; final copying retains native date links without another CLI call. These read-only shape checks and sample QA do not claim real-note edits, physical clipboard readback or a new Discord acceptance run
+  * user normally quit the old tray app for activation; exact final archive/install/process/Git results follow in the delivery verification entry. No native host rebuild or browser-extension update is required
+  * live Router v0.9.4 and software-development v0.1 fully loaded; source/hash/identity are recorded in conventions. Skill update unnecessary: current-card identity, date compatibility and scoped test evidence belong in this project's rules/tests
+* **下一步建議 (Next Steps)**：
+  * use Ctrl+L, ordinary card-link clicks and Alt+Left/Right in win.8. Versioned win.7 remains available for rollback; use the existing ownership-checked installer Rollback after a normal Quit
+  * preserve distinct browser/clipboard/device evidence boundaries and keep private data out of Git. Push this task branch to the configured owned fork
+
 ### [2026-11-08 22:31] - Resolve GitHub 403 and push the accepted bridge commit
 
 * **修改檔案**：`scripts/push-fork.ps1`, `README.md`, `START_HERE.md`, `ARCHITECTURE.md`, `AGENT_CONTEXT/01_CURRENT_STATUS.md`, `AGENT_CONTEXT/03_FILE_MAP.md`, `AGENT_CONTEXT/04_RULES_AND_CONVENTIONS.md`, `AGENT_CONTEXT/05_TODO_NEXT_STEPS.md`, `AGENT_CONTEXT/06_CHANGELOG.md`, `CHANGELOG.md`

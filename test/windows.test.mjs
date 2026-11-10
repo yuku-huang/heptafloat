@@ -8,12 +8,33 @@ import { Node } from 'prosemirror-model';
 import { schemaFor, serialize } from '../src/schema.js';
 import { shortcutName, shortcutGlyphs } from '../src/platform.js';
 import { CardHistory } from '../src/navigation.js';
+import { linkedCard } from '../src/card-links.js';
 const require = createRequire(import.meta.url);
 const { OfficialCli, parseShim, parseOutput, discoverCli, discoverApp } = require('../windows/cli.cjs');
 const { HeptabaseService } = require('../windows/service.cjs');
 const { MockCli } = require('../windows/smoke.cjs');
 const { CardSearch } = require('../windows/search.cjs');
 const day = '2026-10-23';
+test('internal card navigation recognizes supported links and leaves other destinations alone', () => {
+  const id = '11111111-1111-4111-8111-111111111111', space = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  for (const url of [`heptabase://card/${id}`, `https://app.heptabase.com/${space}/card/${id}?flowhepta=1`, `flowhepta://card/${id}?space=${space}`]) assert.deepEqual(linkedCard(url), { id });
+  assert.deepEqual(linkedCard(`heptabase://card/${day}`), { id: day, objectType: 'journal' });
+  for (const url of [null, id, 'https://example.com/', `https://app.heptabase.com.evil.test/${space}/card/${id}`, `heptabase://card/${id}?command=bad`, `heptabase://whiteboard/${id}`, `https://app.heptabase.com/${space}/../${space}/card/${id}`, `flowhepta://card/${id}?space=invalid`]) assert.equal(linkedCard(url), null);
+});
+test('card link copying uses the current card and known space, with a native-link fallback', async () => {
+  const id = '11111111-1111-4111-8111-111111111111', space = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const service = new HeptabaseService({ run() { throw new Error('Notes need no extra CLI read.'); } }, 'unused');
+  assert.equal(await service.cardLink('note', id, space), `https://app.heptabase.com/${space}/card/${id}`);
+  assert.equal(await service.cardLink('note', id), `heptabase://card/${id}`);
+  await assert.rejects(service.cardLink('draft', id));
+  await assert.rejects(service.cardLink('note', '../bad'));
+  await assert.rejects(service.cardLink('note', id, 'invalid-space'));
+});
+test('journal copying preserves the date reference without guessing a card UUID or space URL', async () => {
+  const service = new HeptabaseService({ run() { throw new Error('No extra CLI read is needed.'); } }, 'unused');
+  assert.equal(await service.cardLink('journal', day), `heptabase://card/${day}`);
+  assert.equal(await service.cardLink('journal', day, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), `heptabase://card/${day}`);
+});
 const content = JSON.stringify({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '中文 & "quotes" %PATH% $(command)' }] }] });
 
 test('title search finds Chinese punctuation beyond page one and merges native content matches', async () => {

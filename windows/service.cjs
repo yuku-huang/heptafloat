@@ -110,6 +110,14 @@ class HeptabaseService {
     });
   }
   search(query = '', retry = false) { return this.cardSearch.search(query, retry); }
+  async cardLink(kind, id, spaceId) {
+    checkId(kind, id);
+    if (spaceId != null && !UUID.test(spaceId)) throw new Error('Invalid space identifier.');
+    // The official CLI identifies journals by date, as does our existing Open in Heptabase action.
+    // Never fabricate a UUID/HTTPS URL for that date or read private database/cache files.
+    return kind === 'note' && spaceId ? `https://app.heptabase.com/${spaceId.toLowerCase()}/card/${id.toLowerCase()}`
+      : `heptabase://card/${id.toLowerCase()}`;
+  }
   cardType(id) {
     if (!UUID.test(id)) throw new Error('Invalid card identifier.');
     return this.cli.run(['card', 'properties', id]);

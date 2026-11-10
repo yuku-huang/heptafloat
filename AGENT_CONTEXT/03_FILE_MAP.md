@@ -1,5 +1,8 @@
 # File map
 
+- `src/card-links.js`, `src/editor.js`: validated internal URL recognition, Windows direct clicks, current-card copy command/shortcut and Heptabase-only hover menu. `windows/service.cjs`, `windows/main.cjs`: validated note/journal link construction and narrow clipboard IPC.
+- `windows/card-link-smoke.cjs`, `windows/preview-smoke.cjs`: real Electron mouse/key/IPC with sample cards; clipboard/external launch substitutes, A/B history, copy destination and draft guard. Build copies the helper into versioned QA packages.
+
 - `scripts/push-fork.ps1`, `START_HERE.md#push-windows-work`: repeatable account/fork/remote-guarded task-branch configuration and normal push with exact Git/API SHA readback; original origin remains upstream. Local routing rollback is documented.
 
 - `browser-extension/bridge.js`, `handoff.js`, `options.js/html`: 1.1.1 accepted-request auto-close preference and strict same-handoff sender/tab removal. Bridge/launcher tests cover native failure retention, stale cancellation, setting persistence and arbitrary-tab refusal.
